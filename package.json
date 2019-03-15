@@ -1,0 +1,25 @@
+{
+  "name": "papyrus",
+  "version": "0.1.0",
+  "version_devstate": "alpha",
+  "description": "A tool to render Minecraft: Bedrock Edition worlds.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/clarkx86/papyrus.git"
+  },
+  "author": "clarkx86",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/clarkx86/papyrus/issues"
+  },
+  "homepage": "https://github.com/clarkx86/papyrus#readme",
+  "dependencies": {
+    "nbt": "^0.8.1",
+    "pureimage": "^0.1.6",
+    "yargs": "^13.2.2"
+  }
+}
