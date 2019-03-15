@@ -9,7 +9,7 @@ Since MCBE worlds don't use the Anvil format like in the Java Edition, but rathe
 ### Planned
 - Isometric renders
 - Auto-Updating renders
-- Live-View of online players on map (and their respective statistics)
+- Live-View of currently online players on map (and their respective statistics)
 
 ## Usage
 ```papyrus --path "My World" --output "C:\papyrus" --mode papyrus```
