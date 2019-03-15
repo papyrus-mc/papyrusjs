@@ -1,4 +1,4 @@
 .vscode/
-.bin/
-.node_modules/
+.bin/*
+.node_modules/*
 .src/build.bat
