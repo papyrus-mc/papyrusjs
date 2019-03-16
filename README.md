@@ -16,7 +16,7 @@ Since MCBE worlds don't use the Anvil format like in the Java Edition, but rathe
 
 ## Dependencies
 - [PureImage](https://www.npmjs.com/package/pureimage)
-- [NBT.js](https://www.npmjs.com/package/nbt)
+- [Prismarine-NBT](https://www.npmjs.com/package/prismarine-nbt)
 - [level](https://www.npmjs.com/package/level)
 - [zlib](https://www.npmjs.com/package/zlib)
 - [Yargs](https://www.npmjs.com/package/yargs)
