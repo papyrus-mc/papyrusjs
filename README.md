@@ -30,7 +30,7 @@ If you have node.js installed, you can just simply run
 ```node app.js```
 to execute Papyrus. Would you want to build a standalone binary however, you can use solutions like [Pkg](https://github.com/zeit/pkg). A build script for building with Pkg is provided alongside the main application. You can build Papyrus by executing ```node build.js```, assuming all of the dependencies that are mentioned above are installed.
 
-You can find pre-built binaries from [here](http://papyrus.clarkx86.com/download) or [here](https://github.com/clarkx86/papyrus/releases).
+You can find pre-built binaries (containing all dependencies for your platform) from [here](http://papyrus.clarkx86.com/download) or [here](https://github.com/clarkx86/papyrus/releases).
 
 ## Disclaimer
 Papyrus is in no way affiliated with Mojang or Minecraft.
