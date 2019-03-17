@@ -18,8 +18,10 @@ Since MCBE worlds don't use the Anvil format like in the Java Edition, but rathe
 - [cli-spinner](https://www.npmjs.com/package/cli-spinner)
 - [Colors](https://www.npmjs.com/package/colors)
 - [node-leveldb-mcpe](https://github.com/mhsjlw/node-leveldb-mcpe)
+- [prismarine-chunk](https://www.npmjs.com/package/prismarine-chunk)
 - [Prismarine-NBT](https://www.npmjs.com/package/prismarine-nbt)
 - [PureImage](https://www.npmjs.com/package/pureimage)
+- [vec3](https://www.npmjs.com/package/vec3)
 - [Yargs](https://www.npmjs.com/package/yargs)
 - [zlib](https://www.npmjs.com/package/zlib)
 
