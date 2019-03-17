@@ -17,7 +17,7 @@ Since MCBE worlds don't use the Anvil format like in the Java Edition, but rathe
 ## Dependencies
 - [cli-spinner](https://www.npmjs.com/package/cli-spinner)
 - [Colors](https://www.npmjs.com/package/colors)
-- [level](https://www.npmjs.com/package/level)
+- [node-leveldb-mcpe](https://github.com/mhsjlw/node-leveldb-mcpe)
 - [Prismarine-NBT](https://www.npmjs.com/package/prismarine-nbt)
 - [PureImage](https://www.npmjs.com/package/pureimage)
 - [Yargs](https://www.npmjs.com/package/yargs)
