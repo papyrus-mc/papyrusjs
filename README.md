@@ -15,6 +15,8 @@ Since MCBE worlds don't use the Anvil format like in the Java Edition, but rathe
 ```papyrus --path "My World" --textures "Vanilla_Resource_Pack.zip" --output "C:\papyrus" --mode papyrus```
 You'll have to define a path to the texture pack you want to use for the final render. The vanilla resource pack with the default textures can be downloaded from [here](https://aka.ms/resourcepacktemplate).
 
+(Read the full documentation.)[https://github.com/clarkx86/papyrus/blob/master/docs/documentation.md]
+
 ## Dependencies
 - [cli-spinner](https://www.npmjs.com/package/cli-spinner)
 - [Colors](https://www.npmjs.com/package/colors)
