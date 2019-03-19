@@ -36,6 +36,10 @@ to execute Papyrus. Would you want to build a standalone binary however, you can
 
 You can find pre-built binaries (containing all dependencies for your platform) [here](http://papyrus.clarkx86.com/download) or [here](https://github.com/clarkx86/papyrus/releases).
 
+## Contribute xor support
+If you want to help improving Papyrus please consider contributing.
+Want to buy me a coffee (I love coffee)? [Donate via PayPal ♥](https://paypal.me/clarkstuehmer)
+
 ## Disclaimer
 Papyrus is in no way affiliated with Mojang or Minecraft.
 
