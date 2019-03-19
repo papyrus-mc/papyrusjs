@@ -9,8 +9,9 @@ console.log( 'Building ' + json_package.name.charAt( 0 ).toUpperCase() + json_pa
 var build = exec( 'pkg ' + json_package.main + ' --targets ' + targets + /*' --version ' + json_package.version + */ ' --output "' + path.normalize( path.join( __dirname, '../bin/' + json_package.name + '_' + json_package.version_devstate + json_package.version ) ) + '"', function( err, stdout, stderr ) {
     if ( err )
     {
-        console.error( err );
+        console.error( 'Build failed. Error:\n' + err );
         return;
     };
+
     console.log( stdout );
 } );

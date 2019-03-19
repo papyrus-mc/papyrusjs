@@ -1,4 +1,5 @@
 /.vscode/
+/_backups/
 /bin/
 /node_modules/
 /src/build.bat
