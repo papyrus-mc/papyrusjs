@@ -11,6 +11,13 @@ Since MCBE worlds don't use the Anvil format like in the Java Edition, but rathe
 - Auto-Updating renders
 - Live-View of currently online players on map (and their respective statistics)
 
+## Installation
+Assuming you have node.js installed, simply clone this repo and run the following command in your favourite terminal emulator:
+
+```npm install```
+
+Otherwise, just grab one of the [pre-built binaries](https://github.com/clarkx86/papyrus#building-a-standalone).
+
 ## Usage
 ```papyrus --path "My World" --textures "Vanilla_Resource_Pack.zip" --output "C:\papyrus" --mode papyrus```
 
