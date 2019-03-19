@@ -1,6 +1,8 @@
 # Papyrus
 Papyrus is a tool to render Minecraft: Bedrock Edition (from now on referenced as "MCBE") worlds using Leaflet. It is written in JavaScript and powered by node.js.
 
+You can view an example [here](http://bedrock.clarkx86.com/map).
+
 ## Introduction
 Since MCBE worlds don't use the Anvil format like in the Java Edition, but rather a by Mojang [modified version](https://github.com/Mojang/leveldb-mcpe) of Google's [LevelDB](http://leveldb.org/) to save, the goal of Papyrus is to read these worlds and assemble a render of every pre-generated chunk.
 
@@ -12,7 +14,7 @@ Since MCBE worlds don't use the Anvil format like in the Java Edition, but rathe
 - Live-View of currently online players on map (and their respective statistics)
 
 ## Installation
-Assuming you have node.js installed, simply clone this repo and run the following command in your favourite terminal emulator:
+Assuming you have node.js installed, simply clone this repo and run the following command in your favourite terminal:
 
 ```npm install```
 
