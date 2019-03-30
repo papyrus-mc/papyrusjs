@@ -27,16 +27,9 @@ You'll have to define a path to the texture pack you want to use for the final r
 
 [Read the full documentation.](https://github.com/clarkx86/papyrus/blob/master/docs/documentation.md)
 
-## Dependencies
-- [cli-spinner](https://www.npmjs.com/package/cli-spinner)
-- [Colors](https://www.npmjs.com/package/colors)
+## Additional dependencies
 - [node-leveldb-mcpe](https://github.com/mhsjlw/node-leveldb-mcpe)
-- [prismarine-chunk](https://www.npmjs.com/package/prismarine-chunk)
-- [Prismarine-NBT](https://www.npmjs.com/package/prismarine-nbt)
-- [PureImage](https://www.npmjs.com/package/pureimage)
-- [vec3](https://www.npmjs.com/package/vec3)
-- [Yargs](https://www.npmjs.com/package/yargs)
-- [zlib](https://www.npmjs.com/package/zlib)
+All other dependencies can be acquired by [installing](https://github.com/clarkx86/papyrus#installation).
 
 ## Building a standalone
 If you have node.js installed, you can just simply run
