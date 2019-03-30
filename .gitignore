@@ -1,7 +1,9 @@
 /.vscode/
 /_backups/
 /bin/
+/build/
 /node_modules/
 /src/build.bat
 /src/TestWorld/
 /src/buffer.txt
+./index.js
