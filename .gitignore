@@ -3,3 +3,5 @@
 /bin/
 /node_modules/
 /src/build.bat
+/src/TestWorld/
+/src/buffer.txt
