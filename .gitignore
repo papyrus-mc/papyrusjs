@@ -4,6 +4,7 @@
 /build/
 /node_modules/
 /src/build.bat
-/src/TestWorld/
+/src/tw/
+/src/dev/
 /src/buffer.txt
 index.js

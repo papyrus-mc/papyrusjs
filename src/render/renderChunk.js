@@ -1,4 +1,4 @@
-exports.renderChunk = function( size_texture, size_chunk, chunk_x, chunk_y, render_current, render_total ) {
+var renderChunk = function( size_texture, size_chunk, chunk_x, chunk_y, render_current, render_total ) {
     // let chunk_render = new Jimp( size_texture*size_chunk, size_texture*size_chunk );
 
     console.log( 'Rendering chunk: ' + render_current + '/' + render_total /* + ' (Available memory: ' + ')' */ );
@@ -19,3 +19,5 @@ exports.renderChunk = function( size_texture, size_chunk, chunk_x, chunk_y, rend
         };
     };
 };
+
+module.exports = renderChunk;
