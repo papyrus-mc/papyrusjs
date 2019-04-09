@@ -1,4 +1,4 @@
-# Papyrus
+# Papyrus.JS
 Papyrus is a tool to render Minecraft: Bedrock Edition (from now on referenced as "MCBE") worlds using Leaflet. It is written in JavaScript and powered by node.js.
 
 You can view an example [here](http://papyrus.clarkx86.com/map).
@@ -40,7 +40,7 @@ to execute Papyrus. Would you want to build a standalone binary however, you can
 You can find pre-built binaries (containing all dependencies for your platform) [here](http://papyrus.clarkx86.com/download) or [here](https://github.com/clarkx86/papyrus/releases).
 
 ## Contribute xor support
-If you want to help improving Papyrus please consider contributing.
+If you want to help improving Papyrus please consider forking the repository.
 
 Want to buy me a coffee (I love coffee)? [Donate via PayPal ♥](https://paypal.me/clarkstuehmer)
 
