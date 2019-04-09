@@ -6,6 +6,7 @@ const readline     = require( 'readline' );
 const colors       = require( 'colors' );
 const Spinner      = require( 'cli-spinner' ).Spinner;
 const marky        = require( 'marky' );
+const SmartBuffer  = require( 'smart-buffer' ).SmartBuffer;
 
 yargs.parse();
 
@@ -24,10 +25,10 @@ spinner.start();
 var libraries_loaded = 0;
 let string_libraries;
 
-const { Database }      = require( 'bindings' )( 'node_leveldb_mcpe_native.node' );
 const levelup           = require( 'levelup' );                      libraries_loaded++;
 const Jimp              = require( 'jimp' );                         libraries_loaded++;
 const Chunk             = require( 'prismarine-chunk' )( 'pe_1.0' ); libraries_loaded++;
+const nbt               = require( 'prismarine-nbt' );               libraries_loaded++;
 const Vec3              = require( 'vec3' );                         libraries_loaded++;
 
 if ( libraries_loaded == 1 )
@@ -71,33 +72,103 @@ async function renderStart( path_world ) {
         app_error( 'Invalid path. No "level.dat" found.' );
     } else {
 
-        const db = levelup( new ( require( '../' ) )( path.normalize( path_world + '/db/' ) ) );
+        const db = levelup( new ( require( './leveldb-mcpe_ZlibRaw.js' ) )( path.normalize( path_world + '/db/' ) ) );
 
         console.log( 'Reading database. This can take a couple of seconds up to a couple of minutes.' );
 
-        var db_keys = [];
+        var db_keys        = [],
+            db_keys_chunks = [],
+            chunkX_max     = [],
+            chunkZ_max     = [],
+            SAFE_MAX       = 65535;
 
-        db.createKeyStream()
+        chunkX_max[ 0 ] = 0;
+        chunkX_max[ 1 ] = 0;
+        chunkZ_max[ 0 ] = 0;
+        chunkZ_max[ 1 ] = 0;
+
+        await db.createKeyStream()
             .on( 'data' , function( data ) {
 
                 db_keys.push( data );
-                // console.log( db_keys.length + '\r' );
+
+                // VALIDATE HERE
+                // db_keys_chunks.push( data );
+
+                var key = SmartBuffer.fromBuffer( data );
+
+                var key_chunkX = key.readInt32LE(),
+                    key_chunkZ = key.readInt32LE();
+
+                if        ( key_chunkX < chunkX_max[ 0 ] )
+                {
+                    chunkX_max[ 0 ] = key_chunkX;
+                } else if ( key_chunkX > chunkX_max[ 1 ] && !( key_chunkX > SAFE_MAX ) )
+                {
+                    chunkX_max[ 1 ] = key_chunkX;
+                };
+
+                if        ( key_chunkZ < chunkZ_max[ 0 ] )
+                {
+                    chunkZ_max[ 0 ] = key_chunkZ;
+                } else if ( key_chunkZ > chunkZ_max[ 1 ] && !( key_chunkZ > SAFE_MAX ) )
+                {
+                    chunkZ_max[ 1 ] = key_chunkZ;
+                };
+
+                // console.log( 'Key:\t' + db_keys.length + '\tBuffer:\t' + key.toString( 'hex' ) + '\tChunk X:\t' + key_chunkX.toString() + '\tChunk Z:\t' + key_chunkZ.toString() );
 
             } ).on ( 'end', function() {
 
                 console.log( 'Found ' + db_keys.length + ' keys.' );
 
-                module.exports = { db, Chunk };
+                module.exports = { db, Chunk, SmartBuffer, nbt };
 
                 const readChunk = require( './db_read/readChunk.js' );
        
-                for ( i = 0; i < 10 /*db_keys.length */; i++ ) {
-                    readChunk( db_keys[ i ] );
+                var SubChunk = null;
+
+                /*
+                for ( i = 0; i < 10 /* db_keys.length */ /* ; i++ ) {
+
+                    SubChunk = readChunk( db_keys[ i ] );
+
+                    if ( SubChunk )
+                    {
+                        
+                    };
                 };
 
-               // readChunk( db_keys[ 1234 ] );
+                */
+
+               console.log( 'Furthest X (negative):\t' + chunkX_max[ 0 ].toString() + '\t Furthest Z (negative):\t' + chunkZ_max[ 0 ].toString() + '\nFurthest X (positive):\t' + chunkX_max[ 1 ].toString() + '\t Furthest Z (positive):\t' + chunkZ_max[ 1 ].toString() );
+
+               var key_request = SmartBuffer.fromSize( 10 )
+
+               for( ix = chunkX_max[ 0 ]; ix < chunkX_max[ 1 ]; ix ++ )
+               {
+                    for( iz = chunkZ_max[ 0 ]; iz < chunkZ_max[ 1 ]; iz++ )
+                    {
+                        for( i = 0; i < 16; i++ )
+                        {
+                            key_request._writeOffset = 0;
+                            key_request.writeInt32LE( ix );
+                            key_request.writeInt32LE( iz );
+                            key_request.writeInt8( 47 );
+                            key_request.writeInt8( i );
+
+                            // console.log( key_request._buff );
+
+                            SubChunk = readChunk( Buffer.from( key_request._buff ) );
+                        };
+                    };
+               };
+               
+               readChunk( db_keys[ 1234 ] );
 
             } );
+
+        db.close();
 
         console.log( 'Done.' );
 
@@ -118,10 +189,10 @@ async function renderStart( path_world ) {
         console.log( 'Initializing render process...' );
 
         module.exports  = { Jimp, path };
-        var renderInit  = require( './render/renderInit'  ).renderInit;
+        var renderInit  = require( './render/renderInit'  );
         var renderChunk = require( './render/renderChunk' );
         
-        renderInit( path.normalize( debug_path_rp + path_textures ), ext_textures );
+        await renderInit( path.normalize( debug_path_rp + path_textures ), ext_textures );
 
         // renderChunk( render_texture_width, render_texture_height, 0, 0, render_current, render_total );
 

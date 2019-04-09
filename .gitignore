@@ -5,6 +5,7 @@
 /node_modules/
 /src/build.bat
 /src/tw/
+/src/tw2/
 /src/dev/
 /src/buffer.txt
 index.js
