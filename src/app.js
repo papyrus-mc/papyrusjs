@@ -61,11 +61,11 @@ rl.on( 'line', function( str_in ) {
     } else
     // COMMAND: everything else
     {
-        renderStart( str_in );
+        init( str_in );
     };
 } );
 
-async function renderStart( path_world ) {
+async function init( path_world ) {
     var path_leveldat = path.normalize( path_world + '/level.dat' );
     if ( fs.existsSync( path_leveldat ) != 1 )
     {
@@ -76,11 +76,11 @@ async function renderStart( path_world ) {
 
         console.log( 'Reading database. This can take a couple of seconds up to a couple of minutes.' );
 
-        var db_keys        = [],
-            db_keys_chunks = [],
-            chunkX_max     = [],
-            chunkZ_max     = [],
-            SAFE_MAX       = 65535;
+        var db_keys           = [],
+            db_keys_subchunks = [],
+            chunkX_max        = [],
+            chunkZ_max        = [],
+            SAFE_MAX          = 65535;
 
         chunkX_max[ 0 ] = 0;
         chunkX_max[ 1 ] = 0;
@@ -91,9 +91,6 @@ async function renderStart( path_world ) {
             .on( 'data' , function( data ) {
 
                 db_keys.push( data );
-
-                // VALIDATE HERE
-                // db_keys_chunks.push( data );
 
                 var key = SmartBuffer.fromBuffer( data );
 
@@ -118,53 +115,45 @@ async function renderStart( path_world ) {
 
                 // console.log( 'Key:\t' + db_keys.length + '\tBuffer:\t' + key.toString( 'hex' ) + '\tChunk X:\t' + key_chunkX.toString() + '\tChunk Z:\t' + key_chunkZ.toString() );
 
+                // console.log( data );
+
             } ).on ( 'end', function() {
 
-                console.log( 'Found ' + db_keys.length + ' keys.' );
+                // Validate SubChunk-Keys
+                console.log( 'Validating...' );
+                for( i = 0; i < db_keys.length; i++ )
+                {
+                    // console.log( db_keys[ i ].length );
 
-                module.exports = { db, Chunk, SmartBuffer, nbt };
-
-                const readChunk = require( './db_read/readChunk.js' );
-       
-                var SubChunk = null;
-
-                /*
-                for ( i = 0; i < 10 /* db_keys.length */ /* ; i++ ) {
-
-                    SubChunk = readChunk( db_keys[ i ] );
-
-                    if ( SubChunk )
+                    if ( db_keys[ i ].readInt8( 8 ) == 47 )
                     {
-                        
+                        db_keys_subchunks.push( db_keys[ i ] );
                     };
                 };
 
+                /*
+                for ( i = 0; i < db_keys_subchunks.length; i++ )
+                {
+                    console.log( db_keys_subchunks[ i ] );
+                };
                 */
 
-               console.log( 'Furthest X (negative):\t' + chunkX_max[ 0 ].toString() + '\t Furthest Z (negative):\t' + chunkZ_max[ 0 ].toString() + '\nFurthest X (positive):\t' + chunkX_max[ 1 ].toString() + '\t Furthest Z (positive):\t' + chunkZ_max[ 1 ].toString() );
+                console.log( 'Found ' + colors.bold( db_keys.length ) + ' keys, which ' + colors.bold( db_keys_subchunks.length ) + ' of them are valid SubChunks.' );
 
-               var key_request = SmartBuffer.fromSize( 10 )
+                module.exports = { Chunk, colors, db, SmartBuffer, nbt };
 
-               for( ix = chunkX_max[ 0 ]; ix < chunkX_max[ 1 ]; ix ++ )
-               {
-                    for( iz = chunkZ_max[ 0 ]; iz < chunkZ_max[ 1 ]; iz++ )
-                    {
-                        for( i = 0; i < 16; i++ )
-                        {
-                            key_request._writeOffset = 0;
-                            key_request.writeInt32LE( ix );
-                            key_request.writeInt32LE( iz );
-                            key_request.writeInt8( 47 );
-                            key_request.writeInt8( i );
+                const readChunk = require( './db_read/readChunk.js' );
 
-                            // console.log( key_request._buff );
+                    db_keys  = null;
+                var SubChunk = null;
 
-                            SubChunk = readChunk( Buffer.from( key_request._buff ) );
-                        };
-                    };
-               };
-               
-               readChunk( db_keys[ 1234 ] );
+                console.log( 'Furthest X (negative):\t' + chunkX_max[ 0 ].toString() + '\t Furthest Z (negative):\t' + chunkZ_max[ 0 ].toString() + '\nFurthest X (positive):\t' + chunkX_max[ 1 ].toString() + '\t Furthest Z (positive):\t' + chunkZ_max[ 1 ].toString() );
+
+                for( i = 0; i < db_keys_subchunks.length; i++ )
+                {
+                    // console.log( 'Entry ' + i );
+                    SubChunk = readChunk( Buffer.from( db_keys_subchunks[ i ] ) );
+                };
 
             } );
 
@@ -192,7 +181,7 @@ async function renderStart( path_world ) {
         var renderInit  = require( './render/renderInit'  );
         var renderChunk = require( './render/renderChunk' );
         
-        await renderInit( path.normalize( debug_path_rp + path_textures ), ext_textures );
+        renderInit( path.normalize( debug_path_rp + path_textures ), ext_textures );
 
         // renderChunk( render_texture_width, render_texture_height, 0, 0, render_current, render_total );
 

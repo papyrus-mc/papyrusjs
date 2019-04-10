@@ -19,6 +19,7 @@
   "homepage": "https://github.com/clarkx86/papyrus#readme",
   "dependencies": {
     "abstract-leveldown": "^3.0.0",
+    "binary-nbt": "^0.4.3",
     "bindings": "^1.5.0",
     "cli-spinner": "^0.2.10",
     "jimp": "^0.6.0",
@@ -32,5 +33,8 @@
     "smart-buffer": "^4.0.2",
     "vec3": "^0.1.3",
     "yargs": "^13.2.2"
+  },
+  "pkg": {
+    "assets": "./src/bindings/*"
   }
 }
