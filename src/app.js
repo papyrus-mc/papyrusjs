@@ -124,7 +124,6 @@ async function init( path_world ) {
                 for( i = 0; i < db_keys.length; i++ )
                 {
                     // console.log( db_keys[ i ].length );
-
                     if ( db_keys[ i ].readInt8( 8 ) == 47 )
                     {
                         db_keys_subchunks.push( db_keys[ i ] );
