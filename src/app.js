@@ -12,7 +12,7 @@ yargs.parse();
 
 var rl = readline.createInterface( process.stdin, process.stdout );
 
-console.log( colors.bold( json_package.name.charAt( 0 ).toUpperCase() + json_package.name.slice( 1 ) + ' v' + json_package.version + json_package.version_devstate.charAt( 0 ) ) + colors.reset( ' by ' ) + json_package.author );
+console.log( colors.bold( json_package.name.charAt( 0 ).toUpperCase() + json_package.name.slice( 1, json_package.name.length - 2 ) + '.' + json_package.name.slice( json_package.name.length - 2 ).toUpperCase() + ' v' + json_package.version + json_package.version_devstate.charAt( 0 ) ) + colors.reset( ' by ' ) + json_package.author );
 yargs.version( json_package.version + json_package.version_devstate.charAt( 0 ) );
 
 // Require more libraries
