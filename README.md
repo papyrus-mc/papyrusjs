@@ -30,6 +30,8 @@ You'll have to define a path to the texture pack you want to use for the final r
 ## Additional dependencies
 - [node-leveldb-mcpe](https://github.com/mhsjlw/node-leveldb-mcpe)
 
+Requires additional [configuring](https://github.com/clarkx86/papyrus/blob/master/docs/documentation.md#Dependency Configuration).
+
 All other dependencies can be acquired by [installing](https://github.com/clarkx86/papyrus#installation).
 
 ## Building a standalone
