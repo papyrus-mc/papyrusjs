@@ -19,7 +19,6 @@
   "homepage": "https://github.com/clarkx86/papyrus#readme",
   "dependencies": {
     "abstract-leveldown": "^3.0.0",
-    "binary-nbt": "^0.4.3",
     "bindings": "^1.5.0",
     "cli-spinner": "^0.2.10",
     "jimp": "^0.6.0",

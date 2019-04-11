@@ -139,7 +139,7 @@ async function init( path_world ) {
 
                 console.log( 'Found ' + colors.bold( db_keys.length ) + ' keys, which ' + colors.bold( db_keys_subchunks.length ) + ' of them are valid SubChunks.' );
 
-                module.exports = { Chunk, colors, db, SmartBuffer, nbt };
+                module.exports = { Chunk, colors, db, SmartBuffer, nbt, Vec3 };
 
                 const readChunk = require( './db_read/readChunk.js' );
 
@@ -148,15 +148,49 @@ async function init( path_world ) {
 
                 console.log( 'Furthest X (negative):\t' + chunkX_max[ 0 ].toString() + '\t Furthest Z (negative):\t' + chunkZ_max[ 0 ].toString() + '\nFurthest X (positive):\t' + chunkX_max[ 1 ].toString() + '\t Furthest Z (positive):\t' + chunkZ_max[ 1 ].toString() );
 
-                for( i = 0; i < db_keys_subchunks.length; i++ )
-                {
-                    // console.log( 'Entry ' + i );
-                    SubChunk = readChunk( Buffer.from( db_keys_subchunks[ i ] ) );
-                };
 
+                console.log( 'Constructing Chunks...' );
+                marky.mark( 'task_construct' );
+
+                constructChunks();
+
+                function constructChunks()
+                {
+                    const ChunkIndex = require( './palettes/chunkIndex.js' );
+
+                    chunkIndex = new ChunkIndex();
+
+                    var chunkArray = [ ];
+                    var chunk = new Chunk();
+
+                    for( i = 0; i < db_keys_subchunks.length; i++ )
+                    {
+                        var x = db_keys_subchunks[ i ].readInt32LE( 0 ),
+                            z = db_keys_subchunks[ i ].readInt32LE( 4 );
+
+                        /*
+                        if ( chunkArray[ x, z ] === undefined )
+                        {
+                            console.log( 'Chunk array for\tX:\t' + x + '\tZ:\t' + z + '\tdoes not exist.' );
+                            // var chunk = new Chunk();
+                            chunkArray[ x, z ] = null;
+                        }
+                        // console.log( 'Entry ' + i );
+                        */
+
+                        // chunkIndex.put( db_keys_subchunks[ i ].readInt32LE( 8 ), chunk );
+                        readChunk( Buffer.from( db_keys_subchunks[ i ] ), chunk );
+                    };
+
+                    // console.log( chunk );
+                };
             } );
 
         db.close();
+        
+        var time_entry = marky.stop( 'task_construct' );
+        console.log( 'Constructed ' + /*chunkArray.length + */ ' Chunks in ' + Math.floor( time_entry.duration * 0.001 ) + ' seconds.' );
+
 
         console.log( 'Done.' );
 
@@ -180,17 +214,18 @@ async function init( path_world ) {
         var renderInit  = require( './render/renderInit'  );
         var renderChunk = require( './render/renderChunk' );
         
-        renderInit( path.normalize( debug_path_rp + path_textures ), ext_textures );
+        await renderInit( path.normalize( debug_path_rp + path_textures ), ext_textures, function( err ) {
 
-        // renderChunk( render_texture_width, render_texture_height, 0, 0, render_current, render_total );
+        } );
 
         var time_entry = marky.stop( 'task_render' );
+        
         console.log( colors.green( 'Finished' ) + colors.reset( ' rendering process in ' + ( time_entry.duration*0.001 ).toFixed( 2 ) + ' seconds.' ) );
+
+        // renderChunk( render_texture_width, render_texture_height, 0, 0, render_current, render_total );
     };
 };
 
 function app_error( err ) {
     console.log( colors.red.bold( 'AN ERROR OCCURED:\n' ) + colors.reset( err ) );
 };
-
-module.exports = { app_error }
