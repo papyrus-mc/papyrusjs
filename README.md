@@ -18,6 +18,8 @@ Assuming you have node.js installed, simply clone this repo and run the followin
 
 ```npm install```
 
+Requires Node.js >= 8.
+
 Otherwise, just grab one of the [pre-built binaries](https://github.com/clarkx86/papyrus#building-a-standalone).
 
 ## Usage
@@ -29,6 +31,8 @@ You'll have to define a path to the texture pack you want to use for the final r
 
 ## Additional dependencies
 - [node-leveldb-mcpe](https://github.com/mhsjlw/node-leveldb-mcpe)
+
+Requires additional [configuring](https://github.com/clarkx86/papyrusjs/blob/master/docs/documentation.md#dependency-configuration).
 
 All other dependencies can be acquired by [installing](https://github.com/clarkx86/papyrus#installation).
 
@@ -43,6 +47,9 @@ You can find pre-built binaries (containing all dependencies for your platform) 
 If you want to help improving Papyrus please consider forking the repository.
 
 Want to buy me a coffee (I love coffee)? [Donate via PayPal ♥](https://paypal.me/clarkstuehmer)
+
+## Special thanks to...
+... [DeepBlue4200](https://github.com/mjungnickel18) and [mhsjlw](https://github.com/mhsjlw).
 
 ## Disclaimer
 Papyrus is in no way affiliated with Mojang or Minecraft.
