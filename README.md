@@ -1,4 +1,4 @@
-# Papyrus.JS
+# papyrus.js
 Papyrus is a tool to render Minecraft: Bedrock Edition (from now on referenced as "MCBE") worlds using Leaflet. It is written in JavaScript and powered by node.js.
 
 You can view an example [here](http://papyrus.clarkx86.com/map).
@@ -18,7 +18,7 @@ Assuming you have node.js installed, simply clone this repo and run the followin
 
 ```npm install```
 
-Requires Node.js >= 8.
+Requires Node.js >= 8. You may also need to install and configure [additional dependencies](https://github.com/clarkx86/papyrusjs#additional-dependencies).
 
 Otherwise, just grab one of the [pre-built binaries](https://github.com/clarkx86/papyrus#building-a-standalone).
 
@@ -30,9 +30,8 @@ You'll have to define a path to the texture pack you want to use for the final r
 [Read the full documentation.](https://github.com/clarkx86/papyrus/blob/master/docs/documentation.md)
 
 ## Additional dependencies
-- [node-leveldb-mcpe](https://github.com/mhsjlw/node-leveldb-mcpe)
-
-Requires additional [configuring](https://github.com/clarkx86/papyrusjs/blob/master/docs/documentation.md#dependency-configuration).
+- [node-leveldb-mcpe](https://github.com/mhsjlw/node-leveldb-mcpe) _(Requires additional [configuring](https://github.com/clarkx86/papyrusjs/blob/master/docs/documentation.md#dependency-configuration))_
+- [GraphicsMagick](http://www.graphicsmagick.org/) _(Can be installed by_ ```apt-get install graphicsmagick``` _on Linux)_ (optional)
 
 All other dependencies can be acquired by [installing](https://github.com/clarkx86/papyrus#installation).
 
