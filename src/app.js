@@ -12,7 +12,7 @@ yargs.parse();
 
 var rl = readline.createInterface( process.stdin, process.stdout );
 
-console.log( colors.bold( json_package.name.charAt( 0 ).toUpperCase() + json_package.name.slice( 1, json_package.name.length - 2 ) + '.' + json_package.name.slice( json_package.name.length - 2 ).toUpperCase() + ' v' + json_package.version + json_package.version_devstate.charAt( 0 ) ) + colors.reset( ' by ' ) + json_package.author );
+console.log( colors.bold( json_package.name.charAt( 0 )/*.toUpperCase()*/ + json_package.name.slice( 1, json_package.name.length - 2 ) + '.' + json_package.name.slice( json_package.name.length - 2 ) + ' v' + json_package.version + json_package.version_devstate.charAt( 0 ) ) + colors.reset( ' by ' ) + json_package.author );
 yargs.version( json_package.version + json_package.version_devstate.charAt( 0 ) );
 
 // Require more libraries
@@ -27,7 +27,7 @@ let string_libraries;
 
 const levelup           = require( 'levelup' );                      libraries_loaded++;
 const Jimp              = require( 'jimp' );                         libraries_loaded++;
-const Chunk             = require( 'prismarine-chunk' )( 'pe_1.0' ); libraries_loaded++;
+const Chunk             = require( './palettes/chunk.js' );
 const nbt               = require( 'prismarine-nbt' );               libraries_loaded++;
 const Vec3              = require( 'vec3' );                         libraries_loaded++;
 
@@ -65,7 +65,7 @@ rl.on( 'line', function( str_in ) {
     };
 } );
 
-async function init( path_world ) {
+function init( path_world ) {
     var path_leveldat = path.normalize( path_world + '/level.dat' );
     if ( fs.existsSync( path_leveldat ) != 1 )
     {
@@ -87,7 +87,7 @@ async function init( path_world ) {
         chunkZ_max[ 0 ] = 0;
         chunkZ_max[ 1 ] = 0;
 
-        await db.createKeyStream()
+        db.createKeyStream()
             .on( 'data' , function( data ) {
 
                 db_keys.push( data );
@@ -117,7 +117,7 @@ async function init( path_world ) {
 
                 // console.log( data );
 
-            } ).on ( 'end', function() {
+            } ).on ( 'end', async function() {
 
                 // Validate SubChunk-Keys
                 console.log( 'Validating...' );
@@ -130,77 +130,66 @@ async function init( path_world ) {
                     };
                 };
 
-                /*
-                for ( i = 0; i < db_keys_subchunks.length; i++ )
-                {
-                    console.log( db_keys_subchunks[ i ] );
-                };
-                */
-
                 console.log( 'Found ' + colors.bold( db_keys.length ) + ' keys, which ' + colors.bold( db_keys_subchunks.length ) + ' of them are valid SubChunks.' );
-
-                module.exports = { Chunk, colors, db, SmartBuffer, nbt, Vec3 };
-
-                const readChunk = require( './db_read/readChunk.js' );
-
-                    db_keys  = null;
-                var SubChunk = null;
-
                 console.log( 'Furthest X (negative):\t' + chunkX_max[ 0 ].toString() + '\t Furthest Z (negative):\t' + chunkZ_max[ 0 ].toString() + '\nFurthest X (positive):\t' + chunkX_max[ 1 ].toString() + '\t Furthest Z (positive):\t' + chunkZ_max[ 1 ].toString() );
 
+                // Free up memory
+                db_keys  = null;
 
+
+                // Construct Chunks out of SubChunks & Render each one
+                module.exports = { db };
+                
                 console.log( 'Constructing Chunks...' );
                 marky.mark( 'task_construct' );
 
-                constructChunks();
+                var chunkIndex = { };
+                const readChunk = require( './db_read/readChunk.js' );
 
-                function constructChunks()
-                {
-                    const ChunkIndex = require( './palettes/chunkIndex.js' );
+                await db_keys_subchunks.forEach( function( key ) {
+                    var chunkXZ = key.slice( 0, 8 );
 
-                    chunkIndex = new ChunkIndex();
-
-                    var chunkArray = [ ];
-                    var chunk = new Chunk();
-
-                    for( i = 0; i < db_keys_subchunks.length; i++ )
+                    if ( !chunkIndex[ chunkXZ.toString( 'hex' ) ] )
                     {
-                        var x = db_keys_subchunks[ i ].readInt32LE( 0 ),
-                            z = db_keys_subchunks[ i ].readInt32LE( 4 );
-
-                        /*
-                        if ( chunkArray[ x, z ] === undefined )
-                        {
-                            console.log( 'Chunk array for\tX:\t' + x + '\tZ:\t' + z + '\tdoes not exist.' );
-                            // var chunk = new Chunk();
-                            chunkArray[ x, z ] = null;
-                        }
-                        // console.log( 'Entry ' + i );
-                        */
-
-                        // chunkIndex.put( db_keys_subchunks[ i ].readInt32LE( 8 ), chunk );
-                        readChunk( Buffer.from( db_keys_subchunks[ i ] ), chunk );
+                        // console.log( 'Chunk array for\tX:\t' + chunkXZ.readInt32LE( 0 ) + '\tZ:\t' + chunkXZ.readInt32LE( 4 ) + '\tdoes not exist.' );
+                        chunkIndex[ chunkXZ.toString( 'hex' ) ] = new Chunk();
                     };
 
-                    // console.log( chunk );
-                };
+                    readChunk( Buffer.from( key ), chunkIndex[ chunkXZ.toString( 'hex' ) ] );
+                } );
+                       
+                var renderChunk = require( './render/renderChunk' ); 
+               
+                // renderChunk( chunkIndex[ db_keys_subchunks[ 0 ].slice( 0, 8 ).toString( 'hex' ) ], 16, 0, 1 );
+
+
+                // console.log( 'Length: ' + chunkArray.length );
+
+                var time_entry = marky.stop( 'task_construct' );
+                console.log( 'Done.' );
+
+                console.log( chunkIndex[ db_keys_subchunks[ 0 ].slice( 0, 8 ).toString( 'hex' ) ].list() );
+                
+                console.log( 'Constructed ' + Object.keys( chunkIndex ).length + ' Chunks in ' + Math.floor( time_entry.duration * 0.001 ) + ' seconds.' );
+
             } );
 
-        db.close();
+        // db.close();
         
-        var time_entry = marky.stop( 'task_construct' );
-        console.log( 'Constructed ' + /*chunkArray.length + */ ' Chunks in ' + Math.floor( time_entry.duration * 0.001 ) + ' seconds.' );
+        
 
 
-        console.log( 'Done.' );
+        
 
+        // console.log( 'Done.' );
+        /*
         // DEBUG
 
         var debug_dir_temp = './dev/temp/',
             debug_dir_out  = './dev/out/',
             debug_path_rp  = './dev/Vanilla_Resource_Pack_1.10.0/';
 
-        var path_textures = path.normalize( /* argv.textures + */ '/textures/blocks/' ),
+        var path_textures = path.normalize( /* argv.textures + */ /* '/textures/blocks/' ),
             ext_textures  = '.png';
 
         render_current = 0;
@@ -214,7 +203,7 @@ async function init( path_world ) {
         var renderInit  = require( './render/renderInit'  );
         var renderChunk = require( './render/renderChunk' );
         
-        await renderInit( path.normalize( debug_path_rp + path_textures ), ext_textures, function( err ) {
+        renderInit( path.normalize( debug_path_rp + path_textures ), ext_textures, function( err ) {
 
         } );
 
@@ -222,7 +211,9 @@ async function init( path_world ) {
         
         console.log( colors.green( 'Finished' ) + colors.reset( ' rendering process in ' + ( time_entry.duration*0.001 ).toFixed( 2 ) + ' seconds.' ) );
 
-        // renderChunk( render_texture_width, render_texture_height, 0, 0, render_current, render_total );
+        // 
+
+        */
     };
 };
 

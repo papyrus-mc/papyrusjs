@@ -1,9 +1,7 @@
-const colors      = require( '../app.js' ).colors;
-const db          = require( '../app.js' ).db;
-const Chunk       = require( '../app.js' ).Chunk;
-const SmartBuffer = require( '../app.js' ).SmartBuffer;
-const nbt         = require( '../app.js' ).nbt;
-const Vec3        = require( '../app.js' ).Vec3;
+const db                = require( '../app.js' ).db;
+const Chunk             = require( '../palettes/chunk.js' );
+const nbt               = require( 'prismarine-nbt' );
+const Vec3              = require( 'vec3' );
 
 const Palette_Persistance = require( '../palettes/palette_persistance.js' );
 
@@ -38,7 +36,7 @@ var readChunk = function( key, chunk ) {
                             var isRuntime      = ( paletteAndFlag & 1 ) != 0;
                             var bitsPerBlock   = paletteAndFlag >> 1;
                             var blocksPerWord  = Math.floor( 32 / bitsPerBlock );
-                            var wordCount      = Math.ceil( 4096.0 / blocksPerWord )
+                            var wordCount      = Math.ceil( 4096.0 / blocksPerWord );
                             
                             // console.log( 'SubChunk Version:\t' + SubChunkVersion + '\tSize:\t\t' + value.length + '\t Skip to:\t' + ( _offset + ( wordCount * 4 ) ) + '\nRuntime:\t\t' + isRuntime + '\tbits per block:\t' + bitsPerBlock + '\nblocks per word:\t' + blocksPerWord + '\tword count:\t' + wordCount + '\n' );
                             
@@ -85,7 +83,8 @@ var readChunk = function( key, chunk ) {
 
                                             // console.log( localPalette.get( paletteID ) );
 
-                                            _offset = _offset + _offset_nbt;
+                                            // _offset = _offset + _offset_nbt;
+                                            _offset += _offset_nbt;
 
 
                                         } );
@@ -104,7 +103,7 @@ var readChunk = function( key, chunk ) {
 
                                 for( block = 0; block < blocksPerWord; block++ )
                                 {
-                                    var state = ( word >> (( position % blocksPerWord ) * bitsPerBlock )) & (( 1 << bitsPerBlock ) - 1 );
+                                    var state = ( word >> ( ( position % blocksPerWord ) * bitsPerBlock ) ) & ( ( 1 << bitsPerBlock ) - 1 );
                                     var x     = ( position >> 8 ) & 0xF;
                                     var y     =   position        & 0xF;
                                     var z     = ( position >> 4 ) & 0xF;
@@ -115,7 +114,12 @@ var readChunk = function( key, chunk ) {
 
                                     try
                                     {
-                                        chunk.setBlockType( new Vec3( x, y + SubChunkYOffset, z ), localPalette.get( state ).name );
+                                        // chunk.setBlockData( new Vec3( x, y + SubChunkYOffset, z ), localPalette.get( state ).name );
+                                        //console.log( localPalette.get( state ).name );
+                                        chunk.set( x, y + SubChunkYOffset, z, localPalette.get( state ).name, localPalette.get( state ).val );
+
+                                        // console.log( '\tX\t' + x + '\tY\t' + ( y + SubChunkYOffset ) +  '\tZ\t' + z + '\t' + localPalette.get( state ).name );
+
                                         // console.log( localPalette.get( state ).name );
                                     } catch ( err ) {
                                         throw err;
