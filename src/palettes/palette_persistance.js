@@ -1,5 +1,7 @@
-module.exports = function() {
+module.exports = function( s ) {
     var keys = [ ];
+
+    var paletteSize = s;
 
     this.put = function( ID, name, val) {
         keys[ ID ] = {
@@ -9,14 +11,10 @@ module.exports = function() {
     };
 
     this.get = function( ID ) {
-        /*
-        if ( keys[ ID ] === undefined ) {
-            console.log( '[ERROR] Requested Palette ID\t' + ID + '\tbut only has\t' + keys.length + '\tentries.' );
-            return keys[ 0 ];
-        } else {
-            return keys[ ID ];
-        };
-        */
         return keys[ ID ];
+    };
+
+    this.size = function() {
+        return paletteSize;
     };
 };
