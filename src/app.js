@@ -145,75 +145,43 @@ function init( path_world ) {
 
                 var chunkIndex = { };
                 const readChunk = require( './db_read/readChunk.js' );
+                const  renderChunk = require( './render/renderChunk' ); 
+                const Cache = require( './palettes/textureCache' );
+                
+                var cache = new Cache();
 
-                await db_keys_subchunks.forEach( function( key ) {
+                await db_keys_subchunks.slice( 0, 100 ).forEach( async function( key ) {
                     var chunkXZ = key.slice( 0, 8 );
+
+                    // console.log( ( chunkXZ.readInt32LE() ).tostring() + ' ' + ( chunkXZ.readInt32LE() ).toString() );
 
                     if ( !chunkIndex[ chunkXZ.toString( 'hex' ) ] )
                     {
                         // console.log( 'Chunk array for\tX:\t' + chunkXZ.readInt32LE( 0 ) + '\tZ:\t' + chunkXZ.readInt32LE( 4 ) + '\tdoes not exist.' );
-                        chunkIndex[ chunkXZ.toString( 'hex' ) ] = new Chunk();
+                        chunkIndex[ chunkXZ.toString( 'hex' ) ] = new Chunk( chunkXZ );
                     };
 
                     readChunk( Buffer.from( key ), chunkIndex[ chunkXZ.toString( 'hex' ) ] );
                 } );
-                       
-                var renderChunk = require( './render/renderChunk' ); 
-               
-                // renderChunk( chunkIndex[ db_keys_subchunks[ 0 ].slice( 0, 8 ).toString( 'hex' ) ], 16, 0, 1 );
 
+                console.log( 'Rendering...' );
+
+                Object.keys( chunkIndex ).forEach( function( key ) {
+                    // console.log( chunkIndex[ key ].list() );
+                    renderChunk( chunkIndex[ key ], cache, 16 );
+                } );
+                    
 
                 // console.log( 'Length: ' + chunkArray.length );
 
                 var time_entry = marky.stop( 'task_construct' );
                 console.log( 'Done.' );
 
-                console.log( chunkIndex[ db_keys_subchunks[ 0 ].slice( 0, 8 ).toString( 'hex' ) ].list() );
+                // console.log( chunkIndex[ db_keys_subchunks[ 0 ].slice( 0, 8 ).toString( 'hex' ) ].list() );
                 
                 console.log( 'Constructed ' + Object.keys( chunkIndex ).length + ' Chunks in ' + Math.floor( time_entry.duration * 0.001 ) + ' seconds.' );
 
             } );
-
-        // db.close();
-        
-        
-
-
-        
-
-        // console.log( 'Done.' );
-        /*
-        // DEBUG
-
-        var debug_dir_temp = './dev/temp/',
-            debug_dir_out  = './dev/out/',
-            debug_path_rp  = './dev/Vanilla_Resource_Pack_1.10.0/';
-
-        var path_textures = path.normalize( /* argv.textures + */ /* '/textures/blocks/' ),
-            ext_textures  = '.png';
-
-        render_current = 0;
-        render_total   = 0;
-
-        marky.mark( 'task_render' );
-
-        console.log( 'Initializing render process...' );
-
-        module.exports  = { Jimp, path };
-        var renderInit  = require( './render/renderInit'  );
-        var renderChunk = require( './render/renderChunk' );
-        
-        renderInit( path.normalize( debug_path_rp + path_textures ), ext_textures, function( err ) {
-
-        } );
-
-        var time_entry = marky.stop( 'task_render' );
-        
-        console.log( colors.green( 'Finished' ) + colors.reset( ' rendering process in ' + ( time_entry.duration*0.001 ).toFixed( 2 ) + ' seconds.' ) );
-
-        // 
-
-        */
     };
 };
 
