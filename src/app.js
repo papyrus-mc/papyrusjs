@@ -150,7 +150,7 @@ function init( path_world ) {
                 
                 var cache = new Cache();
 
-                await db_keys_subchunks.slice( 0, 100 ).forEach( async function( key ) {
+                await db_keys_subchunks.forEach( async function( key ) {
                     var chunkXZ = key.slice( 0, 8 );
 
                     // console.log( ( chunkXZ.readInt32LE() ).tostring() + ' ' + ( chunkXZ.readInt32LE() ).toString() );
@@ -162,24 +162,38 @@ function init( path_world ) {
                     };
 
                     readChunk( Buffer.from( key ), chunkIndex[ chunkXZ.toString( 'hex' ) ] );
+                    // console.log( 'next' );
                 } );
 
                 console.log( 'Rendering...' );
 
-                Object.keys( chunkIndex ).forEach( function( key ) {
+                // console.log( chunkIndex[ Object.keys( chunkIndex ).slice( 0, 1 ) ].list() );
+                const missingDefinition = require( './palettes/missingDefinitions' );
+
+                var mdcache = new missingDefinition();
+
+                await Object.keys( chunkIndex ).forEach( function( key ) {
                     // console.log( chunkIndex[ key ].list() );
-                    renderChunk( chunkIndex[ key ], cache, 16 );
+                    renderChunk( chunkIndex[ key ], cache, 16, mdcache );
                 } );
-                    
+                
+                /*
+                // DEBUG
+                setTimeout( function() {
+                     console.log( mdcache.list() );
+                }, 10000 );
+                */
 
                 // console.log( 'Length: ' + chunkArray.length );
 
-                var time_entry = marky.stop( 'task_construct' );
-                console.log( 'Done.' );
+
+                // await???
+                var time_entry = await marky.stop( 'task_construct' );
+                await console.log( 'Done.' );
 
                 // console.log( chunkIndex[ db_keys_subchunks[ 0 ].slice( 0, 8 ).toString( 'hex' ) ].list() );
                 
-                console.log( 'Constructed ' + Object.keys( chunkIndex ).length + ' Chunks in ' + Math.floor( time_entry.duration * 0.001 ) + ' seconds.' );
+                await console.log( 'Constructed ' + Object.keys( chunkIndex ).length + ' Chunks in ' + Math.floor( time_entry.duration * 0.001 ) + ' seconds.' );
 
             } );
     };

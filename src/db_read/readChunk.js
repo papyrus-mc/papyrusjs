@@ -81,7 +81,7 @@ var readChunk = function( key, chunk ) {
 
                                             localPalette.put( paletteID , data.value.name.value, data.value.val.value );
 
-                                            // console.log( localPalette.get( paletteID ) );
+                                            // console.log( paletteID + '\t' + localPalette.get( paletteID ).name + '\t' + localPalette.get( paletteID ).val );
 
                                             // _offset = _offset + _offset_nbt;
                                             _offset += _offset_nbt;
@@ -99,7 +99,7 @@ var readChunk = function( key, chunk ) {
 
                             for( wordi = 0; wordi < wordCount; wordi++ )
                             {
-                                var word = value.readUIntLE( _offset_new ); _offset_new += 4;
+                                var word = value.readInt32LE( _offset_new ); _offset_new += 4;
 
                                 for( block = 0; block < blocksPerWord; block++ )
                                 {
@@ -116,7 +116,7 @@ var readChunk = function( key, chunk ) {
                                     {
                                         // chunk.setBlockData( new Vec3( x, y + SubChunkYOffset, z ), localPalette.get( state ).name );
                                         //console.log( localPalette.get( state ).name );
-                                        chunk.set( x, y + SubChunkYOffset, z, localPalette.get( state ).name, localPalette.get( state ).val );
+                                        chunk.set( x, y + SubChunkYOffset, z, localPalette.get( state ).name, 0 /* localPalette.get( state ).val */ );
 
                                         // console.log( '\tX\t' + x + '\tY\t' + ( y + SubChunkYOffset ) +  '\tZ\t' + z + '\t' + localPalette.get( state ).name );
 

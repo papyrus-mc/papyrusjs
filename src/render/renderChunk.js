@@ -4,16 +4,17 @@ const Jimp = require( 'jimp' );
 // const gm   = require('gm');
 const fs   = require( 'fs' );
 
+// const missingDefinition = require( '../palettes/missingDefinitions' );
+
 // const Cache = require( '../palettes/textureCache' );
 
-module.exports = function( Chunk, Cache, size_texture ) {
+module.exports = function( Chunk, Cache, size_texture, mDcache ) {
 
     var chunk = Chunk;
     var cache = Cache;
-    var IMG_render = null;
-
-    IMG_render = new Jimp( size_texture*size_texture, size_texture*size_texture );
-    console.log( IMG_render );
+    var mdcache = mDcache;
+    var IMG_render = IMG_render = new Jimp( size_texture*size_texture, size_texture*size_texture );
+    var IMG_placeholder = new Jimp( 16, 16 );
 
     render();
 
@@ -24,7 +25,7 @@ module.exports = function( Chunk, Cache, size_texture ) {
             iy = 0,
             iz = 0;
 
-        console.log( chunk.getXZ() );
+        // console.log( chunk.getXZ() );
         // console.log( chunk.list() );
 
         // Render chunk
@@ -58,6 +59,13 @@ async function compose( x, y, z ) {
         if ( imgData === undefined ) {
             // Load image from scratch
             fileName = path.normalize( './render/blocks/' + fileName + '.png' );
+            if ( fs.existsSync( fileName ) ) {
+                // All ok
+            } else {
+                console.log( '[WARNING] Missing texture definition: name:\t' + chunk.get( x, y, z ).name + '\tvalue:\t' + chunk.get( x, y, z ).val );
+                mdcache.save( chunk.get( x, y, z ).name );
+                fileName = IMG_placeholder;
+            };
         } else {
             if ( imgData == '[object Object]' )
             {
@@ -71,11 +79,11 @@ async function compose( x, y, z ) {
 
         // console.log( 'Rendering:\tx\t' + x + '\ty\t' + y + '\tz\t' + z + '\t' + fileName );
 
+
+        // await?
         await IMG_render.composite( await Jimp.read( fileName ), size_texture * x, size_texture * z, ( err ) => {
             if ( err ) { throw err };
         } );
-
-        // IMG_render.write( './dev/render/chunk' + '_X' + chunk.getXZ().x + '_Z' + chunk.getXZ().z + '.png' );
     };
 };
 };
