@@ -8,10 +8,12 @@ Since MCBE worlds don't use the Anvil format like in the Java Edition, but rathe
 
 ## Features
 - Render a top-down map of every already explored chunk
-### Planned
+#### Planned
 - Isometric renders
 - Auto-Updating renders
 - Live-View of currently online players on map (and their respective statistics)
+
+([To-Do List](https://github.com/clarkx86/papyrusjs/blob/master/docs/todo.md#to-do-list))
 
 ## Installation
 Assuming you have node.js installed, simply clone this repo and run the following command in your favourite terminal:
