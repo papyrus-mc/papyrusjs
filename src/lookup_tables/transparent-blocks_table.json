@@ -1,0 +1,11 @@
+{
+	"minecraft:air"				: true,
+	"minecraft:ladder"			: true,
+	"minecraft:double_plant"	: true,
+	"minecraft:tallgrass"		: true,
+	"minecraft:carrots"			: true,
+    "minecraft:wheat"			: true,
+	"minecraft:red_flower"		: true,
+	"minecraft:yellow_flower"	: true,
+	"minecraft:fence"			: true,
+}
