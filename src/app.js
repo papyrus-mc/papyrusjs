@@ -6,7 +6,6 @@ const readline     = require( 'readline' );
 const colors       = require( 'colors' );
 const Spinner      = require( 'cli-spinner' ).Spinner;
 const marky        = require( 'marky' );
-const SmartBuffer  = require( 'smart-buffer' ).SmartBuffer;
 
 yargs.parse();
 
@@ -92,10 +91,12 @@ function init( path_world ) {
 
                 db_keys.push( data );
 
-                var key = SmartBuffer.fromBuffer( data );
+                var key = new Buffer.from( data );
 
-                var key_chunkX = key.readInt32LE(),
-                    key_chunkZ = key.readInt32LE();
+                if ( key.length >= 8 ) // only read SubChunk Keys
+                {
+                var key_chunkX = key.readInt32LE( 0 )
+                    key_chunkZ = key.readInt32LE( 4 )
 
                 if        ( key_chunkX < chunkX_max[ 0 ] )
                 {
@@ -116,6 +117,7 @@ function init( path_world ) {
                 // console.log( 'Key:\t' + db_keys.length + '\tBuffer:\t' + key.toString( 'hex' ) + '\tChunk X:\t' + key_chunkX.toString() + '\tChunk Z:\t' + key_chunkZ.toString() );
 
                 // console.log( data );
+                };
 
             } ).on ( 'end', async function() {
 
@@ -123,10 +125,14 @@ function init( path_world ) {
                 console.log( 'Validating...' );
                 for( i = 0; i < db_keys.length; i++ )
                 {
-                    // console.log( db_keys[ i ].length );
-                    if ( db_keys[ i ].readInt8( 8 ) == 47 )
-                    {
-                        db_keys_subchunks.push( db_keys[ i ] );
+                    try {
+                        // console.log( db_keys[ i ].length );
+                        if ( db_keys[ i ].readInt8( 8 ) == 47 )
+                        {
+                            db_keys_subchunks.push( db_keys[ i ] );
+                        };
+                    } catch ( err ) {
+                        // Not a valid SubChunk Key
                     };
                 };
 
@@ -172,6 +178,7 @@ function init( path_world ) {
 
                 var mdcache = new missingDefinition();
 
+                /*
                 await Object.keys( chunkIndex ).forEach( function( key ) {
                     // console.log( chunkIndex[ key ].list() );
                     renderChunk( chunkIndex[ key ], cache, 16, mdcache );
@@ -186,6 +193,15 @@ function init( path_world ) {
 
                 // console.log( 'Length: ' + chunkArray.length );
 
+
+                // Close database
+                db.close( function( err ) {
+                    if ( !err ) {
+                        console.log( 'Closed database.' );
+                    };
+
+                    // db = null
+                } );
 
                 // await???
                 var time_entry = await marky.stop( 'task_construct' );

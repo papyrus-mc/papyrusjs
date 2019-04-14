@@ -1,12 +1,6 @@
 const path = require( 'path' );
 const Jimp = require( 'jimp' );
-// const sharp = require('sharp');
-// const gm   = require('gm');
 const fs   = require( 'fs' );
-
-// const missingDefinition = require( '../palettes/missingDefinitions' );
-
-// const Cache = require( '../palettes/textureCache' );
 
 module.exports = function( Chunk, Cache, size_texture, mDcache ) {
 
@@ -30,12 +24,12 @@ module.exports = function( Chunk, Cache, size_texture, mDcache ) {
 
         // Render chunk
         // Y-Axis
-        for( iy = 60; iy < 256; iy++ )
+        for( iy = 58; iy < 256; iy++ )
         {
-            // X-Axis
+            // Z-Axis
             for( iz = 0; iz < 16; iz++ )
             {
-                // Z-Axis
+                // X-Axis
                 for( ix = 0; ix < 16; ix++ )
                 {
                     await compose( ix, iy, iz );

@@ -31,6 +31,10 @@ module.exports = function() {
     cache[ JSON.stringify( { name: 'minecraft:carrots', value: 0 } ) ] = { definition: 'minecraft:carrots_stage_3' };
     cache[ JSON.stringify( { name: 'minecraft:wheat', value: 0 } ) ] = { definition: 'minecraft:wheat_stage_7' };
     cache[ JSON.stringify( { name: 'minecraft:grass_path', value: 0 } ) ] = { definition: 'minecraft:grass_path_top' };
+    cache[ JSON.stringify( { name: 'minecraft:sandstone', value: 0 } ) ] = { definition: 'minecraft:sandstone_normal' };
+    // cache[ JSON.stringify( { name: 'minecraft:reeds', value: 0 } ) ] = { definition: null };
+    
+    
     
 
 
