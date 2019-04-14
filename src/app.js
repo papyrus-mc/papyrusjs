@@ -151,6 +151,7 @@ function init( path_world ) {
 
                 var chunkIndex = { };
                 const readChunk = require( './db_read/readChunk.js' );
+                const trimChunk = require( './db_read/trimChunk.js' );
                 const  renderChunk = require( './render/renderChunk' ); 
                 const Cache = require( './palettes/textureCache' );
                 
@@ -167,32 +168,26 @@ function init( path_world ) {
                         chunkIndex[ chunkXZ.toString( 'hex' ) ] = new Chunk( chunkXZ );
                     };
 
-                    readChunk( Buffer.from( key ), chunkIndex[ chunkXZ.toString( 'hex' ) ] );
+                    await readChunk( Buffer.from( key ), chunkIndex[ chunkXZ.toString( 'hex' ) ] );
                     // console.log( 'next' );
                 } );
 
-                console.log( 'Rendering...' );
+                console.log( 'Trimming Chunks...' )
+                var transparentBlocks  = JSON.parse( fs.readFileSync( './lookup_tables/transparent-blocks_table.json'  ) );
+                var missingDefinitions = JSON.parse( fs.readFileSync( './lookup_tables/missing-definitions_table.json' ) );
 
-                // console.log( chunkIndex[ Object.keys( chunkIndex ).slice( 0, 1 ) ].list() );
                 const missingDefinition = require( './palettes/missingDefinitions' );
-
                 var mdcache = new missingDefinition();
 
-                /*
-                await Object.keys( chunkIndex ).forEach( function( key ) {
-                    // console.log( chunkIndex[ key ].list() );
-                    renderChunk( chunkIndex[ key ], cache, 16, mdcache );
+                Object.keys( chunkIndex ).forEach( function( key ) {
+
+                    var chunkXZ = chunkIndex[ key ].getXZ();
+                    chunkIndex[ key ] = trimChunk( chunkIndex[ key ], chunkXZ, transparentBlocks );
+                    renderChunk( chunkIndex[ key ], cache, 16, missingDefinitions, mdcache );
+
+                    // Free up memory
+                    chunkIndex[ key ] = null;
                 } );
-                
-                /*
-                // DEBUG
-                setTimeout( function() {
-                     console.log( mdcache.list() );
-                }, 10000 );
-                */
-
-                // console.log( 'Length: ' + chunkArray.length );
-
 
                 // Close database
                 db.close( function( err ) {
