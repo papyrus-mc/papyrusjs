@@ -5,11 +5,12 @@ const nbt    = require( 'prismarine-nbt' );
 const Palette_Persistance = require( '../palettes/palette_persistance.js' );
 
 module.exports = function( key, chunk ) {
+    return new Promise( ( resolve, reject ) => {
     db.get( Buffer.from( key ), function( err, value ) {
-
         if ( err )
         {
             console.log( colors.red( '[READ ERROR]' ) + ' Skiping... ' + err );
+            reject();
         } else {
 
             var _offset = 0;
@@ -69,7 +70,7 @@ module.exports = function( key, chunk ) {
 
                                     localPalette.put( paletteID , data.value.name.value, data.value.val.value );
 
-                                    // console.log( paletteID + '\t' + localPalette.get( paletteID ).name + '\t' + localPalette.get( paletteID ).val );
+                                            // console.log( paletteID + '\t' + localPalette.get( paletteID ).name + '\t' + localPalette.get( paletteID ).val );
 
                                     _offset += _offset_nbt;
                                 } );
@@ -98,8 +99,14 @@ module.exports = function( key, chunk ) {
 
                                 try
                                 {
-                                    chunk.set( x, y + SubChunkYOffset, z, localPalette.get( state ).name, 0 /* localPalette.get( state ).val */ );
-                                    //console.log( localPalette.get( state ).name );
+                                    if ( localPalette.get( state ).name != 'minecraft:air' ) {
+                                        chunk.set( x, y + SubChunkYOffset, z, localPalette.get( state ).name, 0 /* localPalette.get( state ).val */ );
+                                    };
+                                    
+                                    if ( localPalette.get( state ).name !== 'minecraft:air' )
+                                    {
+                                        // console.log( localPalette.get( state ).name );
+                                    };
                                     // console.log( '\tX\t' + x + '\tY\t' + ( y + SubChunkYOffset ) +  '\tZ\t' + z + '\t' + localPalette.get( state ).name );
                                 } catch ( err ) {
                                     // throw err;
@@ -113,5 +120,7 @@ module.exports = function( key, chunk ) {
                 break;
             };
         };
+        resolve();
+    } );
     } );
 };

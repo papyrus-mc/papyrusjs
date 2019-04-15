@@ -75,137 +75,93 @@ function init( path_world ) {
 
         console.log( 'Reading database. This can take a couple of seconds up to a couple of minutes.' );
 
-        var db_keys           = [],
-            db_keys_subchunks = [],
-            chunkX_max        = [],
-            chunkZ_max        = [],
-            SAFE_MAX          = 65535;
-
-        chunkX_max[ 0 ] = 0;
-        chunkX_max[ 1 ] = 0;
-        chunkZ_max[ 0 ] = 0;
-        chunkZ_max[ 1 ] = 0;
+        var db_keys = { },
+            chunksTotal = 0;
 
         db.createKeyStream()
             .on( 'data' , function( data ) {
 
-                db_keys.push( data );
-
-                var key = new Buffer.from( data );
-
-                if ( key.length >= 8 ) // only read SubChunk Keys
-                {
-                var key_chunkX = key.readInt32LE( 0 )
-                    key_chunkZ = key.readInt32LE( 4 )
-
-                if        ( key_chunkX < chunkX_max[ 0 ] )
-                {
-                    chunkX_max[ 0 ] = key_chunkX;
-                } else if ( key_chunkX > chunkX_max[ 1 ] && !( key_chunkX > SAFE_MAX ) )
-                {
-                    chunkX_max[ 1 ] = key_chunkX;
+                if ( data.readInt8( 8 ) == 47 ) {       // Only read keys that are specificly SubChunks
+                    db_keys[ data.slice( 0, 8 ).toString( 'hex' ) ] = data;
+                    // console.log( data );
+                    // Key: Chunk = Value: Last SubChunk
+                    chunksTotal++;
                 };
 
-                if        ( key_chunkZ < chunkZ_max[ 0 ] )
-                {
-                    chunkZ_max[ 0 ] = key_chunkZ;
-                } else if ( key_chunkZ > chunkZ_max[ 1 ] && !( key_chunkZ > SAFE_MAX ) )
-                {
-                    chunkZ_max[ 1 ] = key_chunkZ;
-                };
+            } ).on ( 'end', function() {
 
-                // console.log( 'Key:\t' + db_keys.length + '\tBuffer:\t' + key.toString( 'hex' ) + '\tChunk X:\t' + key_chunkX.toString() + '\tChunk Z:\t' + key_chunkZ.toString() );
+                console.log( 'Processing and rendering ' + colors.bold( chunksTotal ) + ' SubChunks...' );
 
-                // console.log( data );
-                };
-
-            } ).on ( 'end', async function() {
-
-                // Validate SubChunk-Keys
-                console.log( 'Validating...' );
-                for( i = 0; i < db_keys.length; i++ )
-                {
-                    try {
-                        // console.log( db_keys[ i ].length );
-                        if ( db_keys[ i ].readInt8( 8 ) == 47 )
-                        {
-                            db_keys_subchunks.push( db_keys[ i ] );
-                        };
-                    } catch ( err ) {
-                        // Not a valid SubChunk Key
-                    };
-                };
-
-                console.log( 'Found ' + colors.bold( db_keys.length ) + ' keys, which ' + colors.bold( db_keys_subchunks.length ) + ' of them are valid SubChunks.' );
-                console.log( 'Furthest X (negative):\t' + chunkX_max[ 0 ].toString() + '\t Furthest Z (negative):\t' + chunkZ_max[ 0 ].toString() + '\nFurthest X (positive):\t' + chunkX_max[ 1 ].toString() + '\t Furthest Z (positive):\t' + chunkZ_max[ 1 ].toString() );
-
-                // Free up memory
-                db_keys  = null;
-
-
-                // Construct Chunks out of SubChunks & Render each one
                 module.exports = { db };
-                
-                console.log( 'Constructing Chunks...' );
-                marky.mark( 'task_construct' );
 
-                var chunkIndex = { };
-                const readChunk = require( './db_read/readChunk.js' );
-                const trimChunk = require( './db_read/trimChunk.js' );
-                const  renderChunk = require( './render/renderChunk' ); 
-                const Cache = require( './palettes/textureCache' );
-                
-                var cache = new Cache();
+                const readChunk   = require( './db_read/readChunk.js' );
+                const trimChunk   = require( './db_read/trimChunk.js' );
+                const renderChunk = require( './render/renderChunk' ); 
+                const Cache       = require( './palettes/textureCache' );
 
-                await db_keys_subchunks.forEach( async function( key ) {
-                    var chunkXZ = key.slice( 0, 8 );
-
-                    // console.log( ( chunkXZ.readInt32LE() ).tostring() + ' ' + ( chunkXZ.readInt32LE() ).toString() );
-
-                    if ( !chunkIndex[ chunkXZ.toString( 'hex' ) ] )
-                    {
-                        // console.log( 'Chunk array for\tX:\t' + chunkXZ.readInt32LE( 0 ) + '\tZ:\t' + chunkXZ.readInt32LE( 4 ) + '\tdoes not exist.' );
-                        chunkIndex[ chunkXZ.toString( 'hex' ) ] = new Chunk( chunkXZ );
-                    };
-
-                    await readChunk( Buffer.from( key ), chunkIndex[ chunkXZ.toString( 'hex' ) ] );
-                    // console.log( 'next' );
-                } );
-
-                console.log( 'Trimming Chunks...' )
                 var transparentBlocks  = JSON.parse( fs.readFileSync( './lookup_tables/transparent-blocks_table.json'  ) );
                 var missingDefinitions = JSON.parse( fs.readFileSync( './lookup_tables/missing-definitions_table.json' ) );
+
+
+                var chunk,
+                    subchunk;
+
+                var next = 0;
+
+                var cache = new Cache();
 
                 const missingDefinition = require( './palettes/missingDefinitions' );
                 var mdcache = new missingDefinition();
 
-                Object.keys( chunkIndex ).forEach( function( key ) {
+                // var c = 31;
 
-                    var chunkXZ = chunkIndex[ key ].getXZ();
-                    chunkIndex[ key ] = trimChunk( chunkIndex[ key ], chunkXZ, transparentBlocks );
-                    renderChunk( chunkIndex[ key ], cache, 16, missingDefinitions, mdcache );
+                processChunk( next );
 
-                    // Free up memory
-                    chunkIndex[ key ] = null;
-                } );
+                async function processChunk( c ) {
+                    
+                    if ( c <= chunksTotal ) {
+                        key = db_keys[ Object.keys( db_keys )[ c ] ];
 
-                // Close database
-                db.close( function( err ) {
-                    if ( !err ) {
-                        console.log( 'Closed database.' );
+                        chunk = new Chunk( key );
+                        // Create new chunk with coordinates
+
+                        var key_request;
+
+                        var readPromises = [ ];
+
+                        for( i = 0; i <= key.readInt8( 9 ); i++ )
+                        {
+                            key_request = Buffer.alloc( 10 );       // Create new buffer 
+                            key.copy( key_request );                // Copy target SubChunk key to new buffer
+                            key_request.writeInt8( i, 9 );          // Assemble database request key buffer
+                            // console.log( db_keys[ key ] );
+                            readPromises.push( readChunk( key_request, chunk ) );
+                        };
+
+                        await Promise.all( readPromises )
+                            .then( function( ) {
+                                console.log( 'Done reading chunk:\t' + key.toString( 'hex' ) );
+                                chunk = trimChunk( chunk, transparentBlocks );
+                                // console.log( chunk.list() );
+                                var renderPromise = [ ];
+                                
+                                renderChunk( chunk, cache, 16, missingDefinitions, mdcache );
+                                next++;
+                                processChunk( next );
+
+                                /*
+                                renderPromise.push( renderChunk( chunk, cache, 16, missingDefinitions, mdcache ) );
+
+                                Promise.all( renderPromise )
+                                .then( function() {
+                                    next++;
+                                    processChunk( next );
+                                    console.log( 'Rendered! Next...\n' );
+                                } );
+                                */
+                            } );
                     };
-
-                    // db = null
-                } );
-
-                // await???
-                var time_entry = await marky.stop( 'task_construct' );
-                await console.log( 'Done.' );
-
-                // console.log( chunkIndex[ db_keys_subchunks[ 0 ].slice( 0, 8 ).toString( 'hex' ) ].list() );
-                
-                await console.log( 'Constructed ' + Object.keys( chunkIndex ).length + ' Chunks in ' + Math.floor( time_entry.duration * 0.001 ) + ' seconds.' );
-
+                };
             } );
     };
 };

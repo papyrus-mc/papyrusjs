@@ -1,6 +1,6 @@
 const Chunk         = require( '../palettes/chunk.js' );
 
-module.exports = function( srcChunk, xz, Table ) {
+module.exports = function( srcChunk, Table ) {
     var chunk      = [ ],
         trimArray  = [ ],
         blockName  = null,
@@ -8,19 +8,8 @@ module.exports = function( srcChunk, xz, Table ) {
         count      = 0,
         table      = Table;
 
-    /*
-    console.log( srcChunk );
-    console.log( xz );
-    */
-
-    bufferXZ = Buffer.alloc( 8 );
-    bufferXZ.writeInt32LE( xz.x, 0 );
-    bufferXZ.writeInt32LE( xz.z, 4 );
-
-    // console.log( 'Buffer: ' + bufferXZ.toString( 'hex' ) );
-
     chunk[ 0 ] = srcChunk;
-    chunk[ 1 ] = new Chunk( bufferXZ );
+    chunk[ 1 ] = new Chunk( chunk[ 0 ].getXZ() );
 
     // Create 2D array
     for( i = 0; i < 16; i++ )
