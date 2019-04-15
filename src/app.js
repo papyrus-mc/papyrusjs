@@ -7,6 +7,9 @@ const colors       = require( 'colors' );
 const Spinner      = require( 'cli-spinner' ).Spinner;
 const marky        = require( 'marky' );
 
+const levelup = require( 'levelup' );
+const Chunk   = require( './palettes/chunk.js' );
+
 yargs.parse();
 
 var rl = readline.createInterface( process.stdin, process.stdout );
@@ -14,32 +17,6 @@ var rl = readline.createInterface( process.stdin, process.stdout );
 console.log( colors.bold( json_package.name.charAt( 0 )/*.toUpperCase()*/ + json_package.name.slice( 1, json_package.name.length - 2 ) + '.' + json_package.name.slice( json_package.name.length - 2 ) + ' v' + json_package.version + json_package.version_devstate.charAt( 0 ) ) + colors.reset( ' by ' ) + json_package.author );
 yargs.version( json_package.version + json_package.version_devstate.charAt( 0 ) );
 
-// Require more libraries
-var spinner = new Spinner();
-spinner.setSpinnerString( 0 );
-
-spinner.setSpinnerTitle( 'Loading libraries... %s' );
-spinner.start();
-
-var libraries_loaded = 0;
-let string_libraries;
-
-const levelup           = require( 'levelup' );                      libraries_loaded++;
-const Jimp              = require( 'jimp' );                         libraries_loaded++;
-const Chunk             = require( './palettes/chunk.js' );
-const nbt               = require( 'prismarine-nbt' );               libraries_loaded++;
-const Vec3              = require( 'vec3' );                         libraries_loaded++;
-
-if ( libraries_loaded == 1 )
-{
-    string_libraries = 'library';
-} else {
-    string_libraries = 'libraries';
-};
-
-spinner.stop();
-
-console.log( '\n' + colors.green( 'Successfully' ) + colors.reset( ' loaded ' + libraries_loaded + ' ' + string_libraries + '.' ) );
 console.log( 'Type "help" to get started.');
 
 rl.prompt();
@@ -76,21 +53,29 @@ function init( path_world ) {
         console.log( 'Reading database. This can take a couple of seconds up to a couple of minutes.' );
 
         var db_keys = { },
-            chunksTotal = 0;
+            chunksTotal = [ ];
+
+            chunksTotal[ 0 ] = 0; // SubChunks
+            chunksTotal[ 1 ] = 0; // Full chunks
 
         db.createKeyStream()
             .on( 'data' , function( data ) {
 
                 if ( data.readInt8( 8 ) == 47 ) {       // Only read keys that are specificly SubChunks
                     db_keys[ data.slice( 0, 8 ).toString( 'hex' ) ] = data;
-                    // console.log( data );
-                    // Key: Chunk = Value: Last SubChunk
-                    chunksTotal++;
+                    chunksTotal[ 0 ]++;
                 };
 
             } ).on ( 'end', function() {
 
-                console.log( 'Processing and rendering ' + colors.bold( chunksTotal ) + ' SubChunks...' );
+                // Count chunks
+
+                Object.keys( db_keys ).forEach( function( key ) {
+                    
+                    chunksTotal[ 1 ]++;
+                } );
+
+                console.log( 'Processing and rendering ' + colors.bold( chunksTotal[ 1 ] ) + ' Chunks, which ' + colors.bold( chunksTotal[ 0 ] ) + ' of them are valid SubChunks...' );
 
                 module.exports = { db };
 
@@ -119,7 +104,7 @@ function init( path_world ) {
 
                 async function processChunk( c ) {
                     
-                    if ( c <= chunksTotal ) {
+                    if ( c < chunksTotal[ 1 ] ) {
                         key = db_keys[ Object.keys( db_keys )[ c ] ];
 
                         chunk = new Chunk( key );
