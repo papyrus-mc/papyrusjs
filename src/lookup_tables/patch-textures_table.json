@@ -1,0 +1,59 @@
+{
+    "still_lava": {
+        "textures": [ "textures/blocks/lava_placeholder" ] },
+    "flowing_lava": {
+        "textures": [ "textures/blocks/lava_placeholder" ] },
+    "still_water": {
+        "textures": [ "textures/blocks/water_placeholder" ] },
+    "still_water_grey": {
+        "textures": [ "textures/blocks/water_placeholder" ] },
+    "flowing_water": {
+        "textures": [ "textures/blocks/water_placeholder" ] },
+    "flowing_water_grey": {
+        "textures": [ "textures/blocks/water_placeholder" ] },
+    "leaves": {
+        "textures": [
+        "textures/blocks/leaves_oak_opaque",
+        "textures/blocks/leaves_spruce_opaque",
+        "textures/blocks/leaves_birch_opaque",
+        "textures/blocks/leaves_jungle_opaque",
+        "textures/blocks/leaves_oak_opaque",
+        "textures/blocks/leaves_spruce_opaque",
+        "textures/blocks/leaves_birch_opaque",
+        "textures/blocks/leaves_jungle_opaque" ] },
+    "log_top": {
+        "textures": [
+        "textures/blocks/log_oak_top",
+        "textures/blocks/log_spruce_top",
+        "textures/blocks/log_birch_top",
+        "textures/blocks/log_jungle_top",
+        "textures/blocks/log_acacia_top",
+        "textures/blocks/log_big_oak_top" ] },
+    "double_plant_top": {
+        "textures": [
+        "textures/blocks/double_plant_sunflower_top",
+        "textures/blocks/double_plant_syringa_top",
+        "textures/blocks/double_plant_grass_top",
+        "textures/blocks/double_plant_fern_top",
+        "textures/blocks/double_plant_rose_top",
+        "textures/blocks/double_plant_paeonia_top",
+        "textures/blocks/double_plant_sunflower_front",
+        "textures/blocks/double_plant_syringa_top",
+        "textures/blocks/double_plant_grass_carried",
+        "textures/blocks/double_plant_fern_carried",
+        "textures/blocks/double_plant_rose_top",
+        "textures/blocks/double_plant_paeonia_top" ] },
+    "farmland": {
+        "textures": [
+        "textures/blocks/farmland_wet",
+        "textures/blocks/farmland_dry" ] },
+    "carrots": {
+        "textures": [
+              "textures/blocks/carrots_stage_0",
+              "textures/blocks/carrots_stage_1",
+              "textures/blocks/carrots_stage_2",
+              "textures/blocks/carrots_stage_3",
+              "textures/blocks/carrots_stage_3",
+              "textures/blocks/carrots_stage_3",
+              "textures/blocks/carrots_stage_3" ] }
+}

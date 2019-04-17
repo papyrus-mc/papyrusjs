@@ -6,6 +6,7 @@ const readline     = require( 'readline' );
 const colors       = require( 'colors' );
 const Spinner      = require( 'cli-spinner' ).Spinner;
 const marky        = require( 'marky' );
+const stripJsonComments = require( 'strip-json-comments' );
 
 const levelup = require( 'levelup' );
 const Chunk   = require( './palettes/chunk.js' );
@@ -71,44 +72,46 @@ function init( path_world ) {
                 // Count chunks
 
                 Object.keys( db_keys ).forEach( function( key ) {
-                    
+                    // Count total full Chunks
                     chunksTotal[ 1 ]++;
                 } );
 
                 console.log( 'Processing and rendering ' + colors.bold( chunksTotal[ 1 ] ) + ' Chunks, which ' + colors.bold( chunksTotal[ 0 ] ) + ' of them are valid SubChunks...' );
 
-                module.exports = { db };
+                var transparentBlocks = JSON.parse( fs.readFileSync( './lookup_tables/transparent-blocks_table.json'  ) );
+                var monoTable         = JSON.parse( fs.readFileSync( './lookup_tables/monochrome-textures_table.json' ) );
+                var patchTable        = JSON.parse( fs.readFileSync( './lookup_tables/patch-textures_table.json' ) );
+                var textureTable      = JSON.parse( stripJsonComments( fs.readFileSync( './dev/rp/textures/terrain_texture.json' ).toString() ) );
+                var blockTable        = JSON.parse( stripJsonComments( fs.readFileSync( './dev/rp/blocks.json' ).toString() ) );
+
+                module.exports = { db, transparentBlocks, monoTable, patchTable, textureTable, blockTable };
 
                 const readChunk   = require( './db_read/readChunk.js' );
                 const trimChunk   = require( './db_read/trimChunk.js' );
                 const renderChunk = require( './render/renderChunk' ); 
                 const Cache       = require( './palettes/textureCache' );
 
-                var transparentBlocks  = JSON.parse( fs.readFileSync( './lookup_tables/transparent-blocks_table.json'  ) );
-                var missingDefinitions = JSON.parse( fs.readFileSync( './lookup_tables/missing-definitions_table.json' ) );
-
-
-                var chunk,
-                    subchunk;
+                var chunk;
 
                 var next = 0;
 
                 var cache = new Cache();
-
-                const missingDefinition = require( './palettes/missingDefinitions' );
-                var mdcache = new missingDefinition();
 
                 // var c = 31;
 
                 processChunk( next );
 
                 async function processChunk( c ) {
-                    
                     if ( c < chunksTotal[ 1 ] ) {
+                // Object.keys( db_keys ).slice( 0, 10 ).forEach( function( key ) {
+
                         key = db_keys[ Object.keys( db_keys )[ c ] ];
+                        // key = db_keys[ key ];
 
                         chunk = new Chunk( key );
                         // Create new chunk with coordinates
+
+                        // console.log( key );
 
                         var key_request;
 
@@ -123,27 +126,19 @@ function init( path_world ) {
                             readPromises.push( readChunk( key_request, chunk ) );
                         };
 
-                        await Promise.all( readPromises )
-                            .then( function( ) {
+                        Promise.all( readPromises )
+                            .then( function() {
                                 console.log( 'Done reading chunk:\t' + key.toString( 'hex' ) );
                                 chunk = trimChunk( chunk, transparentBlocks );
                                 // console.log( chunk.list() );
-                                var renderPromise = [ ];
-                                
-                                renderChunk( chunk, cache, 16, missingDefinitions, mdcache );
-                                next++;
-                                processChunk( next );
-
-                                /*
-                                renderPromise.push( renderChunk( chunk, cache, 16, missingDefinitions, mdcache ) );
-
-                                Promise.all( renderPromise )
-                                .then( function() {
+                            
+                                renderChunk( chunk, cache, 16 )
+                                    .then( function() {
                                     next++;
                                     processChunk( next );
                                     console.log( 'Rendered! Next...\n' );
-                                } );
-                                */
+                                    } );
+                            
                             } );
                     };
                 };

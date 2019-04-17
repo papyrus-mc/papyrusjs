@@ -6,7 +6,7 @@ module.exports = function( s ) {
     this.put = function( ID, name, val) {
         keys[ ID ] = {
             name: name,
-            val : val
+            value: val
         };
     };
 

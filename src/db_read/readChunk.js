@@ -69,13 +69,12 @@ module.exports = function( key, chunk ) {
                                     _offset_nbt = 3 + data.value.name.value.length + 2 + 16; // 1 Byte: Tag Type, 2 Bytes: Name Length, next Bytes: String Length, 2 Bytes: TAG_SHORT, 16 Bytes: Magic Number 
 
                                     localPalette.put( paletteID , data.value.name.value, data.value.val.value );
-
-                                            // console.log( paletteID + '\t' + localPalette.get( paletteID ).name + '\t' + localPalette.get( paletteID ).val );
+                            
+                                    // console.log( paletteID + '\t' + localPalette.get( paletteID ).name + '\t' + localPalette.get( paletteID ).value );
 
                                     _offset += _offset_nbt;
                                 } );
                             };
-                                // };
                         };
 
                         var index_AfterPalette = _offset;
@@ -100,14 +99,9 @@ module.exports = function( key, chunk ) {
                                 try
                                 {
                                     if ( localPalette.get( state ).name != 'minecraft:air' ) {
-                                        chunk.set( x, y + SubChunkYOffset, z, localPalette.get( state ).name, 0 /* localPalette.get( state ).val */ );
+                                        chunk.set( x, y + SubChunkYOffset, z, localPalette.get( state ).name, localPalette.get( state ).value );
+                                        // console.log( localPalette.get( state ).value );
                                     };
-                                    
-                                    if ( localPalette.get( state ).name !== 'minecraft:air' )
-                                    {
-                                        // console.log( localPalette.get( state ).name );
-                                    };
-                                    // console.log( '\tX\t' + x + '\tY\t' + ( y + SubChunkYOffset ) +  '\tZ\t' + z + '\t' + localPalette.get( state ).name );
                                 } catch ( err ) {
                                     // throw err;
                                     console.log( colors.yellow( '[WARNING]' ) + ' Palette ID out of bounds!\t' + state + '\t:\t' + localPalette.size() );
