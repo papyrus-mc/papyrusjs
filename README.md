@@ -12,6 +12,7 @@ Since MCBE worlds don't use the Anvil format like in the Java Edition, but rathe
 - Isometric renders
 - Auto-Updating renders
 - Live-View of currently online players on map (and their respective statistics)
+- Nether/ The End support
 
 ([To-Do List](https://github.com/clarkx86/papyrusjs/blob/master/docs/todo.md#to-do-list))
 
