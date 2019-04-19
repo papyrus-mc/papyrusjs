@@ -1,6 +1,9 @@
 {
 	"grass_top": true,
 	"tallgrass": true,
-	"double_plant_top": true,
-	"leaves": true
+	"leaves": true,
+	"leaves2": true,
+	"pumpkin_stem": true,
+	"melon_stem": true,
+	"reeds": true
 }

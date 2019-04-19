@@ -1,59 +1,226 @@
 {
-    "still_lava": {
-        "textures": [ "textures/blocks/lava_placeholder" ] },
-    "flowing_lava": {
-        "textures": [ "textures/blocks/lava_placeholder" ] },
-    "still_water": {
-        "textures": [ "textures/blocks/water_placeholder" ] },
-    "still_water_grey": {
-        "textures": [ "textures/blocks/water_placeholder" ] },
-    "flowing_water": {
-        "textures": [ "textures/blocks/water_placeholder" ] },
-    "flowing_water_grey": {
-        "textures": [ "textures/blocks/water_placeholder" ] },
-    "leaves": {
+    "lava": {
         "textures": [
-        "textures/blocks/leaves_oak_opaque",
-        "textures/blocks/leaves_spruce_opaque",
-        "textures/blocks/leaves_birch_opaque",
-        "textures/blocks/leaves_jungle_opaque",
-        "textures/blocks/leaves_oak_opaque",
-        "textures/blocks/leaves_spruce_opaque",
-        "textures/blocks/leaves_birch_opaque",
-        "textures/blocks/leaves_jungle_opaque" ] },
+            "textures/blocks/water_placeholder" ] }, 
+    "still_lava": {
+        "textures": [
+            "textures/blocks/lava_placeholder" ] },
+    "flowing_lava": {
+        "textures": [
+            "textures/blocks/lava_placeholder" ] },
+    "water": {
+        "textures": [
+            "textures/blocks/water_placeholder" ] },  
+    "still_water": {
+        "textures": [
+            "textures/blocks/water_placeholder" ] },
+    "still_water_grey": {
+        "textures": [
+            "textures/blocks/water_placeholder",
+            "textures/blocks/water_placeholder",
+            "textures/blocks/water_placeholder",
+            "textures/blocks/water_placeholder",
+            "textures/blocks/water_placeholder",
+            "textures/blocks/water_placeholder",
+            "textures/blocks/water_placeholder",
+            "textures/blocks/water_placeholder" ] },
+    "flowing_water": {
+        "textures": [
+            "textures/blocks/water_placeholder" ] },
+    "flowing_water_grey": {
+        "textures": [
+            "textures/blocks/water_placeholder" ] },
     "log_top": {
         "textures": [
-        "textures/blocks/log_oak_top",
-        "textures/blocks/log_spruce_top",
-        "textures/blocks/log_birch_top",
-        "textures/blocks/log_jungle_top",
-        "textures/blocks/log_acacia_top",
-        "textures/blocks/log_big_oak_top" ] },
+            "textures/blocks/log_oak_top",
+            "textures/blocks/log_spruce_top",
+            "textures/blocks/log_birch_top",
+            "textures/blocks/log_jungle_top",
+            null,
+            null,
+            null,
+            null,
+            "textures/blocks/log_oak",
+            "textures/blocks/log_spruce",
+            "textures/blocks/log_birch",
+            "textures/blocks/log_jungle" ] },
+    "log_top2": {
+        "textures": [
+            "textures/blocks/log_acacia_top",
+            "textures/blocks/log_big_oak_top",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "textures/blocks/log_acacia",
+            "textures/blocks/log_big_oak",
+            null,
+            null ] },    
     "double_plant_top": {
         "textures": [
-        "textures/blocks/double_plant_sunflower_top",
-        "textures/blocks/double_plant_syringa_top",
-        "textures/blocks/double_plant_grass_top",
-        "textures/blocks/double_plant_fern_top",
-        "textures/blocks/double_plant_rose_top",
-        "textures/blocks/double_plant_paeonia_top",
-        "textures/blocks/double_plant_sunflower_front",
-        "textures/blocks/double_plant_syringa_top",
-        "textures/blocks/double_plant_grass_carried",
-        "textures/blocks/double_plant_fern_carried",
-        "textures/blocks/double_plant_rose_top",
-        "textures/blocks/double_plant_paeonia_top" ] },
+            "textures/blocks/double_plant_sunflower_top",
+            "textures/blocks/double_plant_syringa_top",
+            "textures/blocks/double_plant_grass_top",
+            "textures/blocks/double_plant_fern_top",
+            "textures/blocks/double_plant_rose_top",
+            "textures/blocks/double_plant_paeonia_top",
+            null,
+            null,
+            "textures/blocks/double_plant_sunflower_front",
+            "textures/blocks/double_plant_syringa_bottom",
+            "textures/blocks/double_plant_grass_bottom",
+            "textures/blocks/double_plant_fern_bottom",
+            "textures/blocks/double_plant_rose_bottom",
+            "textures/blocks/double_plant_paeonia_bottom" ] },
+    "furnace_top": {
+        "textures": [
+            "textures/blocks/furnace_top",
+            "textures/blocks/furnace_top",
+            "textures/blocks/furnace_top",
+            "textures/blocks/furnace_top" ] },
+    "observer_top": {
+        "textures": [
+            "textures/blocks/observer_top",
+            "textures/blocks/observer_top",
+            "textures/blocks/observer_top",
+            "textures/blocks/observer_top" ] },
+    "piston_top_sticky": {
+        "textures": [
+            "textures/blocks/piston_bottom",
+            "textures/blocks/piston_top_sticky",
+            "textures/blocks/piston_side",
+            "textures/blocks/piston_side",
+            "textures/blocks/piston_side",
+            "textures/blocks/piston_side" ] },
+    "piston_top": {
+        "textures": [
+            "textures/blocks/piston_bottom",
+            "textures/blocks/piston_top_normal",
+            "textures/blocks/piston_side",
+            "textures/blocks/piston_side",
+            "textures/blocks/piston_side",
+            "textures/blocks/piston_side" ] },
+    "daylight_detector_top": {
+        "textures": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "textures/blocks/daylight_detector_top",
+            "textures/blocks/daylight_detector_inverted_top" ] },
     "farmland": {
         "textures": [
-        "textures/blocks/farmland_wet",
-        "textures/blocks/farmland_dry" ] },
+            "textures/blocks/farmland_wet",
+            "textures/blocks/farmland_dry" ] },
     "carrots": {
         "textures": [
-              "textures/blocks/carrots_stage_0",
-              "textures/blocks/carrots_stage_1",
-              "textures/blocks/carrots_stage_2",
-              "textures/blocks/carrots_stage_3",
-              "textures/blocks/carrots_stage_3",
-              "textures/blocks/carrots_stage_3",
-              "textures/blocks/carrots_stage_3" ] }
+            "textures/blocks/carrots_stage_0",
+            "textures/blocks/carrots_stage_1",
+            "textures/blocks/carrots_stage_2",
+            "textures/blocks/carrots_stage_3",
+            "textures/blocks/carrots_stage_3",
+            "textures/blocks/carrots_stage_3",
+            "textures/blocks/carrots_stage_3" ] },
+    "sapling": {
+        "textures": [
+            "textures/blocks/sapling_oak",
+            "textures/blocks/sapling_spruce",
+            "textures/blocks/sapling_birch",
+            "textures/blocks/sapling_jungle",
+            "textures/blocks/sapling_acacia",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "textures/blocks/sapling_roofed_oak" ] },
+    "chest_inventory_top": {
+        "textures": [
+            "textures/blocks/chest_top",
+            "textures/blocks/chest_top",
+            "textures/blocks/chest_top",
+            "textures/blocks/chest_top" ] },
+    "ender_chest_inventory_top": {
+        "textures": [
+            "textures/blocks/ender_chest_top",
+            "textures/blocks/ender_chest_top",
+            "textures/blocks/ender_chest_top",
+            "textures/blocks/ender_chest_top" ] },
+    "leaves": {
+        "textures": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "textures/blocks/leaves_oak_opaque",
+            "textures/blocks/leaves_spruce_opaque",
+            "textures/blocks/leaves_birch_opaque",
+            "textures/blocks/leaves_jungle_opaque" ] },
+    "leaves2": {
+        "textures": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "textures/blocks/leaves_acacia_opaque",
+            "textures/blocks/leaves_big_oak_opaque" ] },
+    "wood": {
+        "textures": [
+            "textures/blocks/log_oak",
+            "textures/blocks/log_spruce",
+            "textures/blocks/log_birch",
+            "textures/blocks/log_jungle",
+            "textures/blocks/log_acacia",
+            "textures/blocks/log_big_oak",
+            null,
+            null,
+            "textures/blocks/stripped_oak_log",
+            "textures/blocks/stripped_spruce_log",
+            "textures/blocks/stripped_birch_log",
+            "textures/blocks/stripped_jungle_log",
+            "textures/blocks/stripped_acacia_log",
+            "textures/blocks/stripped_dark_oak_log",
+            null,
+            null ] },
+    "door_lower": {
+        "textures": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "textures/blocks/door_wood_lower",
+            "textures/blocks/door_spruce_lower",
+            "textures/blocks/door_birch_lower",
+            "textures/blocks/door_jungle_lower",
+            "textures/blocks/door_acacia_lower",
+            "textures/blocks/door_dark_oak_lower",
+            "textures/blocks/door_iron_lower" ] }
 }
