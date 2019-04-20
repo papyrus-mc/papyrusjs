@@ -164,10 +164,10 @@
             "textures/blocks/ender_chest_top" ] },
     "leaves": {
         "textures": [
-            null,
-            null,
-            null,
-            null,
+            "textures/blocks/leaves_oak_opaque",
+            "textures/blocks/leaves_spruce_opaque",
+            "textures/blocks/leaves_birch_opaque",
+            "textures/blocks/leaves_jungle_opaque",
             null,
             null,
             null,
@@ -178,8 +178,8 @@
             "textures/blocks/leaves_jungle_opaque" ] },
     "leaves2": {
         "textures": [
-            null,
-            null,
+            "textures/blocks/leaves_acacia_opaque",
+            "textures/blocks/leaves_big_oak_opaque",
             null,
             null,
             null,

@@ -50,5 +50,6 @@
 	"minecraft:melon_stem": true,
 	"minecraft:pumpkin_stem": true,
 	"minecraft:beetroot": true,
-	"minecraft:reeds": true
+	"minecraft:reeds": true,
+	"minecraft:mob_spawner": true
 }

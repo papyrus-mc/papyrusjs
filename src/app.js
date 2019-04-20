@@ -7,6 +7,7 @@ const colors       = require( 'colors' );
 const Spinner      = require( 'cli-spinner' ).Spinner;
 const marky        = require( 'marky' );
 const stripJsonComments = require( 'strip-json-comments' );
+const http         = require( 'http' );
 
 const levelup = require( 'levelup' );
 const Chunk   = require( './palettes/chunk.js' );
@@ -18,28 +19,20 @@ var rl = readline.createInterface( process.stdin, process.stdout );
 console.log( colors.bold( json_package.name.charAt( 0 )/*.toUpperCase()*/ + json_package.name.slice( 1, json_package.name.length - 2 ) + '.' + json_package.name.slice( json_package.name.length - 2 ) + ' v' + json_package.version + json_package.version_devstate.charAt( 0 ) ) + colors.reset( ' by ' ) + json_package.author );
 yargs.version( json_package.version + json_package.version_devstate.charAt( 0 ) );
 
+// Check for latest version
+http.get( 'http://papyrus.clarkx86.com/', ( err, ver ) => {
+    if ( err ) {
+        console.log( 'Could not check for updates...' );
+    } else {
+        console.log( 'Latest version: ' + ver );
+    };
+} );
+
 console.log( 'Type "help" to get started.');
 
 rl.prompt();
-
 rl.on( 'line', function( str_in ) {
-
-    // COMMAND: help
-    if        ( str_in == 'help' )
-    {
-        console.log( '\nExample usage:')
-        console.log( '-path "MyWorld" --mode=papyrus\n' )
-        console.log( 'Command list:\n   help: Displays help\n   exit: Closes ' + json_package.name.charAt( 0 ).toUpperCase() + json_package.name.slice( 1 ) + '\n\nParameters:\n   --path: Path to your world save\n   --output: Output directory for rendered Map\n   --mode: "papyrus" or "vanilla" (all chunks or ingame maps only)\n   --textures: Path to .mcpack folder containing the textures' );
-    // COMMAND: exit
-    } else if ( str_in == 'exit' )
-    {
-        console.log( 'Exiting...' );
-        process.exit();
-    } else
-    // COMMAND: everything else
-    {
-        init( str_in );
-    };
+    init( str_in );
 } );
 
 function init( path_world ) {
@@ -62,19 +55,51 @@ function init( path_world ) {
         db.createKeyStream()
             .on( 'data' , function( data ) {
 
-                if ( data.readInt8( 8 ) == 47 ) {       // Only read keys that are specificly SubChunks
-                    db_keys[ data.slice( 0, 8 ).toString( 'hex' ) ] = data;
-                    chunksTotal[ 0 ]++;
+                try {
+                    if ( data.readInt8( 8 ) == 47 ) {       // Only read keys that are specificly SubChunks
+                        db_keys[ data.slice( 0, 8 ).toString( 'hex' ) ] = data;
+                        chunksTotal[ 0 ]++;
+                    };
+                } catch( err ) {
+
                 };
 
             } ).on ( 'end', function() {
 
-                // Count chunks
+                var chunkX = [ ],
+                    chunkZ = [ ];
 
+                chunkX[ 0 ] = 0;    // Negative X
+                chunkX[ 1 ] = 0;    // Positive X
+                chunkZ[ 0 ] = 0;    // Negative Z
+                chunkZ[ 1 ] = 0;    // Positive Z
+
+                // Count chunks
                 Object.keys( db_keys ).forEach( function( key ) {
                     // Count total full Chunks
                     chunksTotal[ 1 ]++;
+
+                    // Update XZ-Distance
+                    if ( db_keys[ key ].readInt32LE( 0 ) <= chunkX[ 0 ] ) { chunkX[ 0 ] = db_keys[ key ].readInt32LE( 0 ) };
+                    if ( db_keys[ key ].readInt32LE( 0 ) >= chunkX[ 1 ] ) { chunkX[ 1 ] = db_keys[ key ].readInt32LE( 0 ) };
+                    if ( db_keys[ key ].readInt32LE( 4 ) <= chunkZ[ 0 ] ) { chunkZ[ 0 ] = db_keys[ key ].readInt32LE( 4 ) };
+                    if ( db_keys[ key ].readInt32LE( 4 ) >= chunkZ[ 1 ] ) { chunkZ[ 1 ] = db_keys[ key ].readInt32LE( 4 ) };
                 } );
+                
+                var zoomLevelMax = null;
+
+                if ( ( chunkX[ 1 ] - chunkX[ 0 ] ) >= ( chunkZ[ 1 ] - chunkZ[ 0 ] ) ) {
+                    console.log( 'X is bigger: ' + ( chunkX[ 1 ] - chunkX[ 0 ] ) + 1 );
+                    zoomLevelMax = Math.round( Math.log2( ( chunkX[ 1 ] - chunkX[ 0 ] ) ) );
+                } else {
+                    console.log( 'Z is bigger: ' + ( chunkZ[ 1 ] - chunkZ[ 0 ] ) );
+                    zoomLevelMax = Math.round( Math.log2( ( chunkZ[ 1 ] - chunkZ[ 0 ] ) + 1 ) );
+                };
+
+                // Calculate leaflet
+                console.log( 'Max zoom level:\t' + zoomLevelMax );
+
+                console.log( 'Furthest X (negative):\t' + chunkX[ 0 ] + '\tFurthest X (positive):\t' + chunkX[ 1 ] + '\nFurthest Z (negative):\t' + chunkZ[ 0 ] + '\tFurthest Z (positive):\t' + chunkZ[ 1 ] );
 
                 console.log( 'Processing and rendering ' + colors.bold( chunksTotal[ 1 ] ) + ' Chunks, which ' + colors.bold( chunksTotal[ 0 ] ) + ' of them are valid SubChunks...' );
 
@@ -84,7 +109,7 @@ function init( path_world ) {
                 var textureTable      = JSON.parse( stripJsonComments( fs.readFileSync( './dev/rp/textures/terrain_texture.json' ).toString() ) );
                 var blockTable        = JSON.parse( stripJsonComments( fs.readFileSync( './dev/rp/blocks.json' ).toString() ) );
 
-                module.exports = { db, transparentBlocks, monoTable, patchTable, textureTable, blockTable };
+                module.exports = { db, transparentBlocks, monoTable, patchTable, textureTable, blockTable, zoomLevelMax };
 
                 const readChunk   = require( './db_read/readChunk.js' );
                 const trimChunk   = require( './db_read/trimChunk.js' );
@@ -98,6 +123,8 @@ function init( path_world ) {
                 var cache = new Cache();
 
                 // var c = 31;
+
+                
 
                 processChunk( next );
 
@@ -137,11 +164,49 @@ function init( path_world ) {
                                     next++;
                                     processChunk( next );
                                     console.log( 'Rendered! Next...\n' );
+
+                                    if ( c == chunksTotal[ 1 ] ) {
+                                        processLeafletMap();
+                                    };
                                     } );
                             
                             } );
                     };
                 };
+
+                
+                
+                
+                // processLeafletMap();
+
+                async function processLeafletMap() {
+
+                    module.exports = { chunkX, chunkZ, zoomLevelMax };
+
+                    // Generate additional zoom levels for Leaflet map
+                    const renderZoomLevel = require( './render/renderZoomLevel.js' );
+
+                    for( j = ( zoomLevelMax - 1 ); j >= 0; j-- ) {
+                        await renderZoomLevel( j, 16 );
+                    };
+
+                    console.log( 'Done rendering all zoom levels!' );
+
+                    /*
+                    ( function() {
+                        console.log( 'Creating Leaflet map...' );
+
+                        const buildHTML = require( './html/buildHTML.js' );
+
+                        // buildHTML( './dev/render/leafletOut/', 0, zoomLevelMax, 0, 0 );
+
+
+                    } )();
+                    */
+                };
+
+                
+                
             } );
     };
 };

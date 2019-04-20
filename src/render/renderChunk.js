@@ -8,6 +8,7 @@ const monoTable = require( '../app.js' ).monoTable;
 const patchTable = require( '../app.js' ).patchTable;
 const textureTable = require( '../app.js' ).textureTable;
 const blockTable = require( '../app.js' ).blockTable;
+const zoomLevelMax = require( '../app.js' ).zoomLevelMax;
 
 module.exports = function( Chunk, Cache, size_texture ) {
 
@@ -55,10 +56,15 @@ module.exports = function( Chunk, Cache, size_texture ) {
             } );
             */
 
-            
-           IMG_render.write( './dev/render/leaflet/map/4/' + chunk.getXZ().readInt32LE( 0 ) + '/' + chunk.getXZ().readInt32LE( 4 ) + '.png' , () => {
-            resolve();
+            IMG_render.write( './dev/render/leaflet/map/' + zoomLevelMax + '/' + chunk.getXZ().readInt32LE( 0 ) + '/' + chunk.getXZ().readInt32LE( 4 ) + '.png' , () => {
+                resolve();
             } );
+
+            /*
+            IMG_render.write( './dev/render/leaflet/map/' + zoomLevelMax + '/chunk_X' + chunk.getXZ().readInt32LE( 0 ) + '_Z' + chunk.getXZ().readInt32LE( 4 ) + '.png' , () => {
+                resolve();
+            } );
+            */
             
         };
     
@@ -137,6 +143,14 @@ module.exports = function( Chunk, Cache, size_texture ) {
                                 // Is the texture monochrome?
                                 if ( monoTable[ texture ] !== undefined ) {
                                     image.composite( new Jimp( image ).color( [ { apply: 'mix', params: [ '#79c05a', 100 ] } ]), 0, 0, { mode: Jimp.BLEND_MULTIPLY } );
+                                };
+
+                                // Height map
+                                if ( y > 63 ) {
+                                    image.color( [ { apply: 'brighten', params: [ ( y - 63 ) / 2 ] } ] );
+                                } else if ( y < 63 ) {
+                                    image.color( [ { apply: 'darken', params: [ ( 100 - y )*(1/12) ] } ] );
+                                    // console.log( 'Y: ' + y  + '\t' + ( ( 100 - y )*(1/12) ) );
                                 };
                                 // Actual composing
                                 IMG_render.composite( image, size_texture * x, size_texture * z );
