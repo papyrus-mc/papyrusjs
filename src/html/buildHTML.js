@@ -4,7 +4,7 @@ const path = require( 'path' );
 module.exports = function( outPath, zoomLevelDefault, zoomLevelMax, posX, posZ ) {
 
     
-    fs.createWriteStream( path.normalize( outPath + '/index.html' ), { encoding: 'utf8' },
+    fs.writeFileSync( path.normalize( outPath + '/index.html' ), { encoding: 'utf8' },
     `<html>
     <head>
         <title>papyrus.js Map</title>

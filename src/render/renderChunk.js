@@ -4,6 +4,9 @@ const fs      = require( 'fs' );
 const tga2png = require( 'tga2png' );
 const colors  = require( 'colors' );
 
+const path_output       = require( '../app.js' ).path_output;
+const path_resourcepack = require( '../app.js' ).path_resourcepack;
+
 const monoTable = require( '../app.js' ).monoTable;
 const patchTable = require( '../app.js' ).patchTable;
 const textureTable = require( '../app.js' ).textureTable;
@@ -19,7 +22,6 @@ module.exports = function( Chunk, Cache, size_texture ) {
         var IMG_placeholder = new Jimp( 16, 16 );
     
         var file     = null,
-            tpPath   = './dev/rp/',
             fileExt  = '.png';
     
         render();
@@ -48,7 +50,7 @@ module.exports = function( Chunk, Cache, size_texture ) {
                 };
             };
     
-            console.log( 'Writing to "chunk' + '_X' + chunk.getXZ().readInt32LE( 0 ) + '_Z' + chunk.getXZ().readInt32LE( 4 ) + '.png"' );
+            // console.log( 'Writing to "chunk' + '_X' + chunk.getXZ().readInt32LE( 0 ) + '_Z' + chunk.getXZ().readInt32LE( 4 ) + '.png"' );
 
             /*
             IMG_render.write( './dev/render/chunk' + '_X' + chunk.getXZ().readInt32LE( 0 ) + '_Z' + chunk.getXZ().readInt32LE( 4 ) + '.png' , () => {
@@ -56,7 +58,7 @@ module.exports = function( Chunk, Cache, size_texture ) {
             } );
             */
 
-            IMG_render.write( './dev/render/leaflet/map/' + zoomLevelMax + '/' + chunk.getXZ().readInt32LE( 0 ) + '/' + chunk.getXZ().readInt32LE( 4 ) + '.png' , () => {
+            IMG_render.write( path.normalize( path_output + '/map/' + zoomLevelMax + '/' + chunk.getXZ().readInt32LE( 0 ) + '/' + chunk.getXZ().readInt32LE( 4 ) + fileExt ) , () => {
                 resolve();
             } );
 
@@ -88,7 +90,7 @@ module.exports = function( Chunk, Cache, size_texture ) {
 
                     // Is the file in the patch lookup-table (e.g. for water and lava)
                     if ( patchTable[ texture ] ) {
-                        file = tpPath + patchTable[ texture ][ 'textures' ][ chunk.get( x, y, z ).value ];
+                        file = path_resourcepack + patchTable[ texture ][ 'textures' ][ chunk.get( x, y, z ).value ];
                         // console.log( colors.bold( 'Patched texture found!' ) + '  Block:\t' + fileName + '\tValue:\t' + chunk.get( x, y, z ).value + '\tTexture:' + texture + '\tPath:\t' + file );
                     } else {
                         // No? Then search for the texture in the block lookup-table
@@ -105,10 +107,10 @@ module.exports = function( Chunk, Cache, size_texture ) {
                             var arr = textureTable[ "texture_data" ][ texture ][ "textures" ];
                             // Yes
                             if ( Array.isArray( arr ) ) {
-                                file = tpPath + arr[ chunk.get( x, y, z ).value ];
+                                file = path_resourcepack + arr[ chunk.get( x, y, z ).value ];
                             } else {
                                 // No
-                                file = tpPath + arr;
+                                file = path_resourcepack + arr;
                             };
                         };
                     };

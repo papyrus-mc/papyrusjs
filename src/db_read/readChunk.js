@@ -3,6 +3,7 @@ const db     = require( '../app.js' ).db;
 const nbt    = require( 'prismarine-nbt' );
 
 const Palette_Persistance = require( '../palettes/palette_persistance.js' );
+const runtimeIDTable      = require( '../app.js' ).runtimeIDTable;
 
 module.exports = function( key, chunk ) {
     return new Promise( ( resolve, reject ) => {
@@ -22,6 +23,24 @@ module.exports = function( key, chunk ) {
 
             switch( SubChunkVersion )
             {
+                case 0:
+                    // console.log( 'OLD VERSION!' );
+
+                    for( iy = 0; iy < 16; iy++ ) {
+                        for( ix = 0; ix < 16; ix++ ) {
+                            for( iz = 0; iz < 16; iz++ ) {
+                                // console.log( 'Block ID:\t' + value.readInt8( _offset ) ); _offset++;
+                                try {
+                                    // console.log( runtimeIDTable[ value.readInt8( _offset ) ][ 'name' ] );
+                                    chunk.set( ix, iy + SubChunkYOffset, iz, runtimeIDTable[ value.readInt8( _offset ) ][ 'name' ], 0 ); 
+                                } catch( err ) {
+                                    //
+                                }; _offset++; 
+                            };
+                        };
+                    };
+                    break;
+
                 case 8:
                     // valid
                     storages = value.readInt8( _offset ); _offset++;
