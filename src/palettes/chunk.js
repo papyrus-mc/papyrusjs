@@ -25,6 +25,10 @@ module.exports = function( xz ) {
         return XZ;
     };
 
+    this.load = function( chunkList ) {
+        chunk = chunkList;
+    };
+
     this.list = function( ) {
         return chunk;
     };

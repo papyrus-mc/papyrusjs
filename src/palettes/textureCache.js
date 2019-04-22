@@ -1,16 +1,16 @@
-const Vec3 = require( 'vec3' );
+const argv = require( '../app.js' ).argv;
 
 module.exports = function() {
 
-    var cache = { }
+    var cache = [ ];
 
     this.save = function( name, value, data ) {
+        // if ( argv.verbose == true ) { console.log( '\nSaving new texture to cache.\t' + name + ' ' + value ) };
         cache[ JSON.stringify( { name: name, value: value } ) ] = data;
     };
 
     this.get = function( name, value ) {
-        var data = cache[ JSON.stringify( { name: name, value: value } ) ];
-        return data;
+        return cache[ JSON.stringify( { name: name, value: value } ) ];
     };
 
     this.list = function() {
