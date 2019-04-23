@@ -128,10 +128,8 @@ function init( path_world, path_output ) {
 
                 module.exports = { chunksTotal, argv, path_output, path_resourcepack, db, transparentBlocks, monoTable, patchTable, textureTable, blockTable, runtimeIDTable, zoomLevelMax };
 
-                const readChunk   = require( './db_read/readChunk.js' );
-
-
-                var bar = new ProgressBar( colors.bold( '[' ) + ':bar' + colors.bold( ']' ) + ' Processing chunk :current/ :total\t', {
+                //var bar = new ProgressBar( colors.bold( '[' ) + ':bar' + colors.bold( ']' ) + ' :percent\tProcessing chunk :current/ :total\t:rate chunks/Second\t(:eta seconds left)', {
+                var bar = new ProgressBar( colors.bold( '[' ) + ':bar' + colors.bold( ']' ) + ' :percent\tProcessing chunk :current/ :total\t:rate chunks/Second', {
                     total: Object.keys( db_keys ).length,
                     complete: colors.inverse( '=' ),
                     width: 32
@@ -165,29 +163,34 @@ function init( path_world, path_output ) {
                         case 0: // Request for key
                             // console.log( msg[ 'msg' ] );
 
-                            bar.tick();
+                            try {
+                                bar.tick();
+                                key = db_keys[ Object.keys( db_keys )[ msg[ 'msg' ] ] ];
+                                var key_request,
+                                    readPromises = [ ],
+                                    db_data = [ ];
 
-                            key = db_keys[ Object.keys( db_keys )[ msg[ 'msg' ] ] ];
+                                for( i = 0; i <= key.readInt8( 9 ); i++ )
+                                {
+                                    key_request = Buffer.alloc( 10 );       // Create new buffer 
+                                    key.copy( key_request );                // Copy target SubChunk key to new buffer
+                                    key_request.writeInt8( i, 9 );          // Assemble database request key buffer
 
-                            // Create new chunk with coordinates
-                            var chunk = new Chunk( key.slice( 0, 8 ) );
+                                    readPromises.push( new Promise( ( resolve, reject ) => {
+                                        db.get( key_request, ( err, data ) => {
+                                            db_data.push( data );
+                                            resolve();
+                                        } );
+                                    } ) );
+                                };
 
-                            var key_request,
-                                readPromises = [ ];
+                                Promise.all( readPromises )
+                                    .then( function() {
+                                        workers[ worker[ 'id' ]-1 ].send( { msgid: 0, msg: { xz: key.slice( 0, 8 ), data: db_data } } );
+                                    } );
+                            } catch( err ) {
 
-                            for( i = 0; i <= key.readInt8( 9 ); i++ )
-                            {
-                                key_request = Buffer.alloc( 10 );       // Create new buffer 
-                                key.copy( key_request );                // Copy target SubChunk key to new buffer
-                                key_request.writeInt8( i, 9 );          // Assemble database request key buffer
-                                // console.log( db_keys[ key ] );
-                                readPromises.push( readChunk( key_request, chunk ) );
                             };
-
-                            Promise.all( readPromises )
-                                .then( function() {
-                                    workers[ worker[ 'id' ]-1 ].send( { msgid: 0, msg: { xz: chunk.getXZ(), data: chunk.list() } } );
-                                } );
                             break;
                     };
                 } );
@@ -216,6 +219,8 @@ function init( path_world, path_output ) {
 };
 
 } else {
+    const sharp       = require( 'sharp' );
+    const readChunk   = require( './db_read/readChunk.js' );
     const trimChunk   = require( './db_read/trimChunk.js' );
     const renderChunk = require( './render/renderChunk' ); 
     const Cache       = require( './palettes/textureCache' );
@@ -231,24 +236,80 @@ function init( path_world, path_output ) {
         path_resourcepack = path.normalize( argv.textures ),
         zoomLevelMax = process.env[ 'zoomLevelMax' ];
 
-    var chunk,
-        next = 0;
-
-    var cache = new Cache();
-
-    var pos = process.env[ 'start' ];
-
-    process.send( { msgid: 0, msg: pos } ); // Initial chunk request
+    var pos = process.env[ 'start' ],
+        cache = new Cache();
     
-    console.log( "I'm worker " + process.env[ 'ID' ] + ' and I render from ' + process.env[ 'start' ] + ' to ' + process.env[ 'end' ] );
+    initPromises = [ ];
+    // Prepare essential images for cache
+    // Tile canvas
+    initPromises.push( new Promise( ( resolve, reject ) => {
+        sharp( { create: {
+            width:  256,
+            height: 256,
+            channels: 4,
+            background: 0 } } )
+            .png()
+            .toBuffer()
+            .then( ( buffer ) => {
+                cache.save( 'tile_canvas', 0, buffer );
+
+                // console.log( cache.get( 'tile_canvas', 0 ) );
+
+                resolve();
+            } );
+    } ) );
+
+    // Monochrome textures blending colour
+    initPromises.push( new Promise( ( resolve, reject ) => {
+        sharp( { create: {
+            width:  16,
+            height: 16,
+            channels: 3,
+            background: '#79c05a' } } )
+            .png()
+            .toBuffer()
+            .then( ( buffer ) => {
+                cache.save( 'mono_default', 0, buffer );
+                resolve();
+            } );
+    } ) );
+
+    // Placeholder
+    initPromises.push( new Promise( ( resolve, reject ) => {
+        sharp( { create: {
+            width:  1,
+            height: 1,
+            channels: 4,
+            background: 0 } } )
+            .png()
+            .toBuffer()
+            .then( ( buffer ) => {
+                cache.save( 'placeholder', 0, buffer );
+                resolve();
+            } );
+    } ) );
+    
+    Promise.all( initPromises )
+        .then( () => {
+            process.send( { msgid: 0, msg: pos } ); // Initial chunk request
+        } );
+    
+   // process.send( { msgid: 0, msg: pos } ); // Initial chunk request
+    
+    // console.log( "I'm worker " + process.env[ 'ID' ] + ' and I render from ' + process.env[ 'start' ] + ' to ' + process.env[ 'end' ] );
 
     process.on( 'message', ( msg ) => {
         switch( msg[ 'msgid' ] ) {
             case 0: // Received requested chunk
                 var chunk = new Chunk( Buffer.from( msg[ 'msg' ][ 'xz' ] ) );
-                chunk.load( msg[ 'msg' ][ 'data' ] );
-                chunk = trimChunk( chunk, transparentBlocks );
-                // renderChunk( chunk, cache, 16 )
+                // console.log( Buffer.from( msg[ 'msg' ][ 'xz' ] ) );
+
+                for( i = 0; i < msg[ 'msg' ][ 'data' ].length; i++ ) {
+                    readChunk( Buffer.from( msg[ 'msg' ][ 'data' ][ i ] ), chunk, i );
+                };
+
+                // chunk = trimChunk( chunk, transparentBlocks );
+
                 renderChunk( chunk, cache, 16, patchTable, blockTable, textureTable, monoTable, zoomLevelMax, path_resourcepack, path_output )
                     .then( function() {
                         pos++;
@@ -261,5 +322,5 @@ function init( path_world, path_output ) {
                 break;
         };
     } );
+    
 };
-

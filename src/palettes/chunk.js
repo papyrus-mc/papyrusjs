@@ -6,12 +6,12 @@ module.exports = function( xz ) {
         XZ = xz;
 
     this.set = function( x, y, z, name, value ) {
-        chunk[ new Vec3( x, y, z ) ] = { name: name, value: value };
+        chunk[ new Vec3( x, 63, z ) ] = { name: name, value: value };
         // console.log( chunk[ new Vec3( x, y, z ) ] );
     };
 
     this.get = function( x, y, z ) {
-        var getBlock = chunk[ new Vec3 ( x, y, z ) ];
+        var getBlock = chunk[ new Vec3 ( x, 63, z ) ];
 
         if ( getBlock === undefined )
         {
@@ -25,9 +25,11 @@ module.exports = function( xz ) {
         return XZ;
     };
 
+    /* // No longer needed
     this.load = function( chunkList ) {
         chunk = chunkList;
     };
+    */
 
     this.list = function( ) {
         return chunk;

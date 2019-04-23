@@ -1,5 +1,7 @@
 const path    = require( 'path' );
-const Jimp    = require( 'jimp' );
+// const Jimp    = require( 'jimp' );
+// const sharp   = require( 'sharp' );
+const blend   = require( '@mapbox/blend' );
 const fs      = require( 'fs' );
 const tga2png = require( 'tga2png' );
 const colors  = require( 'colors' );
@@ -30,12 +32,14 @@ module.exports = function( Chunk, Cache, size_texture, PatchTable, BlockTable, T
             path_resourcepack = PathResourcePack;
 
         var zoomLevelMax = ZoomLevelMax;
-
-        var IMG_render = new Jimp( size_texture*size_texture, size_texture*size_texture );
-        var IMG_placeholder = new Jimp( 16, 16 );
     
         var file     = null,
             fileExt  = '.png';
+
+        var canvas = cache.get( 'tile_canvas', 0 ),
+            IMG_placeholder = cache.get( 'placeholder', 0 );
+
+        // var IMG = new Jimp( 256, 256 );
     
         render();
     
@@ -52,6 +56,8 @@ module.exports = function( Chunk, Cache, size_texture, PatchTable, BlockTable, T
             
             // console.log( 'Y0: ' + Y[ 0 ] + ', Y1: ' + Y[ 1 ] );
     
+            var composeArray = [ ];
+
             // Render chunk
             // Y-Axis
             for( iy = Y[ 0 ]; iy <= Y[ 1 ]; iy++ )
@@ -63,31 +69,27 @@ module.exports = function( Chunk, Cache, size_texture, PatchTable, BlockTable, T
                     // X-Axis
                     for( ix = 0; ix < 16; ix++ )
                     {
-                        await compose( ix, iy, iz );
+                        loadTexture( chunk.get( ix, iy, iz ).name, ix, iy, iz );
+                        composeArray.push( {
+                            buffer: cache.get( chunk.get( ix, iy, iz ).name, chunk.get( ix, iy, iz ).value ),
+                            x: size_texture * ix,
+                            y: size_texture* iz
+                        } );
+                        // console.log( cache.get( chunk.get( ix, iy, iz ).name, chunk.get( ix, iy, iz ).value ) );
                     };
-                    await compose( ix, iy, iz );
                 };
             };
 
-            resolve();
-            
-            IMG_render.write( path.normalize( path_output + '/map/' + zoomLevelMax + '/' + chunk.getXZ().readInt32LE( 0 ) + '/' + chunk.getXZ().readInt32LE( 4 ) + fileExt ) , () => {
-                
-            } );
-
-            
+            blend( composeArray, { width: 256, height: 256 }, function( err, data ) {
+                    fs.writeFile( path.normalize( path_output + '/map/' + chunk.getXZ().readInt32LE( 0 ) + '_' + chunk.getXZ().readInt32LE( 4 ) + fileExt ), data, ( err ) => {
+                        if ( err ) { throw err };
+                    } );
+                    resolve();
+                } );
             
         };
     
-            async function compose( x, y, z ) {
-
-                fileName = chunk.get( x, y, z ).name;
-                // console.log( fileName );
-            
-                
-                if ( fileName !== 'minecraft:air' ) // Ignore air
-                {
-
+        async function loadTexture( fileName, x, y, z ) {
                     // Is the texture in the cache already? No: Load texture from filesystem, Yes: Skip to compositing :)!
                     if ( cache.get( fileName, chunk.get( x, y, z ).value ) === undefined ) {
                         // Does the texture have multiple faces?
@@ -146,38 +148,11 @@ module.exports = function( Chunk, Cache, size_texture, PatchTable, BlockTable, T
                             } else {
                                 // PNG (but not if the image is a buffer already)
                                 if ( file !== IMG_placeholder ) {
+                                    // cache.save( fileName, chunk.get( x, y, z ).value, fs.readFileSync( file + fileExt ) );
                                     cache.save( fileName, chunk.get( x, y, z ).value, fs.readFileSync( file + fileExt ) );
                                 };
                             };  
                     };
-
-                    // Compose!
-                    await comp();
-
-                    async function comp() {
-                        await Jimp.read( cache.get( fileName, chunk.get( x, y, z ).value ) )
-                            .then( async function( image ) {
-                                // Is the texture monochrome?
-                                // if ( monoTable[ texture ] !== undefined ) {
-                                if ( monoTable[ fileName.slice( 10 ) ] !== undefined ) {  
-                                    image.composite( new Jimp( image ).color( [ { apply: 'mix', params: [ '#79c05a', 100 ] } ]), 0, 0, { mode: Jimp.BLEND_MULTIPLY } );
-                                };
-
-                                // Height map
-                                if ( y > 63 ) {
-                                    image.color( [ { apply: 'brighten', params: [ ( y - 63 ) / 2 ] } ] );
-                                } else if ( y < 63 ) {
-                                    image.color( [ { apply: 'darken', params: [ ( 100 - y )*(1/12) ] } ] );
-                                    // console.log( 'Y: ' + y  + '\t' + ( ( 100 - y )*(1/12) ) );
-                                };
-
-                                // Actual composing
-                                IMG_render.composite( image, size_texture * x, size_texture * z );
-                        } ) .catch( ( err ) => {
-                            console.log( colors.red( '[ERROR]' ) + ' Could not read texture:\t' + file );
-                        } );
-                    }; 
-                }
-            };
+                };
     } );
 };

@@ -5,19 +5,12 @@ const nbt    = require( 'prismarine-nbt' );
 const Palette_Persistance = require( '../palettes/palette_persistance.js' );
 const runtimeIDTable      = require( '../app.js' ).runtimeIDTable;
 
-module.exports = function( key, chunk ) {
+module.exports = function( value, chunk, yOffset ) {
     return new Promise( ( resolve, reject ) => {
-    db.get( Buffer.from( key ), function( err, value ) {
-        if ( err )
-        {
-            console.log( colors.red( '[READ ERROR]' ) + ' Skiping... ' + err );
-            reject();
-        } else {
 
             var _offset = 0;
             var SubChunkVersion = value.readInt8( _offset ); _offset++;
-            var SubChunkYOffset = 16 * key.readInt8( 9 );
-            // console.log( SubChunkYOffset );
+            var SubChunkYOffset = 16 * yOffset;
 
             var storages = 1;
 
@@ -132,8 +125,6 @@ module.exports = function( key, chunk ) {
                     };
                 break;
             };
-        };
-        resolve();
-    } );
-    } );
+            resolve();
+        } ); 
 };
