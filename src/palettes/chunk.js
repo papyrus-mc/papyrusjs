@@ -1,17 +1,29 @@
+const fs = require( 'fs' );
 const Vec3 = require( 'vec3' );
 
-module.exports = function( xz ) {
+var transparentBlocks = JSON.parse( fs.readFileSync( './lookup_tables/transparent-blocks_table.json' ) );
 
+module.exports = function( xz ) {
     var chunk = { },
-        XZ = xz;
+        XZ = xz,
+        Y  = 1;
 
     this.set = function( x, y, z, name, value ) {
-        chunk[ new Vec3( x, 63, z ) ] = { name: name, value: value };
-        // console.log( chunk[ new Vec3( x, y, z ) ] );
+
+        if ( transparentBlocks[ name ] != true ) {
+                chunk[ new Vec3( x, 0, z ) ] = { name: name, value: value, y: y };
+        } else {
+            var iy = 1;
+            while( chunk[ new Vec3( x, iy, z ) ] != undefined ) {
+                iy++;
+            }
+            chunk[ new Vec3( x, iy, z ) ] = { name: name, value: value, y: y };
+            // console.log( name + ' was transparent. Put it on Y: ' + iy );
+        };
     };
 
     this.get = function( x, y, z ) {
-        var getBlock = chunk[ new Vec3 ( x, 63, z ) ];
+        var getBlock = chunk[ new Vec3 ( x, y, z ) ];
 
         if ( getBlock === undefined )
         {
@@ -25,15 +37,11 @@ module.exports = function( xz ) {
         return XZ;
     };
 
-    /* // No longer needed
-    this.load = function( chunkList ) {
-        chunk = chunkList;
+    this.getHeight = function() {
+        return Y;
     };
-    */
 
     this.list = function( ) {
         return chunk;
     };
-
-    // return chunkLayer;
 };

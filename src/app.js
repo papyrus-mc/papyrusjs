@@ -35,6 +35,18 @@ const argv = require( 'yargs' )
     .demandOption( [ 'world', 'textures' ] )
     .argv
 
+// var transparentBlocks = JSON.parse( fs.readFileSync( './lookup_tables/transparent-blocks_table.json'  ) );
+var runtimeIDTable    = JSON.parse( fs.readFileSync( './lookup_tables/runtimeid_table.json' ) );
+var monoTable         = JSON.parse( fs.readFileSync( './lookup_tables/monochrome-textures_table.json' ) );
+var patchTable        = JSON.parse( fs.readFileSync( './lookup_tables/patch-textures_table.json' ) );
+var textureTable      = JSON.parse( stripJsonComments( fs.readFileSync( './dev/rp/textures/terrain_texture.json' ).toString() ) );
+var blockTable        = JSON.parse( stripJsonComments( fs.readFileSync( './dev/rp/blocks.json' ).toString() ) );
+
+var path_output = path.normalize( argv.output ),
+    path_resourcepack = path.normalize( argv.textures ),
+    zoomLevelMax = process.env[ 'zoomLevelMax' ];
+
+module.exports = { runtimeIDTable, monoTable, patchTable, textureTable, blockTable, path_output, path_resourcepack };
 
 if ( cluster.isMaster ) {
 
@@ -125,9 +137,7 @@ function init( path_world, path_output ) {
 
                 console.log( 'Furthest X (negative):\t' + chunkX[ 0 ] + '\tFurthest X (positive):\t' + chunkX[ 1 ] + '\nFurthest Z (negative):\t' + chunkZ[ 0 ] + '\tFurthest Z (positive):\t' + chunkZ[ 1 ] );
                 console.log( 'Processing and rendering ' + colors.bold( chunksTotal[ 1 ] ) + ' Chunks, which ' + colors.bold( chunksTotal[ 0 ] ) + ' of them are valid SubChunks...' );
-
-                module.exports = { chunksTotal, argv, path_output, path_resourcepack, db, transparentBlocks, monoTable, patchTable, textureTable, blockTable, runtimeIDTable, zoomLevelMax };
-
+                
                 //var bar = new ProgressBar( colors.bold( '[' ) + ':bar' + colors.bold( ']' ) + ' :percent\tProcessing chunk :current/ :total\t:rate chunks/Second\t(:eta seconds left)', {
                 var bar = new ProgressBar( colors.bold( '[' ) + ':bar' + colors.bold( ']' ) + ' :percent\tProcessing chunk :current/ :total\t:rate chunks/Second', {
                     total: Object.keys( db_keys ).length,
@@ -219,46 +229,18 @@ function init( path_world, path_output ) {
 };
 
 } else {
+
     const sharp       = require( 'sharp' );
     const readChunk   = require( './db_read/readChunk.js' );
-    const trimChunk   = require( './db_read/trimChunk.js' );
+    // const trimChunk   = require( './db_read/trimChunk.js' );
     const renderChunk = require( './render/renderChunk' ); 
     const Cache       = require( './palettes/textureCache' );
-
-    var transparentBlocks = JSON.parse( fs.readFileSync( './lookup_tables/transparent-blocks_table.json'  ) );
-    var runtimeIDTable    = JSON.parse( fs.readFileSync( './lookup_tables/runtimeid_table.json' ) );
-    var monoTable         = JSON.parse( fs.readFileSync( './lookup_tables/monochrome-textures_table.json' ) );
-    var patchTable        = JSON.parse( fs.readFileSync( './lookup_tables/patch-textures_table.json' ) );
-    var textureTable      = JSON.parse( stripJsonComments( fs.readFileSync( './dev/rp/textures/terrain_texture.json' ).toString() ) );
-    var blockTable        = JSON.parse( stripJsonComments( fs.readFileSync( './dev/rp/blocks.json' ).toString() ) );
-
-    var path_output = path.normalize( argv.output ),
-        path_resourcepack = path.normalize( argv.textures ),
-        zoomLevelMax = process.env[ 'zoomLevelMax' ];
 
     var pos = process.env[ 'start' ],
         cache = new Cache();
     
     initPromises = [ ];
     // Prepare essential images for cache
-    // Tile canvas
-    initPromises.push( new Promise( ( resolve, reject ) => {
-        sharp( { create: {
-            width:  256,
-            height: 256,
-            channels: 4,
-            background: 0 } } )
-            .png()
-            .toBuffer()
-            .then( ( buffer ) => {
-                cache.save( 'tile_canvas', 0, buffer );
-
-                // console.log( cache.get( 'tile_canvas', 0 ) );
-
-                resolve();
-            } );
-    } ) );
-
     // Monochrome textures blending colour
     initPromises.push( new Promise( ( resolve, reject ) => {
         sharp( { create: {

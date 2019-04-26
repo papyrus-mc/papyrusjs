@@ -1,4 +1,4 @@
-const Chunk         = require( '../palettes/chunk.js' );
+const Chunk = require( '../palettes/chunk.js' );
 
 module.exports = function( srcChunk, Table ) {
     var chunk      = [ ],
