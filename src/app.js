@@ -32,7 +32,7 @@ const argv = require( 'yargs' )
         alias: 'v',
         default: false
     } )
-    .demandOption( [ 'world', 'textures' ] )
+    .demandOption( [ 'world', 'textures', 'output' ] )
     .argv
 
 var transparentBlocks = JSON.parse( fs.readFileSync( './lookup_tables/transparent-blocks_table.json'  ) ),
@@ -166,8 +166,6 @@ function init( path_world, path_output ) {
 
                 bar.tick();
 
-                processLeafletMap();
-
                 // console.log( 'Approx. ' +  + ' chunks per thread.' );
 
                 // WORKER EVENT HANDLER
@@ -209,7 +207,7 @@ function init( path_world, path_output ) {
 
                         case 1:
                             finishedWorkers++;
-                            // if ( argv.verbose ) { console.log( worker[ 'id' ]-1 + ' is done rendering.' ); };
+                            if ( argv.verbose ) { console.log( 'Thread ' + worker[ 'id' ]-1 + ' is done rendering.' ); };
                             if ( finishedWorkers === os.cpus().length ) {
                                 if ( argv.verbose ) { console.log( 'All threads are done rendering.' ); };
                                 processLeafletMap();

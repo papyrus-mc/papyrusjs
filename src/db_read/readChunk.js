@@ -18,26 +18,31 @@ module.exports = function( value, chunk, yOffset ) {
             {
                 case 0:
                     // console.log( 'OLD VERSION!' );
+                    for ( position = 0; position < 4096; position++ )
+                    {
+                        var blockID = value.readInt8( _offset ); _offset++;
+                        var blockData = 0,
+                            dataPos = 1 + 4096 + (position / 2);
+     
+                        var x = ( position >> 8 ) & 0xF,
+                            y =   position & 0xF,
+                            z = ( position >> 4 ) & 0xF;
 
-                    for( iy = 0; iy < 16; iy++ ) {
-                        for( ix = 0; ix < 16; ix++ ) {
-                            for( iz = 0; iz < 16; iz++ ) {
-                                // console.log( 'Block ID:\t' + value.readInt8( _offset ) ); _offset++;
-                                try {
-                                    // console.log( runtimeIDTable[ value.readInt8( _offset ) ][ 'name' ] );
-                                    chunk.set( ix, iy + SubChunkYOffset, iz, runtimeIDTable[ value.readInt8( _offset ) ][ 'name' ], 0 ); 
-                                } catch( err ) {
-                                    //
-                                }; _offset++; 
+                        try {
+                            if ( runtimeIDTable[ blockID ][ 'name' ] != 'minecraft:air' ) {
+                                chunk.set( x, y + SubChunkYOffset, z, runtimeIDTable[ blockID ][ 'name' ], blockData );
+                                // console.log( runtimeIDTable[ blockID ] );
                             };
+                        } catch( err ) {
+                            // console.log( blockID + ' ' + err );
                         };
+                        // console.log( blockID );
                     };
                     break;
 
                 case 8:
                     // valid
                     storages = value.readInt8( _offset ); _offset++;
-                    // console.log( storages );
 
                 case 1:
                     // valid
@@ -101,9 +106,9 @@ module.exports = function( value, chunk, yOffset ) {
                             for( block = 0; block < blocksPerWord; block++ )
                             {
                                 var state = ( word >> ( ( position % blocksPerWord ) * bitsPerBlock ) ) & ( ( 1 << bitsPerBlock ) - 1 );
-                                var x     = ( position >> 8 ) & 0xF;
-                                var y     =   position        & 0xF;
-                                var z     = ( position >> 4 ) & 0xF;
+                                var x     = ( position >> 8 ) & 0xF,
+                                    y     =   position        & 0xF,
+                                    z     = ( position >> 4 ) & 0xF;
 
                                 // console.log( 'State:\t' + state + '\tX:\t' + x + '\tY:\t' + y + '\tZ:\t' + z );
                                 // console.log( localPalette.get( state ).name );

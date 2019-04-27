@@ -29,7 +29,7 @@ module.exports = function( chunkSize, zoomLevelMax, chunkX, chunkZ ) {
                         fs.mkdirSync( path_output + '/map/' + ( zoomLevelCurrent ) + '/' );
                     };
 
-                    file = path.normalize( path_output + '/map/' + ( zoomLevelCurrent+1 ) + '/' + ( ix ) + '/' + ( iz ) + '.png' );
+                    file = path.normalize( path_output + '/map/' + ( zoomLevelCurrent+1 ) + '/' + ( ix*2 ) + '/' + ( iz*2 ) + '.png' );
                     if ( fs.existsSync( file ) ) {
                         blendArray.push( {
                             buffer: fs.readFileSync( file ),
@@ -38,7 +38,7 @@ module.exports = function( chunkSize, zoomLevelMax, chunkX, chunkZ ) {
                         } );
                     };
                     
-                    file = path.normalize( path_output + '/map/' + ( zoomLevelCurrent+1 ) + '/' + ( ix ) + '/' + ( iz+1 ) + '.png' );
+                    file = path.normalize( path_output + '/map/' + ( zoomLevelCurrent+1 ) + '/' + ( ix*2 ) + '/' + ( ( iz*2 )+1 ) + '.png' );
                     if ( fs.existsSync( file ) ) {
                         blendArray.push( {
                             buffer: fs.readFileSync( file ),
@@ -47,7 +47,7 @@ module.exports = function( chunkSize, zoomLevelMax, chunkX, chunkZ ) {
                         } );
                     };
 
-                    file = path.normalize(  path_output + '/map/' + ( zoomLevelCurrent+1 ) + '/' + ( ix+1 ) + '/' + ( iz ) + '.png' );
+                    file = path.normalize(  path_output + '/map/' + ( zoomLevelCurrent+1 ) + '/' + ( ( ix*2 )+1 ) + '/' + ( iz*2 ) + '.png' );
                     if ( fs.existsSync( file ) ) {
                         blendArray.push( {
                             buffer: fs.readFileSync( file ),
@@ -56,7 +56,7 @@ module.exports = function( chunkSize, zoomLevelMax, chunkX, chunkZ ) {
                         } );
                     };
 
-                    file = path.normalize(  path_output + '/map/' + ( zoomLevelCurrent+1 ) + '/' + ( ix+1 ) + '/' + ( iz+1 ) + '.png' );
+                    file = path.normalize(  path_output + '/map/' + ( zoomLevelCurrent+1 ) + '/' + ( ( ix*2 )+1 ) + '/' + ( ( iz*2 )+1 ) + '.png' );
                     if ( fs.existsSync( file ) ) {
                         blendArray.push( {
                             buffer: fs.readFileSync( file ),
