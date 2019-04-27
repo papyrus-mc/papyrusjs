@@ -35,18 +35,18 @@ const argv = require( 'yargs' )
     .demandOption( [ 'world', 'textures' ] )
     .argv
 
-// var transparentBlocks = JSON.parse( fs.readFileSync( './lookup_tables/transparent-blocks_table.json'  ) );
-var runtimeIDTable    = JSON.parse( fs.readFileSync( './lookup_tables/runtimeid_table.json' ) );
-var monoTable         = JSON.parse( fs.readFileSync( './lookup_tables/monochrome-textures_table.json' ) );
-var patchTable        = JSON.parse( fs.readFileSync( './lookup_tables/patch-textures_table.json' ) );
-var textureTable      = JSON.parse( stripJsonComments( fs.readFileSync( './dev/rp/textures/terrain_texture.json' ).toString() ) );
-var blockTable        = JSON.parse( stripJsonComments( fs.readFileSync( './dev/rp/blocks.json' ).toString() ) );
+var transparentBlocks = JSON.parse( fs.readFileSync( './lookup_tables/transparent-blocks_table.json'  ) ),
+    runtimeIDTable    = JSON.parse( fs.readFileSync( './lookup_tables/runtimeid_table.json' ) ),
+    monoTable         = JSON.parse( fs.readFileSync( './lookup_tables/monochrome-textures_table.json' ) ),
+    patchTable        = JSON.parse( fs.readFileSync( './lookup_tables/patch-textures_table.json' ) ),
+    textureTable      = JSON.parse( stripJsonComments( fs.readFileSync( './dev/rp/textures/terrain_texture.json' ).toString() ) ),
+    blockTable        = JSON.parse( stripJsonComments( fs.readFileSync( './dev/rp/blocks.json' ).toString() ) );
 
 var path_output = path.normalize( argv.output ),
     path_resourcepack = path.normalize( argv.textures ),
     zoomLevelMax = process.env[ 'zoomLevelMax' ];
 
-module.exports = { runtimeIDTable, monoTable, patchTable, textureTable, blockTable, path_output, path_resourcepack };
+module.exports = { transparentBlocks, runtimeIDTable, monoTable, patchTable, textureTable, blockTable, path_output, path_resourcepack };
 
 if ( cluster.isMaster ) {
 
@@ -145,17 +145,17 @@ function init( path_world, path_output ) {
                     width: 32
                 } );
 
-                var workers = [ ];
-
-                var chunksPerThread = Math.ceil( Object.keys( db_keys ).length/argv.threads );
-
-                var start = 0;
+                var workers = [ ],
+                    chunksPerThread = Math.round( Object.keys( db_keys ).length/argv.threads ),
+                    start = 0,
+                    finishedWorkers = 0;
 
                 for( i = 0; i < argv.threads; i++ ) {
                     var workerArgs = {};
                         workerArgs[ "ID" ] = i;
                         workerArgs[ 'start' ] = start;
                         workerArgs[ 'end' ] = start + chunksPerThread - 1;
+                        workerArgs[ 'worldOffset' ] = JSON.stringify( { 'x': chunkX, 'z': chunkZ } ),
                         workerArgs[ "chunksTotal" ] = Object.keys( db_keys ).length; // chunksTotal[ 1 ];
                         workerArgs[ "zoomLevelMax" ] = zoomLevelMax;
 
@@ -163,6 +163,10 @@ function init( path_world, path_output ) {
 
                     start += chunksPerThread;
                 };
+
+                bar.tick();
+
+                processLeafletMap();
 
                 // console.log( 'Approx. ' +  + ' chunks per thread.' );
 
@@ -202,27 +206,42 @@ function init( path_world, path_output ) {
 
                             };
                             break;
+
+                        case 1:
+                            finishedWorkers++;
+                            // if ( argv.verbose ) { console.log( worker[ 'id' ]-1 + ' is done rendering.' ); };
+                            if ( finishedWorkers === os.cpus().length ) {
+                                if ( argv.verbose ) { console.log( 'All threads are done rendering.' ); };
+                                processLeafletMap();
+                            };
+                            break;
                     };
                 } );
 
                 async function processLeafletMap() {
-
-                    module.exports = { chunkX, chunkZ, zoomLevelMax, path_output };
-
                     // Generate additional zoom levels for Leaflet map
                     const renderZoomLevel = require( './render/renderZoomLevel.js' );
-
-                    for( j = ( zoomLevelMax - 1 ); j >= 0; j-- ) {
-                        await renderZoomLevel( j, 16 );
+                    
+                    var progressBars = {
+                        zoomLevels: new ProgressBar( colors.bold( '[' ) + ':bar' + colors.bold( ']' ) + ' :percent\tRendering zoom levels\tCurrent zoom level:\t', {
+                            total: Object.keys( db_keys ).length,
+                            complete: colors.inverse( '=' ),
+                            width: 32
+                        } )
                     };
 
-                    console.log( 'Successfully rendered all zoom levels!' );
-
+                    renderZoomLevel( 16, zoomLevelMax, chunkX, chunkZ )
+                        .then( ( ) => {
+                            console.log( 'Successfully rendered all zoom levels!' );
+                        } );
+                        
+                    /*
                     ( function() {
                         console.log( 'Creating Leaflet map...' );
                         const buildHTML = require( './html/buildHTML.js' );
                         buildHTML( path.normalize( argv.output ), 0, zoomLevelMax, 0, 0 );
                     } )();
+                    */
                 };     
             } );
     };
@@ -237,7 +256,8 @@ function init( path_world, path_output ) {
     const Cache       = require( './palettes/textureCache' );
 
     var pos = process.env[ 'start' ],
-        cache = new Cache();
+        cache = new Cache(),
+        worldOffset = JSON.parse( process.env[ 'worldOffset' ] );
     
     initPromises = [ ];
     // Prepare essential images for cache
@@ -276,8 +296,6 @@ function init( path_world, path_output ) {
             process.send( { msgid: 0, msg: pos } ); // Initial chunk request
         } );
     
-   // process.send( { msgid: 0, msg: pos } ); // Initial chunk request
-    
     // console.log( "I'm worker " + process.env[ 'ID' ] + ' and I render from ' + process.env[ 'start' ] + ' to ' + process.env[ 'end' ] );
 
     process.on( 'message', ( msg ) => {
@@ -290,14 +308,14 @@ function init( path_world, path_output ) {
                     readChunk( Buffer.from( msg[ 'msg' ][ 'data' ][ i ] ), chunk, i );
                 };
 
-                // chunk = trimChunk( chunk, transparentBlocks );
-
-                renderChunk( chunk, cache, 16, patchTable, blockTable, textureTable, monoTable, zoomLevelMax, path_resourcepack, path_output )
+                renderChunk( chunk, cache, 16, worldOffset, zoomLevelMax )
                     .then( function() {
                         pos++;
 
                         if ( pos <= process.env[ 'end' ] ) {
                             process.send( { msgid: 0, msg: pos } );
+                        } else {
+                            process.send( { msgid: 1, msg: true } ); // Process is done rendering their chunks
                         };
                         
                     } );
