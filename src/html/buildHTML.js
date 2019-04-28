@@ -4,7 +4,7 @@ const path = require( 'path' );
 module.exports = function( outPath, zoomLevelDefault, zoomLevelMax, posX, posZ ) {
 
     
-    fs.writeFileSync( path.normalize( outPath + '/index.html' ), { encoding: 'utf8' },
+    fs.writeFileSync( path.normalize( outPath + '/index.html' ),
     `<html>
     <head>
         <title>papyrus.js Map</title>
@@ -23,10 +23,13 @@ module.exports = function( outPath, zoomLevelDefault, zoomLevelMax, posX, posZ )
         <script>
             var papyrusMap = L.map('mapid').setView([` + posX + `, ` + posZ + `], ` + zoomLevelDefault + `);
             L.tileLayer('./map/{z}/{x}/{y}.png', {
-                attribution: 'Map created with <a href="http://papyrus.clarkx86.com">papyrus.js</a>',
+                attribution: 'Made with <a href="http://github.com/clarkx86/papyrusjs">papyrus.js</a>',
+                minZoom: 0,
                 maxZoom: ` + zoomLevelMax + `,
-            }).addTo(mymap);
+                noWrap: true,
+			    tileSize: 256
+            }).addTo(papyrusMap);
         </script>
     </body>
-    </html>` )
+    </html>`, { encoding: 'utf8' } );
 }

@@ -17,7 +17,8 @@ module.exports = function( value, chunk, yOffset ) {
             switch( SubChunkVersion )
             {
                 case 0:
-                    // console.log( 'OLD VERSION!' );
+                    /*
+                    // STILL VERY BUGGY
                     for ( position = 0; position < 4096; position++ )
                     {
                         var blockID = value.readInt8( _offset ); _offset++;
@@ -39,6 +40,7 @@ module.exports = function( value, chunk, yOffset ) {
                         // console.log( blockID );
                     };
                     break;
+                    */
 
                 case 8:
                     // valid

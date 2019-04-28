@@ -3,15 +3,14 @@ const fs                = require( 'fs' );
 const path              = require( 'path' );
 const colors            = require( 'colors' );
 const stripJsonComments = require( 'strip-json-comments' );
-const http              = require( 'http' );
-const ProgressBar       = require('progress');
+const ProgressBar       = require( 'progress' );
 const levelup           = require( 'levelup' );
 const Chunk             = require( './palettes/chunk.js' );
 const cluster           = require( 'cluster' );
-const os                = require('os');
+const os                = require( 'os' );
 
 const argv = require( 'yargs' )
-    .version( json_package.version + json_package.version_devstate.charAt( 0 ) )
+    .version( json_package.version + json_package.version_stage.charAt( 0 ) )
     .option( 'output', {
         alias: 'o',
         default: './output/'
@@ -50,16 +49,11 @@ module.exports = { transparentBlocks, runtimeIDTable, monoTable, patchTable, tex
 
 if ( cluster.isMaster ) {
 
-console.log( colors.bold( json_package.name.charAt( 0 ) + json_package.name.slice( 1, json_package.name.length - 2 ) + '.' + json_package.name.slice( json_package.name.length - 2 ) + ' v' + json_package.version + json_package.version_devstate.charAt( 0 ) ) + colors.reset( ' by ' ) + json_package.author );
+console.log( colors.bold( json_package.name.charAt( 0 ) + json_package.name.slice( 1, json_package.name.length - 2 ) + '.' + json_package.name.slice( json_package.name.length - 2 ) + ' v' + json_package.version + json_package.version_stage.charAt( 0 ) ) + colors.reset( ' by ' ) + json_package.author );
 
 // Check for latest version
-http.get( 'http://papyrus.clarkx86.com/', ( err, ver ) => {
-    if ( err ) {
-        console.log( 'Could not check for updates...' );
-    } else {
-        console.log( 'Latest version: ' + ver );
-    };
-} );
+const updateCheck = require( './updateCheck.js' );
+updateCheck();
 
 if ( argv.verbose == true ) {
     console.log( colors.bold( 'Verbose mode' ) + ' is on! You will see debug console output.' );
@@ -88,7 +82,6 @@ function init( path_world, path_output ) {
             chunksTotal = [ ];
 
             chunksTotal[ 0 ] = 0; // SubChunks
-            chunksTotal[ 1 ] = 0; // Full chunks
 
         db.createKeyStream()
             .on( 'data' , function( data ) {
@@ -104,6 +97,8 @@ function init( path_world, path_output ) {
 
             } ).on ( 'end', function() {
 
+                if ( argv.verbose ) { console.log( 'Allocated ' + Math.round( ( process.memoryUsage().heapUsed/Math.pow( 1024, 2 ) ) ) + ' MB of memory when iterating through the database.' ); };
+
                 var chunkX = [ ],
                     chunkZ = [ ];
 
@@ -114,9 +109,6 @@ function init( path_world, path_output ) {
 
                 // Count chunks
                 Object.keys( db_keys ).forEach( function( key ) {
-                    // Count total full Chunks
-                    chunksTotal[ 1 ]++;
-
                     // Update XZ-Distance
                     if ( db_keys[ key ].readInt32LE( 0 ) <= chunkX[ 0 ] ) { chunkX[ 0 ] = db_keys[ key ].readInt32LE( 0 ) };
                     if ( db_keys[ key ].readInt32LE( 0 ) >= chunkX[ 1 ] ) { chunkX[ 1 ] = db_keys[ key ].readInt32LE( 0 ) };
@@ -133,10 +125,12 @@ function init( path_world, path_output ) {
                     // console.log( 'Z is bigger: ' + ( chunkZ[ 1 ] - chunkZ[ 0 ] ) );
                     zoomLevelMax = Math.round( Math.log2( ( chunkZ[ 1 ] - chunkZ[ 0 ] ) + 1 ) );
                 };
-                // console.log( 'Max zoom level:\t' + zoomLevelMax );
+
+                // Prepare output directory
+                prepareOutput();
 
                 console.log( 'Furthest X (negative):\t' + chunkX[ 0 ] + '\tFurthest X (positive):\t' + chunkX[ 1 ] + '\nFurthest Z (negative):\t' + chunkZ[ 0 ] + '\tFurthest Z (positive):\t' + chunkZ[ 1 ] );
-                console.log( 'Processing and rendering ' + colors.bold( chunksTotal[ 1 ] ) + ' Chunks, which ' + colors.bold( chunksTotal[ 0 ] ) + ' of them are valid SubChunks...' );
+                console.log( 'Processing and rendering ' + colors.bold( Object.keys( db_keys ).length ) + ' Chunks, which ' + colors.bold( chunksTotal[ 0 ] ) + ' of them are valid SubChunks...' );
                 
                 //var bar = new ProgressBar( colors.bold( '[' ) + ':bar' + colors.bold( ']' ) + ' :percent\tProcessing chunk :current/ :total\t:rate chunks/Second\t(:eta seconds left)', {
                 var bar = new ProgressBar( colors.bold( '[' ) + ':bar' + colors.bold( ']' ) + ' :percent\tProcessing chunk :current/ :total\t:rate chunks/Second', {
@@ -156,7 +150,7 @@ function init( path_world, path_output ) {
                         workerArgs[ 'start' ] = start;
                         workerArgs[ 'end' ] = start + chunksPerThread - 1;
                         workerArgs[ 'worldOffset' ] = JSON.stringify( { 'x': chunkX, 'z': chunkZ } ),
-                        workerArgs[ "chunksTotal" ] = Object.keys( db_keys ).length; // chunksTotal[ 1 ];
+                        workerArgs[ "chunksTotal" ] = Object.keys( db_keys ).length;
                         workerArgs[ "zoomLevelMax" ] = zoomLevelMax;
 
                     workers.push( cluster.fork( workerArgs ) );
@@ -165,8 +159,6 @@ function init( path_world, path_output ) {
                 };
 
                 bar.tick();
-
-                // console.log( 'Approx. ' +  + ' chunks per thread.' );
 
                 // WORKER EVENT HANDLER
                 cluster.on( 'message', ( worker, msg ) => {
@@ -207,7 +199,7 @@ function init( path_world, path_output ) {
 
                         case 1:
                             finishedWorkers++;
-                            if ( argv.verbose ) { console.log( 'Thread ' + worker[ 'id' ]-1 + ' is done rendering.' ); };
+                            // if ( argv.verbose ) { console.log( 'Thread ' + ( worker[ 'id' ]-1 ) + ' is done rendering.' ); };
                             if ( finishedWorkers === os.cpus().length ) {
                                 if ( argv.verbose ) { console.log( 'All threads are done rendering.' ); };
                                 processLeafletMap();
@@ -233,14 +225,22 @@ function init( path_world, path_output ) {
                             console.log( 'Successfully rendered all zoom levels!' );
                         } );
                         
-                    /*
-                    ( function() {
-                        console.log( 'Creating Leaflet map...' );
-                        const buildHTML = require( './html/buildHTML.js' );
-                        buildHTML( path.normalize( argv.output ), 0, zoomLevelMax, 0, 0 );
-                    } )();
-                    */
-                };     
+                    
+                };
+                
+                function prepareOutput() {
+                    if ( !fs.existsSync( path.normalize( argv.output ) ) ) {
+                        fs.mkdirSync( path.normalize( argv.output ))
+                    };
+                    if ( !fs.existsSync( path.normalize( argv.output ) + '/map/' ) ) {
+                        fs.mkdirSync( path.normalize( argv.output ) + '/map/' );
+                    };
+
+                    // Create index.html
+                    console.log( 'Creating Leaflet map...' );
+                    const buildHTML = require( './html/buildHTML.js' );
+                    buildHTML( path.normalize( argv.output ), 0, zoomLevelMax, 0, 0 );
+                };
             } );
     };
 };
