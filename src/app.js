@@ -24,6 +24,7 @@ const argv = require( 'yargs' )
     } )
     .option( 'textures', {
         alias: 'tp',
+        default: './textures/'
     } )
     .option( 'threads', {
         default: os.cpus().length
@@ -63,6 +64,9 @@ if ( argv.verbose == true ) {
 if ( argv.output == './output/' ) {
     console.log( colors.yellow( '[WARNING]' ) + ' No output path specified. The default path "./output/" will be used.' );
 }
+if ( argv.output == './textures/') {
+    console.log( colors.yellow( '[WARNING]') + ' No texture path specified. The default path "./textures/" will be used.' );
+}
 
 console.log( 'Threads: ' + argv.threads );
 
@@ -70,7 +74,7 @@ console.log( 'Threads: ' + argv.threads );
 const updateCheck = require( './updateCheck.js' );
 updateCheck().then(() => {
     //If the user requested to download textures, download them
-    if (argv.downloadTextures === true) return require("./downloadTextures")();
+    if (argv.downloadTextures === true) return require( "./downloadTextures" )( path.normalize( argv.textures ));
 }).then(() => {
     //Run
     init( path.normalize( argv.world ), path.normalize( argv.output ) ); 
