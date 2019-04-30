@@ -34,12 +34,12 @@ const argv = require( 'yargs' )
     .demandOption( [ 'world', 'textures', 'output' ] )
     .argv
 
-var transparentBlocks = JSON.parse( fs.readFileSync( './lookup_tables/transparent-blocks_table.json'  ) ),
-    runtimeIDTable    = JSON.parse( fs.readFileSync( './lookup_tables/runtimeid_table.json' ) ),
-    monoTable         = JSON.parse( fs.readFileSync( './lookup_tables/monochrome-textures_table.json' ) ),
-    patchTable        = JSON.parse( fs.readFileSync( './lookup_tables/patch-textures_table.json' ) ),
-    textureTable      = JSON.parse( stripJsonComments( fs.readFileSync( './dev/rp/textures/terrain_texture.json' ).toString() ) ),
-    blockTable        = JSON.parse( stripJsonComments( fs.readFileSync( './dev/rp/blocks.json' ).toString() ) );
+var transparentBlocks = require( './lookup_tables/transparent-blocks_table.json'  ),
+    runtimeIDTable    = require( './lookup_tables/runtimeid_table.json' ),
+    monoTable         = require( './lookup_tables/monochrome-textures_table.json' ),
+    patchTable        = require( './lookup_tables/patch-textures_table.json' ),
+    textureTable      = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + '/textures/terrain_texture.json' ) ).toString() ) ),
+    blockTable        = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + 'blocks.json' ) ).toString() ) );
 
 var path_output = path.normalize( argv.output ),
     path_resourcepack = path.normalize( argv.textures ),
@@ -74,7 +74,7 @@ function init( path_world, path_output ) {
         console.log( colors.red.bold( '[ERROR]' ) + ' Invalid world path. No "level.dat" found.' );
     } else {
 
-        const db = levelup( new ( require( './leveldb-mcpe_ZlibRaw.js' ) )( path.normalize( path_world + '/db/' ) ) );
+        const db = levelup( new ( require( 'leveldb-mcpe' ) )( path.normalize( path_world + '/db/' ) ) );
 
         console.log( 'Reading database. This can take a couple of seconds up to a couple of minutes.' );
 
@@ -223,6 +223,7 @@ function init( path_world, path_output ) {
                     renderZoomLevel( 16, zoomLevelMax, chunkX, chunkZ )
                         .then( ( ) => {
                             console.log( 'Successfully rendered all zoom levels!' );
+                            process.exit();
                         } );
                         
                     
@@ -250,7 +251,7 @@ function init( path_world, path_output ) {
     const sharp       = require( 'sharp' );
     const readChunk   = require( './db_read/readChunk.js' );
     // const trimChunk   = require( './db_read/trimChunk.js' );
-    const renderChunk = require( './render/renderChunk' ); 
+    const renderChunk = require( './render/renderChunk.js' ); 
     const Cache       = require( './palettes/textureCache' );
 
     var pos = process.env[ 'start' ],

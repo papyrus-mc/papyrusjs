@@ -13,8 +13,6 @@ module.exports = function() {
             remoteStage = json[ 0 ][ 'tag_name' ].slice( json[ 0 ][ 'tag_name' ].search( '-' ) + 1 ),
             localStage        = json_package.version_stage;
 
-            console.log( remoteStage );
-
         switch( remoteStage ) {
             case 'alpha':
                 remoteStage = 0;
