@@ -43,8 +43,8 @@ var transparentBlocks = require( './src/lookup_tables/transparent-blocks_table.j
     runtimeIDTable    = require( './src/lookup_tables/runtimeid_table.json' ),
     monoTable         = require( './src/lookup_tables/monochrome-textures_table.json' ),
     patchTable        = require( './src/lookup_tables/patch-textures_table.json' ),
-    textureTable      = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + '/textures/terrain_texture.json' ) ).toString() ) ),
-    blockTable        = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + 'blocks.json' ) ).toString() ) );
+    textureTable      = null,
+    blockTable        = null;
 
 var path_output = path.normalize( argv.output ),
     path_resourcepack = path.normalize( argv.textures ),
