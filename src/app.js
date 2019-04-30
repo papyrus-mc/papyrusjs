@@ -74,9 +74,11 @@ console.log( 'Threads: ' + argv.threads );
 const updateCheck = require( './updateCheck.js' );
 updateCheck().then(() => {
     //If the user requested to download textures, download them
-    if (argv.downloadTextures === true) return require( "./downloadTextures" )( path.normalize( argv.textures ));
+    if (argv.downloadTextures === true) return require( "./downloadTextures" )( path.normalize ( argv.textures ));
 }).then(() => {
     //Run
+    textureTable = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + '/textures/terrain_texture.json' ) ).toString() ) );
+    blockTable   = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + 'blocks.json' ) ).toString() ) );
     init( path.normalize( argv.world ), path.normalize( argv.output ) ); 
 });
 
