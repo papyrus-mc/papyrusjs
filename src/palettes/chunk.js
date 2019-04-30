@@ -1,8 +1,8 @@
 const fs = require( 'fs' );
 const Vec3 = require( 'vec3' );
 
-var transparentBlocks = JSON.parse( fs.readFileSync( './lookup_tables/transparent-blocks_table.json' ) );
 // var transparentBlocks = require( '../app.js' ).transparentBlocks;
+var transparentBlocks = require( '../lookup_tables/transparent-blocks_table.json' );
 
 module.exports = function( xz ) {
     var chunk = { },

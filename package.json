@@ -1,6 +1,6 @@
 {
   "name": "papyrusjs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "version_stage": "alpha",
   "description": "A tool to render Minecraft: Bedrock Edition worlds.",
   "main": "app.js",
@@ -22,6 +22,7 @@
     "abstract-leveldown": "^3.0.0",
     "bindings": "^1.5.0",
     "colors": "^1.3.3",
+    "leveldb-mcpe": "github:clarkx86/node-leveldb-mcpe",
     "levelup": "^2.0.1",
     "nan": "^2.8.0",
     "node-fetch": "^2.4.1",
@@ -32,8 +33,5 @@
     "tga2png": "^0.1.3",
     "vec3": "^0.1.3",
     "yargs": "^13.2.2"
-  },
-  "pkg": {
-    "assets": "./build/Release/*"
   }
 }

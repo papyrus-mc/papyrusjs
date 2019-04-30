@@ -33,11 +33,6 @@ You'll have to define a path to the texture pack you want to use for the final r
 
 [Read the full documentation.](https://github.com/clarkx86/papyrus/blob/master/docs/documentation.md)
 
-## Additional dependencies
-- [node-leveldb-mcpe](https://github.com/mhsjlw/node-leveldb-mcpe) _(Requires additional [configuring](https://github.com/clarkx86/papyrusjs/blob/master/docs/documentation.md#dependency-configuration))_
-
-All other dependencies can be acquired by [installing](https://github.com/clarkx86/papyrus#installation).
-
 ## Contribute xor support
 If you want to help improving Papyrus please consider forking the repository.
 
