@@ -3,7 +3,7 @@ const colors            = require( 'colors' );
 const fetch             = require( 'node-fetch' );
 
 module.exports = function() {
-    fetch( 'http://api.github.com/repos/clarkx86/papyrusjs/releases' )
+    return fetch( 'http://api.github.com/repos/clarkx86/papyrusjs/releases' )
     .then( ( response ) => {
         return response.json();
     } )

@@ -11,6 +11,10 @@ const os                = require( 'os' );
 
 const argv = require( 'yargs' )
     .version( json_package.version + json_package.version_stage.charAt( 0 ) )
+    .option( 'download-textures', {
+        default: false,
+        type: 'boolean'
+    } )
     .option( 'output', {
         alias: 'o',
         default: './output/'
@@ -51,10 +55,6 @@ if ( cluster.isMaster ) {
 
 console.log( colors.bold( json_package.name.charAt( 0 ) + json_package.name.slice( 1, json_package.name.length - 2 ) + '.' + json_package.name.slice( json_package.name.length - 2 ) + ' v' + json_package.version + json_package.version_stage.charAt( 0 ) ) + colors.reset( ' by ' ) + json_package.author );
 
-// Check for latest version
-const updateCheck = require( './updateCheck.js' );
-updateCheck();
-
 if ( argv.verbose == true ) {
     console.log( colors.bold( 'Verbose mode' ) + ' is on! You will see debug console output.' );
 };
@@ -65,7 +65,15 @@ if ( argv.output == './output/' ) {
 
 console.log( 'Threads: ' + argv.threads );
 
-init( path.normalize( argv.world ), path.normalize( argv.output ) );
+// Check for latest version
+const updateCheck = require( './updateCheck.js' );
+updateCheck().then(() => {
+    //If the user requested to download textures, download them
+    if (argv["download-textures"] === true) return require("./downloadTextures")();
+}).then(() => {
+    //Run
+    init( path.normalize( argv.world ), path.normalize( argv.output ) ); 
+});
 
 function init( path_world, path_output ) {
     var path_leveldat = path.normalize( path_world + '/level.dat' );
