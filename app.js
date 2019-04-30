@@ -1,11 +1,11 @@
-const json_package      = require( '../package.json' );
+const json_package      = require( './package.json' );
 const fs                = require( 'fs' );
 const path              = require( 'path' );
 const colors            = require( 'colors' );
 const stripJsonComments = require( 'strip-json-comments' );
 const ProgressBar       = require( 'progress' );
 const levelup           = require( 'levelup' );
-const Chunk             = require( './palettes/chunk.js' );
+const Chunk             = require( './src/palettes/chunk.js' );
 const cluster           = require( 'cluster' );
 const os                = require( 'os' );
 
@@ -39,13 +39,12 @@ const argv = require( 'yargs' )
     .demandOption( [ 'world', 'textures', 'output' ] )
     .argv
 
-var transparentBlocks = require( './lookup_tables/transparent-blocks_table.json'  ),
-    runtimeIDTable    = require( './lookup_tables/runtimeid_table.json' ),
-    monoTable         = require( './lookup_tables/monochrome-textures_table.json' ),
-    patchTable        = require( './lookup_tables/patch-textures_table.json' ),
-    //textureTable      = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + '/textures/terrain_texture.json' ) ).toString() ) ),
-    //blockTable        = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + 'blocks.json' ) ).toString() ) );
-    textureTable = null, blockTable = null;
+var transparentBlocks = require( './src/lookup_tables/transparent-blocks_table.json'  ),
+    runtimeIDTable    = require( './src/lookup_tables/runtimeid_table.json' ),
+    monoTable         = require( './src/lookup_tables/monochrome-textures_table.json' ),
+    patchTable        = require( './src/lookup_tables/patch-textures_table.json' ),
+    textureTable      = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + '/textures/terrain_texture.json' ) ).toString() ) ),
+    blockTable        = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + 'blocks.json' ) ).toString() ) );
 
 var path_output = path.normalize( argv.output ),
     path_resourcepack = path.normalize( argv.textures ),
@@ -71,7 +70,7 @@ if ( argv.output == './textures/') {
 console.log( 'Threads: ' + argv.threads );
 
 // Check for latest version
-const updateCheck = require( './updateCheck.js' );
+const updateCheck = require( './src/updateCheck.js' );
 updateCheck().then(() => {
     //If the user requested to download textures, download them
     if (argv.downloadTextures === true) return require( "./downloadTextures" )( path.normalize ( argv.textures ));
@@ -225,7 +224,7 @@ function init( path_world, path_output ) {
 
                 async function processLeafletMap() {
                     // Generate additional zoom levels for Leaflet map
-                    const renderZoomLevel = require( './render/renderZoomLevel.js' );
+                    const renderZoomLevel = require( './src/render/renderZoomLevel.js' );
                     
                     var progressBars = {
                         zoomLevels: new ProgressBar( colors.bold( '[' ) + ':bar' + colors.bold( ']' ) + ' :percent\tRendering zoom levels\tCurrent zoom level:\t', {
@@ -254,7 +253,7 @@ function init( path_world, path_output ) {
 
                     // Create index.html
                     console.log( 'Creating Leaflet map...' );
-                    const buildHTML = require( './html/buildHTML.js' );
+                    const buildHTML = require( './src/html/buildHTML.js' );
                     buildHTML( path.normalize( argv.output ), 0, zoomLevelMax, 0, 0 );
                 };
             } );
@@ -264,10 +263,9 @@ function init( path_world, path_output ) {
 } else {
 
     const sharp       = require( 'sharp' );
-    const readChunk   = require( './db_read/readChunk.js' );
-    // const trimChunk   = require( './db_read/trimChunk.js' );
-    const renderChunk = require( './render/renderChunk.js' ); 
-    const Cache       = require( './palettes/textureCache' );
+    const readChunk   = require( './src/db_read/readChunk.js' );
+    const renderChunk = require( './src/render/renderChunk.js' ); 
+    const Cache       = require( './src/palettes/textureCache' );
 
     var pos = process.env[ 'start' ],
         cache = new Cache(),

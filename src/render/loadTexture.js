@@ -4,11 +4,11 @@ const colors  = require( 'colors' ),
       sharp   = require( 'sharp' ),
       tga2png = require( 'tga2png' );
 
-const patchTable   = require( '../app.js' ).patchTable,
-      blockTable   = require( '../app.js' ).blockTable,
-      textureTable = require( '../app.js' ).textureTable,
-      monoTable    = require( '../app.js' ).monoTable,
-      path_resourcepack = require( '../app.js' ).path_resourcepack;
+const patchTable   = require( '../../app.js' ).patchTable,
+      blockTable   = require( '../../app.js' ).blockTable,
+      textureTable = require( '../../app.js' ).textureTable,
+      monoTable    = require( '../../app.js' ).monoTable,
+      path_resourcepack = require( '../../app.js' ).path_resourcepack;
 
 var file     = null,
     fileExt  = '.png';
