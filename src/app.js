@@ -42,8 +42,9 @@ var transparentBlocks = require( './lookup_tables/transparent-blocks_table.json'
     runtimeIDTable    = require( './lookup_tables/runtimeid_table.json' ),
     monoTable         = require( './lookup_tables/monochrome-textures_table.json' ),
     patchTable        = require( './lookup_tables/patch-textures_table.json' ),
-    textureTable      = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + '/textures/terrain_texture.json' ) ).toString() ) ),
-    blockTable        = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + 'blocks.json' ) ).toString() ) );
+    //textureTable      = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + '/textures/terrain_texture.json' ) ).toString() ) ),
+    //blockTable        = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + 'blocks.json' ) ).toString() ) );
+    textureTable = null, blockTable = null;
 
 var path_output = path.normalize( argv.output ),
     path_resourcepack = path.normalize( argv.textures ),
@@ -69,7 +70,7 @@ console.log( 'Threads: ' + argv.threads );
 const updateCheck = require( './updateCheck.js' );
 updateCheck().then(() => {
     //If the user requested to download textures, download them
-    if (argv["download-textures"] === true) return require("./downloadTextures")();
+    if (argv.downloadTextures === true) return require("./downloadTextures")();
 }).then(() => {
     //Run
     init( path.normalize( argv.world ), path.normalize( argv.output ) ); 
