@@ -11,10 +11,6 @@ const os                = require( 'os' );
 
 const argv = require( 'yargs' )
     .version( json_package.version + json_package.version_stage.charAt( 0 ) )
-    .option( 'download-textures', {
-        default: false,
-        type: 'boolean'
-    } )
     .option( 'output', {
         alias: 'o',
         default: './output/'
@@ -32,19 +28,32 @@ const argv = require( 'yargs' )
     .option( 'mode', {
         alias: 'm'
     } )
+    .option( 'force-download', {
+        default: false,
+        type: 'boolean'
+    } )
     .option( 'verbose', {
         alias: 'v',
-        default: false
+        default: false,
+        type: 'boolean'
     } )
     .demandOption( [ 'world', 'textures', 'output' ] )
     .argv
+
+// Download textures if textures can't be found
+// DOWNLOADING TEXTURES SHOULD BE SYNCHRONOUS IF POSSIBLE, SO THE LOOKUP-TABLES BELOW GET REQUIRED WHEN ALL FILES ARE PRESENT
+
+if ( ( argv[ 'force-download' ] == true ) || ( !fs.existsSync( path.normalize( argv.textures + 'blocks.json' ) ) ) ) {
+    console.log( 'Textures (or some required files) missing. Downloading...' );
+    require( './src/downloadTextures.js' )( path.normalize ( argv.textures ) )
+};
 
 var transparentBlocks = require( './src/lookup_tables/transparent-blocks_table.json'  ),
     runtimeIDTable    = require( './src/lookup_tables/runtimeid_table.json' ),
     monoTable         = require( './src/lookup_tables/monochrome-textures_table.json' ),
     patchTable        = require( './src/lookup_tables/patch-textures_table.json' ),
-    textureTable      = null,
-    blockTable        = null;
+    textureTable      = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + '/textures/terrain_texture.json' ) ).toString() ) ),
+    blockTable        = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + 'blocks.json' ) ).toString() ) );
 
 var path_output = path.normalize( argv.output ),
     path_resourcepack = path.normalize( argv.textures ),
@@ -65,22 +74,16 @@ if ( argv.output == './output/' ) {
     console.log( colors.yellow( '[WARNING]' ) + ' No output path specified. The default path "./output/" will be used.' );
 }
 if ( argv.output == './textures/') {
-    console.log( colors.yellow( '[WARNING]') + ' No texture path specified. The default path "./textures/" will be used.' );
+    console.log( colors.yellow( '[WARNING]' ) + ' No texture path specified. The default path "./textures/" will be used.' );
 }
 
 console.log( 'Threads: ' + argv.threads );
 
 // Check for latest version
-const updateCheck = require( './src/updateCheck.js' );
-updateCheck().then(() => {
-    //If the user requested to download textures, download them
-    if (argv.downloadTextures === true) return require( "./downloadTextures" )( path.normalize ( argv.textures ));
-}).then(() => {
-    //Run
-    textureTable = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + '/textures/terrain_texture.json' ) ).toString() ) );
-    blockTable   = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + 'blocks.json' ) ).toString() ) );
-    init( path.normalize( argv.world ), path.normalize( argv.output ) ); 
-});
+require( './src/updateCheck.js' )();
+
+// Run
+// init( path.normalize( argv.world ), path.normalize( argv.output ) );
 
 function init( path_world, path_output ) {
     var path_leveldat = path.normalize( path_world + '/level.dat' );
