@@ -19,13 +19,13 @@ const argv = require( 'yargs' )
         alias: 'w'
     } )
     .option( 'textures', {
-        alias: 'tp',
+        alias: 't',
     } )
     .option( 'threads', {
         default: os.cpus().length
     } )
     .option( 'mode', {
-        default: 'topdown_shaded'
+        alias: 'm'
     } )
     .option( 'verbose', {
         alias: 'v',
@@ -43,9 +43,10 @@ var transparentBlocks = require( './src/lookup_tables/transparent-blocks_table.j
 
 var path_output = path.normalize( argv.output ),
     path_resourcepack = path.normalize( argv.textures ),
-    zoomLevelMax = process.env[ 'zoomLevelMax' ];
+    zoomLevelMax = process.env[ 'zoomLevelMax' ],
+    renderMode = argv.mode;
 
-module.exports = { transparentBlocks, runtimeIDTable, monoTable, patchTable, textureTable, blockTable, path_output, path_resourcepack };
+module.exports = { renderMode, transparentBlocks, runtimeIDTable, monoTable, patchTable, textureTable, blockTable, path_output, path_resourcepack };
 
 if ( cluster.isMaster ) {
 
@@ -248,7 +249,8 @@ function init( path_world, path_output ) {
 
 } else {
 
-    const sharp       = require( 'sharp' );
+    const convert     = require( 'color-convert' );
+    const mapnik      = require( 'mapnik' );
     const readChunk   = require( './src/db_read/readChunk.js' );
     const renderChunk = require( './src/render/renderChunk.js' ); 
     const Cache       = require( './src/palettes/textureCache' );
@@ -261,32 +263,23 @@ function init( path_world, path_output ) {
     // Prepare essential images for cache
     // Monochrome textures blending colour
     initPromises.push( new Promise( ( resolve, reject ) => {
-        sharp( { create: {
-            width:  16,
-            height: 16,
-            channels: 3,
-            background: '#79c05a' } } )
-            .png()
-            .toBuffer()
-            .then( ( buffer ) => {
-                cache.save( 'mono_default', 0, buffer );
-                resolve();
-            } );
-    } ) );
+        var img   = new mapnik.Image( 16, 16 ),
+            color = convert.hex.rgb( '#79c05a' );
+        img.fillSync( new mapnik.Color( color[0], color[1], color[2], 255, true ) );
+        cache.save( 'mono_default', 0, img );
 
-    // Placeholder
-    initPromises.push( new Promise( ( resolve, reject ) => {
-        sharp( { create: {
-            width:  1,
-            height: 1,
-            channels: 4,
-            background: 0 } } )
-            .png()
-            .toBuffer()
-            .then( ( buffer ) => {
-                cache.save( 'placeholder', 0, buffer );
-                resolve();
-            } );
+        var img = new mapnik.Image( 1, 1 );
+        cache.save( 'placeholder', 0, img );
+
+        var img = new mapnik.Image( 16, 16 );
+        img.fillSync( new mapnik.Color( 255, 255, 255, 255, true ) );
+        cache.save( 'blend_white', 0, img );
+
+        var img = new mapnik.Image( 16, 16 );
+        img.fillSync( new mapnik.Color( 0, 0, 0, 255, true ) );
+        cache.save( 'blend_black', 0, img );
+
+        resolve();
     } ) );
     
     Promise.all( initPromises )

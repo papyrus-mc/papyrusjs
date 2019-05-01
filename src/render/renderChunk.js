@@ -1,16 +1,18 @@
-const blend   = require( '@mapbox/blend' );
-const fs      = require( 'fs' );
-const path    = require( 'path' );
+const fs     = require( 'fs' );
+const mapnik = require( 'mapnik' );
+const path   = require( 'path' );
 
 const loadTexture = require( './loadTexture.js' );
 
+const renderMode        = require( '../../app.js' ).renderMode;
 const path_output       = require( '../../app.js' ).path_output;
 
 module.exports = function( Chunk, Cache, size_texture, worldOffset, ZoomLevelMax ) {
 
     return new Promise( ( resolve, reject ) => {
         var chunk = Chunk,
-            cache = Cache;
+            cache = Cache,
+            textureBuffer;
 
         var zoomLevelMax = ZoomLevelMax;
     
@@ -40,8 +42,19 @@ module.exports = function( Chunk, Cache, size_texture, worldOffset, ZoomLevelMax
                     {
                         if ( chunk.get( ix, iy, iz ).name !== 'minecraft:air' ) {
                             await loadTexture( chunk.get( ix, iy, iz ).name, chunk.get( ix, iy, iz ).value, ix, iy, iz, cache );
+                            textureBuffer = cache.get( chunk.get( ix, iy, iz ).name, chunk.get( ix, iy, iz ).value );
+                            /*
+                            if ( renderMode ) {
+                                switch( renderMode ) {
+                                    case 'topdown_shaded':
+                                        const shadeTopDown = require( './shadeTopDown.js' );
+                                        await new Promise( ( resolve, reject ) => { shadeTopDown( textureBuffer, chunk.get( ix, iy, iz ).y ).then( ( data ) => { textureBuffer = data; resolve(); } ) } );
+                                        break;
+                                };
+                            };
+                            */
                             composeArray.push( {
-                                buffer: cache.get( chunk.get( ix, iy, iz ).name, chunk.get( ix, iy, iz ).value ),
+                                buffer: textureBuffer,
                                 x: size_texture*ix,
                                 y: size_texture*iz
                             } );
@@ -50,7 +63,7 @@ module.exports = function( Chunk, Cache, size_texture, worldOffset, ZoomLevelMax
                 };
             };
 
-            blend( composeArray, { width: 256, height: 256 }, function( err, data ) {
+            mapnik.blend( composeArray, { width: 256, height: 256 }, function( err, data ) {
                 // Zoomlevel Directory
                 if ( !fs.existsSync( path.normalize( path_output + '/map/' + zoomLevelMax ) ) ) {
                     fs.mkdirSync( path.normalize( path_output + '/map/' + zoomLevelMax ) );
@@ -63,7 +76,7 @@ module.exports = function( Chunk, Cache, size_texture, worldOffset, ZoomLevelMax
                 fs.writeFile( path.normalize( path_output + '/map/' + zoomLevelMax + '/' + ( chunkX + Math.abs( worldOffset[ 'x' ][ 0 ] ) ) + '/' + ( chunkZ + Math.abs( worldOffset[ 'z' ][ 0 ] ) ) + fileExt ), data, ( err ) => {
                     if ( err ) { throw err };
                 } );
-                    resolve();
+                resolve();
             } );
         };
     } );
