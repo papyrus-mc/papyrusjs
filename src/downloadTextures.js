@@ -39,11 +39,11 @@ module.exports = function(extract_address) {
     }))
     
     .catch(err => console.log(err))
-    /*.finally(() => { return new Promise((resolve, reject) => {
+    .finally(() => { return new Promise((resolve, reject) => {
         lib_fs.unlink( zip_address, err => {
             if (exists(err)) reject(err);
             resolve();
         } )
-    }) })*/
+    }) })
     .catch(err => console.log(err.toString() + "\nFailed to cleanup after downloading textures"));
 }
