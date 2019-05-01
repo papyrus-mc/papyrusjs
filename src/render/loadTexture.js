@@ -1,7 +1,7 @@
 const colors  = require( 'colors' ),
       fs      = require( 'fs' ),
+      mapnik  = require( 'mapnik' ),
       path    = require( 'path' ),
-      sharp   = require( 'sharp' ),
       tga2png = require( 'tga2png' );
 
 const patchTable   = require( '../../app.js' ).patchTable,
@@ -10,8 +10,8 @@ const patchTable   = require( '../../app.js' ).patchTable,
       monoTable    = require( '../../app.js' ).monoTable,
       path_resourcepack = require( '../../app.js' ).path_resourcepack;
 
-var file     = null,
-    fileExt  = '.png';
+var file    = null,
+    fileExt = '.png';
 
 module.exports = async function loadTexture( name, value, x, y, z, cache ) {
     // Is the texture in the cache already? No: Load texture from filesystem, Yes: Skip to compositing :)!
@@ -80,13 +80,17 @@ module.exports = async function loadTexture( name, value, x, y, z, cache ) {
 
         // Blend monochrome textures with colour and save to cache
         if ( monoTable[ texture ] == true ) {
-            await sharp( imageBuffer )
-                .composite( [ { input: cache.get( 'mono_default', 0 ), blend: 'multiply' } ] )
-                .toBuffer()
-                .then( ( buff ) => {
-                    // console.log( 'Had to blend from scratch: ' + name + ' ' + value );
-                    imageBuffer = buff;
-                } )
+            var img = new mapnik.Image.fromBytesSync( imageBuffer );
+            img.premultiplySync();
+            await new Promise ( (resolve, reject ) => {
+                img.composite( cache.get( 'mono_default', 0 ), {
+                    comp_op: mapnik.compositeOp[ 'multiply' ],
+            }, function( err, buffer ) {
+                if ( err ) { throw err; reject(); };
+                imageBuffer = buffer;
+                resolve();
+                } );
+            } ); 
         };
         cache.save( name, value, imageBuffer );
     };

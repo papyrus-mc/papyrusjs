@@ -1,6 +1,5 @@
-const blend  = require( '@mapbox/blend' );
 const colors = require( 'colors' );
-const sharp  = require( 'sharp' );
+const mapnik = require( 'mapnik' );
 const fs     = require( 'fs' );
 const path   = require( 'path' );
 
@@ -13,7 +12,8 @@ module.exports = function( chunkSize, zoomLevelMax, chunkX, chunkZ ) {
             zoomLevelCurrent,
             file,
             tileX = 0,
-            tileZ = 0;
+            tileZ = 0,
+            tileImg;
             
 
         // for( ix = Math.floor( chunkX[ 0 ]/2 ); ix < ( Math.ceil( chunkX[ 1 ]/2 ) ); ix++ ) {
@@ -67,23 +67,18 @@ module.exports = function( chunkSize, zoomLevelMax, chunkX, chunkZ ) {
 
                     if ( blendArray.length !== 0 ) {
                         await new Promise( ( resolve, reject ) => {
-                            blend( blendArray, {
+                            mapnik.blend( blendArray, {
                                 width:  Math.pow( chunkSize, 2 )*2,
                                 height: Math.pow( chunkSize, 2 )*2
                         }, function( err, buffer ) {
-                            sharp( buffer )
-                                .resize( Math.pow( chunkSize, 2 ), Math.pow( chunkSize, 2 ) )
-                                .png()
-                                .toBuffer()
-                                .then( ( buffer ) => {
-                                    if ( !fs.existsSync( path_output + '/map/' + ( zoomLevelCurrent ) + '/' + ( ix ) + '/' ) ) {
-                                        fs.mkdirSync( path_output + '/map/' + ( zoomLevelCurrent ) + '/' + ( ix ) + '/' );
-                                    };
-                                    fs.writeFileSync( path_output + '/map/' + ( zoomLevelCurrent ) + '/' + ( ix ) + '/' + ( iz ) + '.png', buffer );
-                                    // console.log( 'rendered.' );
-                                    resolve();
-                                } );
-                            }
+                            tileImg = mapnik.Image.fromBytesSync( buffer );
+                            tileImg = tileImg.resizeSync( Math.pow( chunkSize, 2 ), Math.pow( chunkSize, 2 ) /*, { 'scaling_method': mapnik.imageScaling.near } */ );
+                            if ( !fs.existsSync( path.normalize( path_output + '/map/' + ( zoomLevelCurrent ) + '/' + ( ix ) + '/' ) ) ) {
+                                fs.mkdirSync( path.normalize( path_output + '/map/' + ( zoomLevelCurrent ) + '/' + ( ix ) + '/' ) );
+                            };
+                            tileImg.saveSync( path.normalize( path_output + '/map/' + ( zoomLevelCurrent ) + '/' + ( ix ) + '/' + ( iz ) + '.png' ) );
+                            resolve();
+                        }
                         ) } );
                     };
                 };

@@ -27,7 +27,7 @@ Requires Node.js 8. You may also need to install and configure [additional depen
 Otherwise, just grab one of the [pre-built binaries](https://github.com/clarkx86/papyrusjs/releases).
 
 ## Usage
-```papyrus --path "My World" --textures "Vanilla_Resource_Pack.zip" --output "C:\papyrus" --mode papyrus```
+```./papyrus --world="./My World/" --textures="./Vanilla_Resource_Pack" --output="./output" --mode="topdown_shaded"```
 
 You'll have to define a path to the texture pack you want to use for the final render. You can automatically download vanilla textures by running papyrus with the ```--download-textures``` option. The vanilla resource pack with the default textures can also be downloaded from [here](https://aka.ms/resourcepacktemplate).
 
