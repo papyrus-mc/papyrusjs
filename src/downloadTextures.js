@@ -10,12 +10,13 @@ function exists(val) { return val !== null && val !== undefined }
 
 module.exports = function(extract_address) {
     const zip_address = lib_path.join(extract_address, tmp_textures_address);
-    return (new Promise((resolve, reject => {
+    console.log(zip_address);
+    return (new Promise((resolve, reject) => {
         lib_fs.mkdir(extract_address, { recursive: true }, err => {
             if (exists(err)) reject(err);
             resolve();
         });
-    })))
+    }))
     .catch(err => { throw err.toString() + "\nFailed to download textures, the specified texture folder already exists" })
 
     .then(() => { return fetch(textures_address) })
@@ -38,11 +39,11 @@ module.exports = function(extract_address) {
     }))
     
     .catch(err => console.log(err))
-    .finally(() => { return new Promise((resolve, reject) => {
+    /*.finally(() => { return new Promise((resolve, reject) => {
         lib_fs.unlink( zip_address, err => {
             if (exists(err)) reject(err);
             resolve();
         } )
-    }) })
+    }) })*/
     .catch(err => console.log(err.toString() + "\nFailed to cleanup after downloading textures"));
 }
