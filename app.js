@@ -11,6 +11,10 @@ const os                = require( 'os' );
 
 const argv = require( 'yargs' )
     .version( json_package.version + json_package.version_stage.charAt( 0 ) )
+    .option( 'download-textures', {
+        default: false,
+        type: 'boolean'
+    } )
     .option( 'output', {
         alias: 'o',
         default: './output/'
@@ -39,8 +43,8 @@ var transparentBlocks = require( './src/lookup_tables/transparent-blocks_table.j
     runtimeIDTable    = require( './src/lookup_tables/runtimeid_table.json' ),
     monoTable         = require( './src/lookup_tables/monochrome-textures_table.json' ),
     patchTable        = require( './src/lookup_tables/patch-textures_table.json' ),
-    textureTable      = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + '/textures/terrain_texture.json' ) ).toString() ) ),
-    blockTable        = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + 'blocks.json' ) ).toString() ) );
+    textureTable      = null,
+    blockTable        = null;
 
 var path_output = path.normalize( argv.output ),
     path_resourcepack = path.normalize( argv.textures ),
@@ -53,10 +57,6 @@ if ( cluster.isMaster ) {
 
 console.log( colors.bold( json_package.name.charAt( 0 ) + json_package.name.slice( 1, json_package.name.length - 2 ) + '.' + json_package.name.slice( json_package.name.length - 2 ) + ' v' + json_package.version + json_package.version_stage.charAt( 0 ) ) + colors.reset( ' by ' ) + json_package.author );
 
-// Check for latest version
-const updateCheck = require( './src/updateCheck.js' );
-updateCheck();
-
 if ( argv.verbose == true ) {
     console.log( colors.bold( 'Verbose mode' ) + ' is on! You will see debug console output.' );
 };
@@ -64,10 +64,23 @@ if ( argv.verbose == true ) {
 if ( argv.output == './output/' ) {
     console.log( colors.yellow( '[WARNING]' ) + ' No output path specified. The default path "./output/" will be used.' );
 }
+if ( argv.output == './textures/') {
+    console.log( colors.yellow( '[WARNING]') + ' No texture path specified. The default path "./textures/" will be used.' );
+}
 
 console.log( 'Threads: ' + argv.threads );
 
-init( path.normalize( argv.world ), path.normalize( argv.output ) );
+// Check for latest version
+const updateCheck = require( './src/updateCheck.js' );
+updateCheck().then(() => {
+    //If the user requested to download textures, download them
+    if (argv.downloadTextures === true) return require( "./downloadTextures" )( path.normalize ( argv.textures ));
+}).then(() => {
+    //Run
+    textureTable = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + '/textures/terrain_texture.json' ) ).toString() ) );
+    blockTable   = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + 'blocks.json' ) ).toString() ) );
+    init( path.normalize( argv.world ), path.normalize( argv.output ) ); 
+});
 
 function init( path_world, path_output ) {
     var path_leveldat = path.normalize( path_world + '/level.dat' );
