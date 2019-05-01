@@ -88,7 +88,7 @@ if ( cluster.isMaster ) {
         blockTable   = JSON.parse( stripJsonComments( fs.readFileSync( path.join( cwd, argv.textures, 'blocks.json' ) ).toString() ) );
         module.exports = { renderMode, transparentBlocks, runtimeIDTable, monoTable, patchTable, textureTable, blockTable, path_output, path_resourcepack, cwd };
         //Run
-        init();
+        init( path.normalize( argv.world ), path.normalize( argv.output ) );
     });
 
     function init( path_world, path_output ) {
