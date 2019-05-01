@@ -44,7 +44,7 @@ const argv = require( 'yargs' )
 // DOWNLOADING TEXTURES SHOULD BE SYNCHRONOUS IF POSSIBLE, SO THE LOOKUP-TABLES BELOW GET REQUIRED WHEN ALL FILES ARE PRESENT
 
 if ( ( argv[ 'force-download' ] == true ) || ( !fs.existsSync( path.normalize( argv.textures + 'blocks.json' ) ) ) ) {
-    console.log( 'Textures (or some required files) missing. Downloading...' );
+    console.log( '(Some) textures are missing or ' + colors.italic( '--force-download' ) + ' has been specified. Downloading...' );
     require( './src/downloadTextures.js' )( path.normalize ( argv.textures ) )
 };
 

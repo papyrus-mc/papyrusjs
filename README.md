@@ -29,7 +29,7 @@ Otherwise, just grab one of the [pre-built binaries](https://github.com/clarkx86
 ## Usage
 ```./papyrus --world="./My World/" --textures="./Vanilla_Resource_Pack" --output="./output" --mode="topdown_shaded"```
 
-You'll have to define a path to the texture pack you want to use for the final render. Vanilla textures will be automatically be downloaded if now textures are found. You can also force papyrus.js to download the latest textures with the option `--force-download`. If you want to download the vanilla resourcepack manually, you can get it [here](https://aka.ms/resourcepacktemplate).
+You are able to define a path to the texture pack you want to use for the final render. Vanilla textures will be automatically be downloaded if now textures are found. You can also force papyrus.js to download the latest textures with the option `--force-download`. If you want to download the vanilla resourcepack manually, you can get it [here](https://aka.ms/resourcepacktemplate).
 
 [Read the full documentation.](https://github.com/clarkx86/papyrus/blob/master/docs/documentation.md)
 
