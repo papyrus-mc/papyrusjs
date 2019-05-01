@@ -1,12 +1,13 @@
 language: node_js
 node_js:
   - 8
-env:
-  - CXX=g++-4.8
 addons:
   apt:
-    sources:
+  sources:
     - ubuntu-toolchain-r-test
-    packages:
-    - gcc-4.8
-    - g++-4.8
+  packages:
+    - g++-7
+  env:
+    - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+before_install:
+    - eval "${MATRIX_EVAL}"
