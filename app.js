@@ -77,28 +77,28 @@ if ( cluster.isMaster ) {
     .then(function() {
         // Download textures if textures can't be found
         
-        if ( ( argv[ 'force-download' ] == true ) || ( !fs.existsSync( path.join( cwd(), argv.textures + 'blocks.json' ) ) ) ) {
+        if ( ( argv[ 'force-download' ] == true ) || ( !fs.existsSync( path.join( cwd, argv.textures + 'blocks.json' ) ) ) ) {
             console.log( '(Some) textures are missing or ' + colors.italic( '--force-download' ) + ' has been specified. Downloading...' );
-            return require( './src/downloadTextures.js' )( path.join ( cwd(), argv.textures ) )
+            return require( './src/downloadTextures.js' )( path.join ( cwd, argv.textures ) )
         };
     })
     .then(function() {
         //Initialize variables safely
-        textureTable = JSON.parse( stripJsonComments( fs.readFileSync( path.join( cwd(), argv.textures + '/textures/terrain_texture.json' ) ).toString() ) );
-        blockTable   = JSON.parse( stripJsonComments( fs.readFileSync( path.join( cwd(), argv.textures + 'blocks.json' ) ).toString() ) );
+        textureTable = JSON.parse( stripJsonComments( fs.readFileSync( path.join( cwd, argv.textures + '/textures/terrain_texture.json' ) ).toString() ) );
+        blockTable   = JSON.parse( stripJsonComments( fs.readFileSync( path.join( cwd, argv.textures + 'blocks.json' ) ).toString() ) );
         module.exports = { renderMode, transparentBlocks, runtimeIDTable, monoTable, patchTable, textureTable, blockTable, path_output, path_resourcepack, cwd };
         //Run
         init();
     });
 
     function init( path_world, path_output ) {
-        var path_leveldat = path.join( cwd(), path_world + '/level.dat' );
+        var path_leveldat = path.join( cwd, path_world + '/level.dat' );
         if ( fs.existsSync( path_leveldat ) != 1 )
         {
             console.log( colors.red.bold( '[ERROR]' ) + ' Invalid world path. No "level.dat" found.' );
         } else {
 
-            const db = levelup( new ( require( 'leveldb-mcpe' ) )( path.join( cwd(), path_world + '/db/' ) ) );
+            const db = levelup( new ( require( 'leveldb-mcpe' ) )( path.join( cwd, path_world + '/db/' ) ) );
 
             console.log( 'Reading database. This can take a couple of seconds up to a couple of minutes.' );
 
