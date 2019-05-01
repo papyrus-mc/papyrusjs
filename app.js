@@ -20,6 +20,7 @@ const argv = require( 'yargs' )
     } )
     .option( 'textures', {
         alias: 't',
+        default: './textures/'
     } )
     .option( 'threads', {
         default: os.cpus().length
