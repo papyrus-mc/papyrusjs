@@ -149,7 +149,6 @@ function init( path_world, path_output ) {
                 console.log( 'Furthest X (negative):\t' + chunkX[ 0 ] + '\tFurthest X (positive):\t' + chunkX[ 1 ] + '\nFurthest Z (negative):\t' + chunkZ[ 0 ] + '\tFurthest Z (positive):\t' + chunkZ[ 1 ] );
                 console.log( 'Processing and rendering ' + colors.bold( Object.keys( db_keys ).length ) + ' Chunks, which ' + colors.bold( chunksTotal[ 0 ] ) + ' of them are valid SubChunks...' );
                 
-                //var bar = new ProgressBar( colors.bold( '[' ) + ':bar' + colors.bold( ']' ) + ' :percent\tProcessing chunk :current/ :total\t:rate chunks/Second\t(:eta seconds left)', {
                 var bar = new ProgressBar( colors.bold( '[' ) + ':bar' + colors.bold( ']' ) + ' :percent\tProcessing chunk :current/ :total\t:rate chunks/Second', {
                     total: Object.keys( db_keys ).length,
                     complete: colors.inverse( '=' ),
@@ -157,7 +156,7 @@ function init( path_world, path_output ) {
                 } );
 
                 var workers = [ ],
-                    chunksPerThread = Math.round( Object.keys( db_keys ).length/argv.threads ),
+                    chunksPerThread = Math.floor( Object.keys( db_keys ).length/argv.threads ),
                     start = 0,
                     finishedWorkers = 0;
 
@@ -216,7 +215,7 @@ function init( path_world, path_output ) {
 
                         case 1:
                             finishedWorkers++;
-                            // if ( argv.verbose ) { console.log( 'Thread ' + ( worker[ 'id' ]-1 ) + ' is done rendering.' ); };
+                            if ( argv.verbose ) { console.log( 'Thread ' + ( worker[ 'id' ]-1 ) + ' is done rendering.' ); };
                             if ( finishedWorkers === os.cpus().length ) {
                                 if ( argv.verbose ) { console.log( 'All threads are done rendering.' ); };
                                 processLeafletMap();
@@ -267,6 +266,7 @@ function init( path_world, path_output ) {
 
     const convert     = require( 'color-convert' );
     const mapnik      = require( 'mapnik' );
+    const PNG         = require( 'pngjs' ).PNG;
     const readChunk   = require( './src/db_read/readChunk.js' );
     const renderChunk = require( './src/render/renderChunk.js' ); 
     const Cache       = require( './src/palettes/textureCache' );
@@ -284,8 +284,8 @@ function init( path_world, path_output ) {
         img.fillSync( new mapnik.Color( color[0], color[1], color[2], 255, true ) );
         cache.save( 'mono_default', 0, img );
 
-        var img = new mapnik.Image( 1, 1 );
-        cache.save( 'placeholder', 0, img );
+        var img = new PNG( { width: 1, height: 1 } );
+        cache.save( 'placeholder', 0, PNG.sync.write( img ) );
 
         var img = new mapnik.Image( 16, 16 );
         img.fillSync( new mapnik.Color( 255, 255, 255, 255, true ) );
@@ -318,10 +318,11 @@ function init( path_world, path_output ) {
                 renderChunk( chunk, cache, 16, worldOffset, zoomLevelMax )
                     .then( function() {
                         pos++;
+                        console.log( 'Thread ' + process.env[ 'ID' ] + ' ' + pos + '/' + process.env[ 'end' ] )
 
                         if ( pos <= process.env[ 'end' ] ) {
                             process.send( { msgid: 0, msg: pos } );
-                        } else {
+                        } else if ( pos >= process.env[ 'end' ] ) {
                             process.send( { msgid: 1, msg: true } ); // Process is done rendering their chunks
                         };
                         
