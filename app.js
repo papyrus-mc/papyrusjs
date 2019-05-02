@@ -28,6 +28,10 @@ const argv = require( 'yargs' )
     .option( 'mode', {
         alias: 'm'
     } )
+    .option( 'threshold', {
+        alias: 'y',
+        default: 256
+    } )
     .option( 'force-download', {
         default: false,
         type: 'boolean'
@@ -165,9 +169,10 @@ function init( path_world, path_output ) {
                         workerArgs[ "ID" ] = i;
                         workerArgs[ 'start' ] = start;
                         workerArgs[ 'end' ] = start + chunksPerThread - 1;
-                        workerArgs[ 'worldOffset' ] = JSON.stringify( { 'x': chunkX, 'z': chunkZ } ),
-                        workerArgs[ "chunksTotal" ] = Object.keys( db_keys ).length;
-                        workerArgs[ "zoomLevelMax" ] = zoomLevelMax;
+                        workerArgs[ 'worldOffset'  ] = JSON.stringify( { 'x': chunkX, 'z': chunkZ } ),
+                        workerArgs[ 'chunksTotal'  ] = Object.keys( db_keys ).length;
+                        workerArgs[ 'zoomLevelMax' ] = zoomLevelMax;
+                        workerArgs[ 'yThreshold' ] = argv.threshold;
 
                     workers.push( cluster.fork( workerArgs ) );
 
@@ -274,7 +279,7 @@ function init( path_world, path_output ) {
     var pos = process.env[ 'start' ],
         cache = new Cache(),
         worldOffset = JSON.parse( process.env[ 'worldOffset' ] );
-    
+
     initPromises = [ ];
     // Prepare essential images for cache
     // Monochrome textures blending colour
@@ -312,7 +317,7 @@ function init( path_world, path_output ) {
                 // console.log( Buffer.from( msg[ 'msg' ][ 'xz' ] ) );
 
                 for( i = 0; i < msg[ 'msg' ][ 'data' ].length; i++ ) {
-                    readChunk( Buffer.from( msg[ 'msg' ][ 'data' ][ i ] ), chunk, i );
+                    readChunk( Buffer.from( msg[ 'msg' ][ 'data' ][ i ] ), chunk, i, process.env[ 'yThreshold' ] );
                 };
 
                 renderChunk( chunk, cache, 16, worldOffset, zoomLevelMax )
@@ -329,6 +334,5 @@ function init( path_world, path_output ) {
                     } );
                 break;
         };
-    } );
-    
+    } );    
 };

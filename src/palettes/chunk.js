@@ -1,7 +1,6 @@
 const fs = require( 'fs' );
 const Vec3 = require( 'vec3' );
 
-// var transparentBlocks = require( '../app.js' ).transparentBlocks;
 var transparentBlocks = require( '../lookup_tables/transparent-blocks_table.json' );
 
 module.exports = function( xz ) {
@@ -9,8 +8,8 @@ module.exports = function( xz ) {
         XZ = xz,
         Y  = 1;
 
-    this.set = function( x, y, z, name, value ) {
-
+    this.set = function( x, y, z, name, value, yThreshold ) {
+        if ( y < yThreshold ) {
         if ( transparentBlocks[ name ] != true ) {
                 chunk[ new Vec3( x, 0, z ) ] = { name: name, value: value, y: y };
         } else {
@@ -20,6 +19,7 @@ module.exports = function( xz ) {
             }
             chunk[ new Vec3( x, iy, z ) ] = { name: name, value: value, y: y };
             // console.log( name + ' was transparent. Put it on Y: ' + iy );
+        };
         };
     };
 
