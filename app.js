@@ -44,18 +44,26 @@ const argv = require( 'yargs' )
     .demandOption( [ 'world', 'textures', 'output' ] )
     .argv
 
+// Download textures if textures can't be found
+// DOWNLOADING TEXTURES SHOULD BE SYNCHRONOUS IF POSSIBLE, SO THE LOOKUP-TABLES BELOW GET REQUIRED WHEN ALL FILES ARE PRESENT!
+if ( ( argv[ 'force-download' ] == true ) || ( !fs.existsSync( path.normalize( argv.textures + 'blocks.json' ) ) ) ) {
+    console.log( '(Some) textures are missing or ' + colors.italic( '--force-download' ) + ' has been specified. Downloading...' );
+    require( './src/downloadTextures.js' )( path.normalize ( argv.textures ) )
+};
+
 var transparentBlocks = require( './src/lookup_tables/transparent-blocks_table.json'  ),
     runtimeIDTable    = require( './src/lookup_tables/runtimeid_table.json' ),
     monoTable         = require( './src/lookup_tables/monochrome-textures_table.json' ),
     patchTable        = require( './src/lookup_tables/patch-textures_table.json' ),
-    textureTable      = null,
-    blockTable        = null,
-    cwd               = process.cwd();
+    textureTable      = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + '/textures/terrain_texture.json' ) ).toString() ) ),
+    blockTable        = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + 'blocks.json' ) ).toString() ) );
 
-var path_output = path.join( cwd, argv.output ),
-    path_resourcepack = path.join( cwd, argv.textures ),
+var path_output = path.normalize( argv.output ),
+    path_resourcepack = path.normalize( argv.textures ),
     zoomLevelMax = process.env[ 'zoomLevelMax' ],
     renderMode = argv.mode;
+
+module.exports = { renderMode, transparentBlocks, runtimeIDTable, monoTable, patchTable, textureTable, blockTable, path_output, path_resourcepack };
 
 if ( cluster.isMaster ) {
 
@@ -77,33 +85,17 @@ if ( cluster.isMaster ) {
     // Check for latest version
     require( './src/updateCheck.js' )();
 
-    Promise.resolve()
-    .then(function() {
-        // Download textures if textures can't be found
-        
-        if ( ( argv[ 'force-download' ] == true ) || ( !fs.existsSync( path.join( cwd, argv.textures, 'blocks.json' ) ) ) ) {
-            console.log( '(Some) textures are missing or ' + colors.italic( '--force-download' ) + ' has been specified. Downloading...' );
-            return require( './src/downloadTextures.js' )( path.join ( cwd, argv.textures ) )
-        };
-    })
-    .then(function() {
-        //Initialize variables safely
-        textureTable = JSON.parse( stripJsonComments( fs.readFileSync( path.join( cwd, argv.textures, 'textures/terrain_texture.json' ) ).toString() ) );
-        blockTable   = JSON.parse( stripJsonComments( fs.readFileSync( path.join( cwd, argv.textures, 'blocks.json' ) ).toString() ) );
-        module.exports = { renderMode, transparentBlocks, runtimeIDTable, monoTable, patchTable, textureTable, blockTable, path_output, path_resourcepack, cwd };
-        //Run
-        init( path.normalize( argv.world ), path.normalize( argv.output ) );
-    })
-    .catch(err => console.error(err));
+    // Run
+    init( path.normalize( argv.world ), path.normalize( argv.output ) );
 
     function init( path_world, path_output ) {
-        var path_leveldat = path.join( cwd, path_world, 'level.dat' );
+        var path_leveldat = path.normalize( path_world + '/level.dat' );
         if ( fs.existsSync( path_leveldat ) != 1 )
         {
             console.log( colors.red.bold( '[ERROR]' ) + ' Invalid world path. No "level.dat" found.' );
         } else {
 
-            const db = levelup( new ( require( 'leveldb-mcpe' ) )( path.join( cwd, path_world + 'db/' ) ) );
+            const db = levelup( new ( require( 'leveldb-mcpe' ) )( path.normalize( path_world + '/db/' ) ) );
 
             console.log( 'Reading database. This can take a couple of seconds up to a couple of minutes.' );
 
@@ -158,9 +150,6 @@ if ( cluster.isMaster ) {
                     // Prepare output directory
                     prepareOutput();
 
-                    // Prepare output directory
-                    prepareOutput();
-
                     console.log( 'Furthest X (negative):\t' + chunkX[ 0 ] + '\tFurthest X (positive):\t' + chunkX[ 1 ] + '\nFurthest Z (negative):\t' + chunkZ[ 0 ] + '\tFurthest Z (positive):\t' + chunkZ[ 1 ] );
                     console.log( 'Processing and rendering ' + colors.bold( Object.keys( db_keys ).length ) + ' Chunks, which ' + colors.bold( chunksTotal[ 0 ] ) + ' of them are valid SubChunks...' );
                     
@@ -177,13 +166,13 @@ if ( cluster.isMaster ) {
 
                     for( i = 0; i < argv.threads; i++ ) {
                         var workerArgs = {};
-                        workerArgs[ "ID" ] = i;
-                        workerArgs[ 'start' ] = start;
-                        workerArgs[ 'end' ] = start + chunksPerThread - 1;
-                        workerArgs[ 'worldOffset'  ] = JSON.stringify( { 'x': chunkX, 'z': chunkZ } ),
-                        workerArgs[ 'chunksTotal'  ] = Object.keys( db_keys ).length;
-                        workerArgs[ 'zoomLevelMax' ] = zoomLevelMax;
-                        workerArgs[ 'yThreshold' ] = argv.threshold;
+                            workerArgs[ "ID" ] = i;
+                            workerArgs[ 'start' ] = start;
+                            workerArgs[ 'end' ] = start + chunksPerThread - 1;
+                            workerArgs[ 'worldOffset'  ] = JSON.stringify( { 'x': chunkX, 'z': chunkZ } ),
+                            workerArgs[ 'chunksTotal'  ] = Object.keys( db_keys ).length;
+                            workerArgs[ 'zoomLevelMax' ] = zoomLevelMax;
+                            workerArgs[ 'yThreshold' ] = argv.threshold;
 
                         workers.push( cluster.fork( workerArgs ) );
 
@@ -226,21 +215,19 @@ if ( cluster.isMaster ) {
                                         } );
                                 } catch( err ) {
 
-                                Promise.all( readPromises )
-                                    .then( function() {
-                                        workers[ worker[ 'id' ]-1 ].send( { msgid: 0, msg: { xz: key.slice( 0, 8 ), data: db_data } } );
-                                    } );
+                                };
+                                break;
 
-                        case 1:
-                            finishedWorkers++;
-                            if ( argv.verbose ) { console.log( 'Thread ' + ( worker[ 'id' ]-1 ) + ' is done rendering.' ); };
-                            if ( finishedWorkers === os.cpus().length ) {
-                                if ( argv.verbose ) { console.log( 'All threads are done rendering.' ); };
-                                processLeafletMap();
-                            };
-                            break;
-                    };
-                } );
+                            case 1:
+                                finishedWorkers++;
+                                if ( argv.verbose ) { console.log( 'Thread ' + ( worker[ 'id' ]-1 ) + ' is done rendering.' ); };
+                                if ( finishedWorkers === os.cpus().length ) {
+                                    if ( argv.verbose ) { console.log( 'All threads are done rendering.' ); };
+                                    processLeafletMap();
+                                };
+                                break;
+                        };
+                    } );
 
                     async function processLeafletMap() {
                         // Generate additional zoom levels for Leaflet map
@@ -264,17 +251,17 @@ if ( cluster.isMaster ) {
                     };
                     
                     function prepareOutput() {
-                        if ( !fs.existsSync( path.join( cwd, argv.output ) ) ) {
-                            fs.mkdirSync( path.join( cwd, argv.output ))
+                        if ( !fs.existsSync( path.normalize( argv.output ) ) ) {
+                            fs.mkdirSync( path.normalize( argv.output ))
                         };
-                        if ( !fs.existsSync( path.join( cwd, argv.output, 'map/' ) ) ) {
-                            fs.mkdirSync( path.join( cwd, argv.output,  'map/' ) );
+                        if ( !fs.existsSync( path.normalize( argv.output ) + '/map/' ) ) {
+                            fs.mkdirSync( path.normalize( argv.output ) + '/map/' );
                         };
 
                         // Create index.html
                         console.log( 'Creating Leaflet map...' );
                         const buildHTML = require( './src/html/buildHTML.js' );
-                        buildHTML( path.join( cwd, argv.output ), 0, zoomLevelMax, 0, 0 );
+                        buildHTML( path.normalize( argv.output ), 0, zoomLevelMax, 0, 0 );
                     };
                 } );
         };
