@@ -82,7 +82,7 @@ console.log( 'Threads: ' + argv.threads );
 require( './src/updateCheck.js' )();
 
 // Run
-// init( path.normalize( argv.world ), path.normalize( argv.output ) );
+init( path.normalize( argv.world ), path.normalize( argv.output ) );
 
 function init( path_world, path_output ) {
     var path_leveldat = path.normalize( path_world + '/level.dat' );

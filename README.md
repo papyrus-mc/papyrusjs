@@ -23,7 +23,7 @@ Assuming you have node.js installed, simply clone this repo and run the followin
 
 ```npm install```
 
-Requires Node.js 8. You may also need to install and configure [additional dependencies](https://github.com/clarkx86/papyrusjs#additional-dependencies).
+Requires node.js >= 8. Before installing, you may also need to install zlib using `sudo apt install zlib1g-dev`.
 
 Otherwise, just grab one of the [pre-built binaries](https://github.com/clarkx86/papyrusjs/releases).
 
