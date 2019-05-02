@@ -89,7 +89,8 @@ if ( cluster.isMaster ) {
         module.exports = { renderMode, transparentBlocks, runtimeIDTable, monoTable, patchTable, textureTable, blockTable, path_output, path_resourcepack, cwd };
         //Run
         init( path.normalize( argv.world ), path.normalize( argv.output ) );
-    });
+    })
+    .catch(err => console.error(err));
 
     function init( path_world, path_output ) {
         var path_leveldat = path.join( cwd, path_world, 'level.dat' );
