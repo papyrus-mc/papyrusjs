@@ -62,6 +62,14 @@ function push_exports() {
 }
 push_exports();
 
+function load_textures() {
+    if (fs.existsSync( path.join( cwd, argv.textures, 'textures/terrain_texture.json' ) ) ) {
+        textureTable = JSON.parse( stripJsonComments( fs.readFileSync( path.join( cwd, argv.textures, 'textures/terrain_texture.json' ) ).toString() ) );
+        blockTable   = JSON.parse( stripJsonComments( fs.readFileSync( path.join( cwd, argv.textures, 'blocks.json' ) ).toString() ) );
+    }
+    push_exports();
+}
+
 if ( cluster.isMaster ) {
 
     console.log( colors.bold( json_package.name.charAt( 0 ) + json_package.name.slice( 1, json_package.name.length - 2 ) + '.' + json_package.name.slice( json_package.name.length - 2 ) + ' v' + json_package.version + json_package.version_stage.charAt( 0 ) ) + colors.reset( ' by ' ) + json_package.author );
@@ -91,10 +99,8 @@ if ( cluster.isMaster ) {
             require( './src/downloadTextures.js' )( path.join ( cwd, argv.textures ) )
         };
     }).then(function() {
-        //Safely initialize variables
-        textureTable = JSON.parse( stripJsonComments( fs.readFileSync( path.join( cwd, argv.textures, 'textures/terrain_texture.json' ) ).toString() ) );
-        blockTable   = JSON.parse( stripJsonComments( fs.readFileSync( path.join( cwd, argv.textures, 'blocks.json' ) ).toString() ) );
-        push_exports();
+        //double check load textures
+        load_textures();
         // Run
         init( path.join( cwd, argv.world ), path.join( cwd, argv.output ) );
     });
