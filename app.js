@@ -44,30 +44,31 @@ const argv = require( 'yargs' )
     .demandOption( [ 'world', 'textures', 'output' ] )
     .argv
 
-// Download textures if textures can't be found
-// DOWNLOADING TEXTURES SHOULD BE SYNCHRONOUS IF POSSIBLE, SO THE LOOKUP-TABLES BELOW GET REQUIRED WHEN ALL FILES ARE PRESENT!
-if ( ( argv[ 'force-download' ] == true ) || ( !fs.existsSync( path.normalize( argv.textures + 'blocks.json' ) ) ) ) {
-    console.log( '(Some) textures are missing or ' + colors.italic( '--force-download' ) + ' has been specified. Downloading...' );
-    require( './src/downloadTextures.js' )( path.normalize ( argv.textures ) )
-};
-
-var transparentBlocks = require( './src/lookup_tables/transparent-blocks_table.json'  ),
-    runtimeIDTable    = require( './src/lookup_tables/runtimeid_table.json' ),
-    monoTable         = require( './src/lookup_tables/monochrome-textures_table.json' ),
-    patchTable        = require( './src/lookup_tables/patch-textures_table.json' ),
-    textureTable      = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + '/textures/terrain_texture.json' ) ).toString() ) ),
-    blockTable        = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + 'blocks.json' ) ).toString() ) );
-
 var path_output = path.normalize( argv.output ),
     path_resourcepack = path.normalize( argv.textures ),
     zoomLevelMax = process.env[ 'zoomLevelMax' ],
     renderMode = argv.mode;
+
+var transparentBlocks = require( './src/lookup_tables/transparent-blocks_table.json'  ),
+    runtimeIDTable        = require( './src/lookup_tables/runtimeid_table.json' ),
+    monoTable             = require( './src/lookup_tables/monochrome-textures_table.json' ),
+    patchTable            = require( './src/lookup_tables/patch-textures_table.json' );
+if ( fs.existsSync( argv.textures + 'blocks.json' ) ) {
+    textureTable          = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + '/textures/terrain_texture.json' ) ).toString() ) ),
+    blockTable            = JSON.parse( stripJsonComments( fs.readFileSync( path.normalize( argv.textures + 'blocks.json' ) ).toString() ) );
+} else {
+    textureTable          = null,
+    blockTable            = null;
+};
 
 module.exports = { renderMode, transparentBlocks, runtimeIDTable, monoTable, patchTable, textureTable, blockTable, path_output, path_resourcepack };
 
 if ( cluster.isMaster ) {
 
 console.log( colors.bold( json_package.name.charAt( 0 ) + json_package.name.slice( 1, json_package.name.length - 2 ) + '.' + json_package.name.slice( json_package.name.length - 2 ) + ' v' + json_package.version + json_package.version_stage.charAt( 0 ) ) + colors.reset( ' by ' ) + json_package.author );
+
+// Check for latest version
+require( './src/updateCheck.js' )();
 
 if ( argv.verbose == true ) {
     console.log( colors.bold( 'Verbose mode' ) + ' is on! You will see debug console output.' );
@@ -82,11 +83,21 @@ if ( argv.output == './textures/') {
 
 console.log( 'Threads: ' + argv.threads );
 
-// Check for latest version
-require( './src/updateCheck.js' )();
-
-// Run
-init( path.normalize( argv.world ), path.normalize( argv.output ) );
+// Download textures if textures can't be found
+// DOWNLOADING TEXTURES SHOULD BE SYNCHRONOUS IF POSSIBLE, SO THE LOOKUP-TABLES BELOW GET REQUIRED WHEN ALL FILES ARE PRESENT!
+new Promise( ( resolve, reject ) => {
+    if ( ( argv[ 'force-download' ] == true ) || ( !fs.existsSync( path.normalize( argv.textures + 'blocks.json' ) ) ) ) {
+        console.log( 'Texture directory is missing or ' + colors.italic( '--force-download' ) + ' has been specified. Downloading...' );
+        require( './src/downloadTextures.js' )( path.normalize ( argv.textures ) )
+            .then( () => { resolve(); } )
+            .catch( ( err ) => { throw err; } );
+    } else {
+        resolve();
+    }
+} ).then( () => {
+    // Run
+    init( path.normalize( argv.world ), path.normalize( argv.output ) );
+} )
 
 function init( path_world, path_output ) {
     var path_leveldat = path.normalize( path_world + '/level.dat' );
