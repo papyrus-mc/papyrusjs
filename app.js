@@ -318,7 +318,7 @@ function init( path_world, path_output ) {
                 renderChunk( chunk, cache, 16, worldOffset, zoomLevelMax )
                     .then( function() {
                         pos++;
-                        console.log( 'Thread ' + process.env[ 'ID' ] + ' ' + pos + '/' + process.env[ 'end' ] )
+                        // console.log( 'Thread ' + process.env[ 'ID' ] + ' ' + pos + '/' + process.env[ 'end' ] )
 
                         if ( pos <= process.env[ 'end' ] ) {
                             process.send( { msgid: 0, msg: pos } );

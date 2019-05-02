@@ -10,6 +10,13 @@ const fs = require('fs-extra');
         copyDir = '';
 
     console.log( 'Building ' + colors.bold( json_package.name.charAt( 0 ) + json_package.name.slice( 1, json_package.name.length - 2 ) + '.' + json_package.name.slice( json_package.name.length - 2 ) + ' v' + json_package.version + '-' + json_package.version_stage ) );
+    
+    console.log( 'Patching modules...' );
+
+    var patchContent = fs.readFileSync( './node_modules/mapnik/lib/mapnik.js' ).toString();
+    patchContent = patchContent.replace( "var binding_path = binary.find(path.resolve(path.join(__dirname,'../package.json')));", "var binding_path = binary.find(path.resolve(path.join('./node_modules/mapnik/package.json')));" );
+    fs.writeFileSync( './node_modules/mapnik/lib/mapnik.js', patchContent );
+    
     console.log( 'Packing application using pkg...' );
     
     await exec( [ 'app.js','--target=node10-linux-x64','--output='+destinationDir+'/papyrus' ] );
