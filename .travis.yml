@@ -1,6 +1,5 @@
 os:
   - linux
-  - windows
 matrix:
   allow_failures:
     - os: windows
