@@ -38,7 +38,7 @@ module.exports = async function loadTexture( name, value, x, y, z, cache ) {
             // Get the correct "state" and path of the texture
             // Is the texture missing?
             if ( textureTable[ "texture_data" ][ texture ][ "textures" ][ value ] === undefined ) {
-                console.log( colors.yellow( '[WARNING]' ) + ' Value not matching:\t' + texture + '\t(' + name + '\t' + value + ')' );
+                console.log( colors.yellow( '\n[WARNING]' ) + ' Value not matching:\t' + texture + '\t(' + name + '\t' + value + ')' );
                 cache.save( name, value, cache.get( 'placeholder', 0 ) );
             } else {
                 // Get the texture of it's current state
@@ -64,11 +64,11 @@ module.exports = async function loadTexture( name, value, x, y, z, cache ) {
                         } )
                         .catch( ( err ) => {
                             imageBuffer = cache.get( 'placeholder', 0 );
-                            console.log( colors.red( '[ERROR]' ) + ' Error when loading TGA: ' + err );
+                            console.log( colors.yellow( '\n[WARNING]' ) + ' Error when loading TGA: ' + err );
                         } );
             } catch ( err ) {
                 imageBuffer = cache.get( 'placeholder', 0 );
-                console.log( colors.red( '[ERROR]' ) + ' Failed to load TGA for\t' + colors.bold( name ) + '\t' + value + '\t' + colors.bold( texture ) + '\tError: ' + err );
+                console.log( colors.yellow( '\n[WARNING]' ) + ' Failed to load TGA for\t' + colors.bold( name ) + '\t' + value + '\t' + colors.bold( texture ) + '\tError: ' + err );
             };
         } else {
             // PNG (but not if the image is a buffer already)

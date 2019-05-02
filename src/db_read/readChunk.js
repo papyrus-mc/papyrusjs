@@ -5,7 +5,7 @@ const nbt    = require( 'prismarine-nbt' );
 const Palette_Persistance = require( '../palettes/palette_persistance.js' );
 const runtimeIDTable      = require( '../../app.js' ).runtimeIDTable;
 
-module.exports = function( value, chunk, yOffset ) {
+module.exports = function( value, chunk, yOffset, yThreshold ) {
     return new Promise( ( resolve, reject ) => {
 
             var _offset = 0;
@@ -118,7 +118,7 @@ module.exports = function( value, chunk, yOffset ) {
                                 try
                                 {
                                     if ( localPalette.get( state ).name != 'minecraft:air' ) {
-                                        chunk.set( x, y + SubChunkYOffset, z, localPalette.get( state ).name, localPalette.get( state ).value );
+                                        chunk.set( x, y + SubChunkYOffset, z, localPalette.get( state ).name, localPalette.get( state ).value, yThreshold );
                                         // console.log( localPalette.get( state ).value );
                                     };
                                 } catch ( err ) {

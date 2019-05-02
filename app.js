@@ -28,6 +28,10 @@ const argv = require( 'yargs' )
     .option( 'mode', {
         alias: 'm'
     } )
+    .option( 'threshold', {
+        alias: 'y',
+        default: 256
+    } )
     .option( 'force-download', {
         default: false,
         type: 'boolean'
@@ -154,10 +158,12 @@ if ( cluster.isMaster ) {
                     // Prepare output directory
                     prepareOutput();
 
+                    // Prepare output directory
+                    prepareOutput();
+
                     console.log( 'Furthest X (negative):\t' + chunkX[ 0 ] + '\tFurthest X (positive):\t' + chunkX[ 1 ] + '\nFurthest Z (negative):\t' + chunkZ[ 0 ] + '\tFurthest Z (positive):\t' + chunkZ[ 1 ] );
                     console.log( 'Processing and rendering ' + colors.bold( Object.keys( db_keys ).length ) + ' Chunks, which ' + colors.bold( chunksTotal[ 0 ] ) + ' of them are valid SubChunks...' );
                     
-                    //var bar = new ProgressBar( colors.bold( '[' ) + ':bar' + colors.bold( ']' ) + ' :percent\tProcessing chunk :current/ :total\t:rate chunks/Second\t(:eta seconds left)', {
                     var bar = new ProgressBar( colors.bold( '[' ) + ':bar' + colors.bold( ']' ) + ' :percent\tProcessing chunk :current/ :total\t:rate chunks/Second', {
                         total: Object.keys( db_keys ).length,
                         complete: colors.inverse( '=' ),
@@ -165,18 +171,19 @@ if ( cluster.isMaster ) {
                     } );
 
                     var workers = [ ],
-                        chunksPerThread = Math.round( Object.keys( db_keys ).length/argv.threads ),
+                        chunksPerThread = Math.floor( Object.keys( db_keys ).length/argv.threads ),
                         start = 0,
                         finishedWorkers = 0;
 
                     for( i = 0; i < argv.threads; i++ ) {
                         var workerArgs = {};
-                            workerArgs[ "ID" ] = i;
-                            workerArgs[ 'start' ] = start;
-                            workerArgs[ 'end' ] = start + chunksPerThread - 1;
-                            workerArgs[ 'worldOffset' ] = JSON.stringify( { 'x': chunkX, 'z': chunkZ } ),
-                            workerArgs[ "chunksTotal" ] = Object.keys( db_keys ).length;
-                            workerArgs[ "zoomLevelMax" ] = zoomLevelMax;
+                        workerArgs[ "ID" ] = i;
+                        workerArgs[ 'start' ] = start;
+                        workerArgs[ 'end' ] = start + chunksPerThread - 1;
+                        workerArgs[ 'worldOffset'  ] = JSON.stringify( { 'x': chunkX, 'z': chunkZ } ),
+                        workerArgs[ 'chunksTotal'  ] = Object.keys( db_keys ).length;
+                        workerArgs[ 'zoomLevelMax' ] = zoomLevelMax;
+                        workerArgs[ 'yThreshold' ] = argv.threshold;
 
                         workers.push( cluster.fork( workerArgs ) );
 
@@ -219,19 +226,21 @@ if ( cluster.isMaster ) {
                                         } );
                                 } catch( err ) {
 
-                                };
-                                break;
+                                Promise.all( readPromises )
+                                    .then( function() {
+                                        workers[ worker[ 'id' ]-1 ].send( { msgid: 0, msg: { xz: key.slice( 0, 8 ), data: db_data } } );
+                                    } );
 
-                            case 1:
-                                finishedWorkers++;
-                                // if ( argv.verbose ) { console.log( 'Thread ' + ( worker[ 'id' ]-1 ) + ' is done rendering.' ); };
-                                if ( finishedWorkers === os.cpus().length ) {
-                                    if ( argv.verbose ) { console.log( 'All threads are done rendering.' ); };
-                                    processLeafletMap();
-                                };
-                                break;
-                        };
-                    } );
+                        case 1:
+                            finishedWorkers++;
+                            if ( argv.verbose ) { console.log( 'Thread ' + ( worker[ 'id' ]-1 ) + ' is done rendering.' ); };
+                            if ( finishedWorkers === os.cpus().length ) {
+                                if ( argv.verbose ) { console.log( 'All threads are done rendering.' ); };
+                                processLeafletMap();
+                            };
+                            break;
+                    };
+                } );
 
                     async function processLeafletMap() {
                         // Generate additional zoom levels for Leaflet map
@@ -275,6 +284,7 @@ if ( cluster.isMaster ) {
 
     const convert     = require( 'color-convert' );
     const mapnik      = require( 'mapnik' );
+    const PNG         = require( 'pngjs' ).PNG;
     const readChunk   = require( './src/db_read/readChunk.js' );
     const renderChunk = require( './src/render/renderChunk.js' ); 
     const Cache       = require( './src/palettes/textureCache' );
@@ -282,7 +292,7 @@ if ( cluster.isMaster ) {
     var pos = process.env[ 'start' ],
         cache = new Cache(),
         worldOffset = JSON.parse( process.env[ 'worldOffset' ] );
-    
+
     initPromises = [ ];
     // Prepare essential images for cache
     // Monochrome textures blending colour
@@ -292,8 +302,8 @@ if ( cluster.isMaster ) {
         img.fillSync( new mapnik.Color( color[0], color[1], color[2], 255, true ) );
         cache.save( 'mono_default', 0, img );
 
-        var img = new mapnik.Image( 1, 1 );
-        cache.save( 'placeholder', 0, img );
+        var img = new PNG( { width: 1, height: 1 } );
+        cache.save( 'placeholder', 0, PNG.sync.write( img ) );
 
         var img = new mapnik.Image( 16, 16 );
         img.fillSync( new mapnik.Color( 255, 255, 255, 255, true ) );
@@ -320,22 +330,22 @@ if ( cluster.isMaster ) {
                 // console.log( Buffer.from( msg[ 'msg' ][ 'xz' ] ) );
 
                 for( i = 0; i < msg[ 'msg' ][ 'data' ].length; i++ ) {
-                    readChunk( Buffer.from( msg[ 'msg' ][ 'data' ][ i ] ), chunk, i );
+                    readChunk( Buffer.from( msg[ 'msg' ][ 'data' ][ i ] ), chunk, i, process.env[ 'yThreshold' ] );
                 };
 
                 renderChunk( chunk, cache, 16, worldOffset, zoomLevelMax )
                     .then( function() {
                         pos++;
+                        // console.log( 'Thread ' + process.env[ 'ID' ] + ' ' + pos + '/' + process.env[ 'end' ] )
 
                         if ( pos <= process.env[ 'end' ] ) {
                             process.send( { msgid: 0, msg: pos } );
-                        } else {
+                        } else if ( pos >= process.env[ 'end' ] ) {
                             process.send( { msgid: 1, msg: true } ); // Process is done rendering their chunks
                         };
                         
                     } );
                 break;
         };
-    } );
-    
+    } );    
 };

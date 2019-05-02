@@ -1,10 +1,10 @@
-const fetch      = require("node-fetch");
-const lib_fs     = require("fs");
-const lib_path   = require("path");
-const lib_extract    = require("extract-zip");
+const fetch       = require( 'node-fetch' );
+const lib_fs      = require( 'fs-extra' );
+const lib_path    = require( 'path' );
+const lib_extract = require( 'extract-zip' );
 
-const textures_address = "https://aka.ms/resourcepacktemplate";
-const tmp_textures_address = "textures.tmp.zip";
+const textures_address     = 'https://aka.ms/resourcepacktemplate';
+const tmp_textures_address = 'textures.tmp.zip';
 
 function exists(val) { return val !== null && val !== undefined }
 

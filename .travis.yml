@@ -1,3 +1,35 @@
+os:
+  - linux
+matrix:
+  allow_failures:
+    - os: windows
 language: node_js
 node_js:
-  - 10
+    - 10
+env:
+    - CXX=g++-7 && CC=gcc-7
+addons:
+    apt:
+        sources:
+            - ubuntu-toolchain-r-test
+        packages:
+            - g++-7
+            - gcc-7
+after_success: npm run-script build
+before_deploy:
+    - cd "./dist/release/"
+    - zip -r papyrusjs-linux_$TRAVIS_TAG-$TRAVIS_BUILD_NUMBER.zip ./
+deploy:
+    branches:
+        only:
+            - master
+    provider: releases
+    overwrite: true
+    api_key:
+        secure: LyAqf85pZBfMZIrqgXGrdjhfrN43OY2j3Iwi3+u4QCJYs8aG9vodjmBQGTCqKeqEtigq5/xZ0HwaTl/y2LplD3vd3/1lWgQvWCm9er+FX74qegZC4qYNg0eUKGsVcoXNPIVGblVfUW/C8jaSvHDxAqFJM4Ie6spWhqfq2Oox/sZzB/s1R0A4Qn6TbVU/Mppp2YrToRryo5otbFsLvMBbtRRa3g8AXOWdf0G/sVbns/7NIZnwN6hbnjCNhVUghm9mf0/lO12enfGeVh9f1iLrSFZ98d9IHLGsHaLd+3TRRGHxH+NhMd+U+LlHLANMIvu2OfDAdyYAMdrWZsNkNxeCBEYcGAxZ/f35XrwFSua9XuRrLsODkmhuZ2s7AEbaiypZg0eSilVLzi7/fTiDB2xkG2WYuJ5yuFNGfFZZ2JZ5XjOpNH+w9JVwOUZbLa9fIR04J6yzVNCdqzc297rN5P0h2YUnAMlNRmAv8xdBR8IAyP8tpyQAAtPZdZhtMvmXzgy8dfBILKyUgaegjSK72/uj5ogOAea/PP/aJkq6CktEioA61VmN0C6h7UohiNUM/xHK7eUG+B7kflWz6/i/uMXLu9NWb+O+W7mIvTShMAla+BDJ74qoMbIbzOoC91nTCDTn+IDTn5Y9gpBMtGM4DAKFhQtPZcdetTrmnBswXtSICGU=
+    tags: true
+    file: papyrusjs-linux_$TRAVIS_TAG-$TRAVIS_BUILD_NUMBER.zip
+    on:
+        repo: clarkx86/papyrusjs
+        tags: true
+    skip_cleanup: true

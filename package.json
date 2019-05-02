@@ -1,12 +1,11 @@
 {
   "name": "papyrusjs",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "version_stage": "alpha",
   "description": "A tool to render Minecraft: Bedrock Edition worlds.",
   "main": "app.js",
   "scripts": {
-    "build": "node ./build.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "node ./build.js"
   },
   "repository": {
     "type": "git",
@@ -37,7 +36,6 @@
     "yargs": "^13.2.2"
   },
   "devDependencies": {
-    "archiver": "^3.0.0",
     "pkg": "^4.3.7"
   }
 }

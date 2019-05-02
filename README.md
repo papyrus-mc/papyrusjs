@@ -1,7 +1,8 @@
+[![Build Status](https://travis-ci.org/clarkx86/papyrusjs.svg?branch=master)](https://travis-ci.org/clarkx86/papyrusjs) [![Discord](https://img.shields.io/discord/569841820092203011.svg?logo=discord&logoColor=white)](https://discord.gg/J2sBaXa)
 # papyrus.js
 Papyrus is a tool to render Minecraft: Bedrock Edition (from now on referenced as "MCBE") worlds using Leaflet. It is written in JavaScript and powered by node.js.
 
-You can view an example [here](http://map.bedrock.clarkx86.com).
+You can view an example [here](http://map.bedrock.clarkx86.com/demo).
 Please also check out papyrus.js' sister-project: [papyrus.cs](https://github.com/mjungnickel18/papyruscs/)!
 
 ## Introduction
@@ -22,7 +23,7 @@ Assuming you have node.js installed, simply clone this repo and run the followin
 
 ```npm install```
 
-Requires Node.js 8. You may also need to install and configure [additional dependencies](https://github.com/clarkx86/papyrusjs#additional-dependencies).
+Requires node.js >= 8. Before installing, you may also need to install zlib using `sudo apt install zlib1g-dev`.
 
 Otherwise, just grab one of the [pre-built binaries](https://github.com/clarkx86/papyrusjs/releases).
 
