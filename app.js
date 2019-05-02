@@ -79,6 +79,7 @@ function load_textures() {
     }
     push_exports();
 }
+load_textures();
 
 if ( cluster.isMaster ) {
 
