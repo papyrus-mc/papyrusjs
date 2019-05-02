@@ -63,7 +63,10 @@ var path_output = path.normalize( argv.output ),
     zoomLevelMax = process.env[ 'zoomLevelMax' ],
     renderMode = argv.mode;
 
-module.exports = { renderMode, transparentBlocks, runtimeIDTable, monoTable, patchTable, textureTable, blockTable, path_output, path_resourcepack };
+function push_exports() {
+    module.exports = { renderMode, transparentBlocks, runtimeIDTable, monoTable, patchTable, textureTable, blockTable, path_output, path_resourcepack };
+}
+push_exports();
 
 if ( cluster.isMaster ) {
 
