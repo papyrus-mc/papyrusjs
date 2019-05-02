@@ -64,11 +64,11 @@ module.exports = async function loadTexture( name, value, x, y, z, cache ) {
                         } )
                         .catch( ( err ) => {
                             imageBuffer = cache.get( 'placeholder', 0 );
-                            console.log( colors.red( '\n[ERROR]' ) + ' Error when loading TGA: ' + err );
+                            console.log( colors.yellow( '\n[WARNING]' ) + ' Error when loading TGA: ' + err );
                         } );
             } catch ( err ) {
                 imageBuffer = cache.get( 'placeholder', 0 );
-                console.log( colors.red( '\n[ERROR]' ) + ' Failed to load TGA for\t' + colors.bold( name ) + '\t' + value + '\t' + colors.bold( texture ) + '\tError: ' + err );
+                console.log( colors.yellow( '\n[WARNING]' ) + ' Failed to load TGA for\t' + colors.bold( name ) + '\t' + value + '\t' + colors.bold( texture ) + '\tError: ' + err );
             };
         } else {
             // PNG (but not if the image is a buffer already)

@@ -1,6 +1,6 @@
 {
   "name": "papyrusjs",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "version_stage": "alpha",
   "description": "A tool to render Minecraft: Bedrock Edition worlds.",
   "main": "app.js",
