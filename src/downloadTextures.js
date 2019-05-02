@@ -1,37 +1,22 @@
-const fetch   = require( 'node-fetch' );
-const fs      = require( 'fs' );
-const path    = require( 'path' );
-const extract = require( 'extract-zip' );
+const fetch       = require( 'node-fetch' );
+const lib_fs      = require( 'fs-extra' );
+const lib_path    = require( 'path' );
+const lib_extract = require( 'extract-zip' );
 
-const urlTextures      = 'https://aka.ms/resourcepacktemplate';
-const pathTexturesTmp  = 'textures.tmp.zip';
+const textures_address     = 'https://aka.ms/resourcepacktemplate';
+const tmp_textures_address = 'textures.tmp.zip';
 
-module.exports = function( pathExtract ) {
-    return new Promise( ( resolve, reject ) => {
-        const pathZip = path.join( pathExtract, pathTexturesTmp );
-        new Promise( ( resolve, reject ) => {
-            fs.mkdirSync( pathExtract, { recursive: true }, ( err ) => {
-                if ( err ) {
-                    reject( err );
-                    throw err;
-                } else { console.log( '123' ); resolve(); }
-            } );
-        } )
-        /*
-        .then( () => {
-            console.log( '123' );
-            fetch( urlTextures )
-                .then( ( resp ) => {
-                    console.log( resp );
-                            // if ( !resp.ok ) { throw "Failed to download textures, the address " + textures_address + " returned a non-ok response"; } else { console.log( 'ok' ) };
-                } )
-            } )
-        .catch( ( err ) => { if ( err ) { throw err; } } );
-        */ } );
+function exists(val) { return val !== null && val !== undefined }
 
-    /*
+module.exports = function(extract_address) {
     const zip_address = lib_path.join(extract_address, tmp_textures_address);
-    return lib_fs.promises.mkdir(extract_address, { recursive: true })
+    console.log(zip_address);
+    return (new Promise((resolve, reject) => {
+        lib_fs.mkdir(extract_address, { recursive: true }, err => {
+            if (exists(err)) reject(err);
+            resolve();
+        });
+    }))
     .catch(err => { throw err.toString() + "\nFailed to download textures, the specified texture folder already exists" })
 
     .then(() => { return fetch(textures_address) })
@@ -54,7 +39,11 @@ module.exports = function( pathExtract ) {
     }))
     
     .catch(err => console.log(err))
-    .finally(() => { return lib_fs.promises.unlink( zip_address ) })
+    .finally(() => { return new Promise((resolve, reject) => {
+        lib_fs.unlink( zip_address, err => {
+            if (exists(err)) reject(err);
+            resolve();
+        } )
+    }) })
     .catch(err => console.log(err.toString() + "\nFailed to cleanup after downloading textures"));
-    */
 }
