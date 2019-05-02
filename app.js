@@ -9,6 +9,16 @@ const Chunk             = require( './src/palettes/chunk.js' );
 const cluster           = require( 'cluster' );
 const os                = require( 'os' );
 
+function join_paths(...paths) {
+    let mpath = "";
+    const start_over_tests = [ /^\//, /^[[A-Z]:\\|\\\\/ ];
+    paths.forEach(npath => {
+        if (start_over_tests.map(test => test.test(npath)).filter(result => result).length > 0) mpath = npath;
+        else mpath = path.join(mpath, npath);
+    });
+    return mpath;
+}
+
 const argv = require( 'yargs' )
     .version( json_package.version + json_package.version_stage.charAt( 0 ) )
     .option( 'output', {
@@ -52,8 +62,8 @@ var transparentBlocks = require( './src/lookup_tables/transparent-blocks_table.j
     blockTable        = null,
     cwd               = process.cwd();
 
-var path_output = path.join( cwd, argv.output ),
-    path_resourcepack = path.join( cwd, argv.textures ),
+var path_output = join_paths( cwd, argv.output ),
+    path_resourcepack = join_paths( cwd, argv.textures ),
     zoomLevelMax = process.env[ 'zoomLevelMax' ],
     renderMode = argv.mode;
 
@@ -63,9 +73,9 @@ function push_exports() {
 push_exports();
 
 function load_textures() {
-    if (fs.existsSync( path.join( cwd, argv.textures, 'textures/terrain_texture.json' ) ) ) {
-        textureTable = JSON.parse( stripJsonComments( fs.readFileSync( path.join( cwd, argv.textures, 'textures/terrain_texture.json' ) ).toString() ) );
-        blockTable   = JSON.parse( stripJsonComments( fs.readFileSync( path.join( cwd, argv.textures, 'blocks.json' ) ).toString() ) );
+    if (fs.existsSync( join_paths( cwd, argv.textures, 'textures/terrain_texture.json' ) ) ) {
+        textureTable = JSON.parse( stripJsonComments( fs.readFileSync( join_paths( cwd, argv.textures, 'textures/terrain_texture.json' ) ).toString() ) );
+        blockTable   = JSON.parse( stripJsonComments( fs.readFileSync( join_paths( cwd, argv.textures, 'blocks.json' ) ).toString() ) );
     }
     push_exports();
 }
@@ -94,25 +104,26 @@ if ( cluster.isMaster ) {
     .then(function() {
         // Download textures if textures can't be found
         
-        if ( ( argv[ 'force-download' ] == true ) || ( !fs.existsSync( path.join( cwd, argv.textures, 'blocks.json' ) ) ) ) {
+        if ( ( argv[ 'force-download' ] == true ) || ( !fs.existsSync( join_paths( cwd, argv.textures, 'blocks.json' ) ) ) ) {
             console.log( '(Some) textures are missing or ' + colors.italic( '--force-download' ) + ' has been specified. Downloading...' );
-            require( './src/downloadTextures.js' )( path.join ( cwd, argv.textures ) )
+            return require( './src/downloadTextures.js' )( join_paths ( cwd, argv.textures ) )
         };
     }).then(function() {
         //double check load textures
         load_textures();
         // Run
-        init( path.join( cwd, argv.world ), path.join( cwd, argv.output ) );
+        init( join_paths( cwd, argv.world ), join_paths( cwd, argv.output ) );
     });
 
     function init( path_world, path_output ) {
-        var path_leveldat = path.join( cwd, path_world, 'level.dat' );
+        console.log(path_world);
+        var path_leveldat = join_paths( cwd, path_world, 'level.dat' );
         if ( fs.existsSync( path_leveldat ) != 1 )
         {
             console.log( colors.red.bold( '[ERROR]' ) + ' Invalid world path. No "level.dat" found.' );
         } else {
 
-            const db = levelup( new ( require( 'leveldb-mcpe' ) )( path.join( cwd, path_world, 'db/' ) ) );
+            const db = levelup( new ( require( 'leveldb-mcpe' ) )( join_paths( cwd, path_world, 'db/' ) ) );
 
             console.log( 'Reading database. This can take a couple of seconds up to a couple of minutes.' );
 
@@ -268,17 +279,17 @@ if ( cluster.isMaster ) {
                     };
                     
                     function prepareOutput() {
-                        if ( !fs.existsSync( path.join( cwd, argv.output ) ) ) {
-                            fs.mkdirSync( path.join( cwd, argv.output ) )
+                        if ( !fs.existsSync( join_paths( cwd, argv.output ) ) ) {
+                            fs.mkdirSync( join_paths( cwd, argv.output ) )
                         };
-                        if ( !fs.existsSync( path.join( cwd, argv.output, './map/' ) ) ) {
-                            fs.mkdirSync( path.join( cwd, argv.output, './map/' ) );
+                        if ( !fs.existsSync( join_paths( cwd, argv.output, './map/' ) ) ) {
+                            fs.mkdirSync( join_paths( cwd, argv.output, './map/' ) );
                         };
 
                         // Create index.html
                         console.log( 'Creating Leaflet map...' );
                         const buildHTML = require( './src/html/buildHTML.js' );
-                        buildHTML( path.join( cwd, argv.output ), 0, zoomLevelMax, 0, 0 );
+                        buildHTML( join_paths( cwd, argv.output ), 0, zoomLevelMax, 0, 0 );
                     };
                 } );
         };
