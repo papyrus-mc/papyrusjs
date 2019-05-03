@@ -88,7 +88,7 @@ console.log( 'Threads: ' + argv.threads );
 new Promise( ( resolve, reject ) => {
     if ( ( argv[ 'force-download' ] == true ) || ( !fs.existsSync( path.normalize( argv.textures + 'blocks.json' ) ) ) ) {
         console.log( 'Texture directory is missing or ' + colors.italic( '--force-download' ) + ' has been specified. Downloading...' );
-        require( './src/downloadTextures.js' )( path.normalize ( argv.textures ) )
+        require( './src/downloadTextures.js' )( path.resolve( argv.textures ) )
             .then( () => { resolve(); } )
             .catch( ( err ) => { throw err; } );
     } else {

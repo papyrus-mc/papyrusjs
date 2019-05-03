@@ -2,6 +2,8 @@ const fetch       = require( 'node-fetch' );
 const lib_fs      = require( 'fs-extra' );
 const lib_path    = require( 'path' );
 const lib_extract = require( 'extract-zip' );
+const ProgressBar = require( 'progress' );
+const colors      = require( 'colors' );
 
 const textures_address     = 'https://aka.ms/resourcepacktemplate';
 const tmp_textures_address = 'textures.tmp.zip';
@@ -22,9 +24,15 @@ module.exports = function(extract_address) {
     .then(() => { return fetch(textures_address) })
     .then(response => {
         if (!response.ok) throw "Failed to download textures, the address " + textures_address + " returned a non-ok response";
-        return new Promise((resolve, reject) => {
+        return new Promise( (resolve, reject ) => {
             const write_stream = lib_fs.createWriteStream(zip_address);
-            response.body.pipe(write_stream);
+            var bar = new ProgressBar( colors.bold( '[' ) + ':bar' + colors.bold( ']' ) + ' :percent\tDownloading...\t:current/ :total', {
+                total: parseInt( response.headers.get( 'content-length' ) ),
+                complete: colors.inverse( '=' ),
+                width: 32
+            } );
+            response.body.pipe( write_stream );
+            response.body.on( 'data', ( dataChunk ) => { bar.tick( dataChunk.length ) } );
             response.body.on("end", resolve);
             response.body.on("error", err => reject(err.toString() + "\nFailed to download textures, the connection encountered an error"));
             write_stream.on("error", err => reject(err.toString() + "\nFailed to download textures, an error occured while writing to the disk"));

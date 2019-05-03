@@ -123,7 +123,7 @@ module.exports = function( value, chunk, yOffset, yThreshold ) {
                                     };
                                 } catch ( err ) {
                                     // throw err;
-                                    console.log( colors.yellow( '[WARNING]' ) + ' Palette ID out of bounds!\t' + state + '\t:\t' + localPalette.size() );
+                                    console.log( colors.yellow( '\n[WARNING]' ) + ' Palette ID out of bounds!\t' + state + '\t:\t' + localPalette.size() );
                                 };
                                     
                                 position++;
