@@ -10,12 +10,14 @@ const patchTable   = require( '../../app.js' ).patchTable,
       monoTable    = require( '../../app.js' ).monoTable,
       path_resourcepack = require( '../../app.js' ).path_resourcepack;
 
+      const renderMode        = require( '../../app.js' ).renderMode;
+    
 var file    = null,
     fileExt = '.png';
 
-module.exports = async function loadTexture( name, value, x, y, z, cache ) {
+module.exports = async function loadTexture( name, value, x, y, z, blockY, cache ) {
     // Is the texture in the cache already? No: Load texture from filesystem, Yes: Skip to compositing :)!
-    if ( cache.get( name, value ) === undefined ) {
+    if ( cache.get( name, value, blockY ) === undefined ) {
         var imageBuffer = null;
         // Does the texture have multiple faces?
         if ( blockTable[ name.slice( 10 ) ] !== undefined ) {
@@ -92,6 +94,37 @@ module.exports = async function loadTexture( name, value, x, y, z, cache ) {
                 } );
             } ); 
         };
-        cache.save( name, value, imageBuffer );
+
+        if( name != 'minecraft:water' ) {
+        switch( renderMode ) {
+            case 'topdown_shaded':
+                if (imageBuffer['scaling'] == undefined) {
+                    imageBuffer = mapnik.Image.fromBytesSync(imageBuffer);
+                };
+                imageBuffer.premultiplySync();
+        
+                var opac     = 0,
+                    blendImg = null;
+
+                switch( true ) {
+                    case ( blockY < 64 ):
+                        blendImg  = cache.get('blend_black', 0);
+                        opac      = (64-blockY)/(blockY*64);
+                        break;
+                    case ( blockY >= 64 ):
+                        blendImg  = cache.get('blend_white', 0);
+                        opac      = (-64+blockY)/(blockY);
+                        break;
+                };
+
+                await imageBuffer.composite( blendImg, {
+                    comp_op: mapnik.compositeOp['overlay'], // comp_mode,
+                    opacity: opac
+                }, (err, data) => {
+                    imageBuffer = data;
+                } )
+                break;
+        } };
+        cache.save( name, value, imageBuffer, blockY );
     };
 };

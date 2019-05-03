@@ -41,18 +41,17 @@ module.exports = function( Chunk, Cache, size_texture, worldOffset, ZoomLevelMax
                     for( ix = 0; ix < 16; ix++ )
                     {
                         if ( chunk.get( ix, iy, iz ).name !== 'minecraft:air' ) {
-                            await loadTexture( chunk.get( ix, iy, iz ).name, chunk.get( ix, iy, iz ).value, ix, iy, iz, cache );
-                            textureBuffer = cache.get( chunk.get( ix, iy, iz ).name, chunk.get( ix, iy, iz ).value );
-                            /*
                             if ( renderMode ) {
                                 switch( renderMode ) {
                                     case 'topdown_shaded':
-                                        const shadeTopDown = require( './shadeTopDown.js' );
-                                        await new Promise( ( resolve, reject ) => { shadeTopDown( textureBuffer, chunk.get( ix, iy, iz ).y ).then( ( data ) => { textureBuffer = data; resolve(); } ) } );
-                                        break;
+                                        await loadTexture( chunk.get( ix, iy, iz ).name, chunk.get( ix, iy, iz ).value, ix, iy, iz, chunk.get( ix, iy, iz ).y, cache );
+                                        textureBuffer = cache.get( chunk.get( ix, iy, iz ).name, chunk.get( ix, iy, iz ).value, chunk.get( ix, iy, iz ).y );
                                 };
+                            } else {
+                                await loadTexture( chunk.get( ix, iy, iz ).name, chunk.get( ix, iy, iz ).value, ix, iy, iz, 0, cache );
+                                textureBuffer = cache.get( chunk.get( ix, iy, iz ).name, chunk.get( ix, iy, iz ).value, 0 );
                             };
-                            */
+
                             composeArray.push( {
                                 buffer: textureBuffer,
                                 x: size_texture*ix,

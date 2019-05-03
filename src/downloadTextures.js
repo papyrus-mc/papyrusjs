@@ -40,6 +40,7 @@ module.exports = function(extract_address) {
     })
 
     .then(() => new Promise((resolve, reject) => {
+        console.log('\nExtracting...');
         lib_extract(zip_address, { dir: lib_path.dirname(zip_address) }, err => {
             if (err !== null && err !== undefined) reject(err.toString() + "\nFailed to download textures, zip extraction failed");
             else resolve();
