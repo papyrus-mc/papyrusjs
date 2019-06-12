@@ -231,7 +231,7 @@ if ( cluster.isMaster ) {
                             case 1:
                                 finishedWorkers++;
                                 if ( argv.verbose ) { console.log( 'Thread ' + ( worker[ 'id' ]-1 ) + ' is done rendering.' ); };
-                                if ( finishedWorkers === os.cpus().length ) {
+                                if ( finishedWorkers === argv.threads ) {
                                     if ( argv.verbose ) { console.log( 'All threads are done rendering.' ); };
                                     processLeafletMap();
                                 };
