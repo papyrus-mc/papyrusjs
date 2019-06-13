@@ -4,6 +4,14 @@
             "textures/blocks/water_placeholder" ] }, 
     "still_lava": {
         "textures": [
+            "textures/blocks/lava_placeholder",
+            "textures/blocks/lava_placeholder",
+            "textures/blocks/lava_placeholder",
+            "textures/blocks/lava_placeholder",
+            "textures/blocks/lava_placeholder",
+            "textures/blocks/lava_placeholder",
+            "textures/blocks/lava_placeholder",
+            "textures/blocks/lava_placeholder",
             "textures/blocks/lava_placeholder" ] },
     "flowing_lava": {
         "textures": [
@@ -36,10 +44,10 @@
             "textures/blocks/log_spruce_top",
             "textures/blocks/log_birch_top",
             "textures/blocks/log_jungle_top",
-            null,
-            null,
-            null,
-            null,
+            "textures/blocks/log_oak_top",
+            "textures/blocks/log_spruce_top",
+            "textures/blocks/log_birch_top",
+            "textures/blocks/log_jungle_top",
             "textures/blocks/log_oak",
             "textures/blocks/log_spruce",
             "textures/blocks/log_birch",
@@ -50,8 +58,8 @@
             "textures/blocks/log_big_oak_top",
             null,
             null,
-            null,
-            null,
+            "textures/blocks/log_acacia_top",
+            "textures/blocks/log_big_oak_top",
             null,
             null,
             "textures/blocks/log_acacia",
@@ -121,19 +129,63 @@
             null,
             "textures/blocks/daylight_detector_top",
             "textures/blocks/daylight_detector_inverted_top" ] },
+    "composter_top": {
+        "textures": [
+            "textures/blocks/composter_top",
+            "textures/blocks/composter_top",
+            "textures/blocks/composter_top",
+            "textures/blocks/composter_top",
+            "textures/blocks/composter_top",
+            "textures/blocks/composter_top",
+            "textures/blocks/composter_top",
+            "textures/blocks/compost",
+            "textures/blocks/compost_ready"
+        ]
+    },
     "farmland": {
         "textures": [
-            "textures/blocks/farmland_wet",
-            "textures/blocks/farmland_dry" ] },
+            "textures/blocks/farmland_dry",
+            "textures/blocks/farmland_dry",
+            "textures/blocks/farmland_dry",
+            "textures/blocks/farmland_dry",
+            "textures/blocks/farmland_dry",
+            "textures/blocks/farmland_dry",
+            "textures/blocks/farmland_dry",
+            "textures/blocks/farmland_wet" ] },
+    "beetroot": {
+        "textures": [
+            "textures/blocks/beetroots_stage_0",
+            "textures/blocks/beetroots_stage_0",
+            "textures/blocks/beetroots_stage_1",
+            "textures/blocks/beetroots_stage_1",
+            "textures/blocks/beetroots_stage_2",
+            "textures/blocks/beetroots_stage_2",
+            "textures/blocks/beetroots_stage_2",
+            "textures/blocks/beetroots_stage_3"
+        ]
+    },
     "carrots": {
         "textures": [
             "textures/blocks/carrots_stage_0",
+            "textures/blocks/carrots_stage_0",
+            "textures/blocks/carrots_stage_1",
             "textures/blocks/carrots_stage_1",
             "textures/blocks/carrots_stage_2",
-            "textures/blocks/carrots_stage_3",
-            "textures/blocks/carrots_stage_3",
-            "textures/blocks/carrots_stage_3",
+            "textures/blocks/carrots_stage_2",
+            "textures/blocks/carrots_stage_2",
             "textures/blocks/carrots_stage_3" ] },
+    "potatoes": {
+        "textures": [
+            "textures/blocks/potatoes_stage_0",
+            "textures/blocks/potatoes_stage_0",
+            "textures/blocks/potatoes_stage_1",
+            "textures/blocks/potatoes_stage_1",
+            "textures/blocks/potatoes_stage_2",
+            "textures/blocks/potatoes_stage_2",
+            "textures/blocks/potatoes_stage_2",
+            "textures/blocks/potatoes_stage_3"
+        ]
+    },
     "sapling": {
         "textures": [
             "textures/blocks/sapling_oak",
@@ -141,17 +193,41 @@
             "textures/blocks/sapling_birch",
             "textures/blocks/sapling_jungle",
             "textures/blocks/sapling_acacia",
+            "textures/blocks/sapling_roofed_oak",
             null,
             null,
+            "textures/blocks/sapling_oak",
+            "textures/blocks/sapling_spruce",
+            "textures/blocks/sapling_birch",
+            "textures/blocks/sapling_jungle",
+            "textures/blocks/sapling_acacia",
+            "textures/blocks/sapling_roofed_oak",
             null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            "textures/blocks/sapling_roofed_oak" ] },
+            null ] },
+    "pumpkin_top": {
+      "textures": [
+        "textures/blocks/pumpkin_top",
+        "textures/blocks/pumpkin_top",
+        "textures/blocks/pumpkin_top",
+        "textures/blocks/pumpkin_top"
+      ]
+    },
+    "pumpkin_stem": {
+      "textures": [
+        "textures/blocks/pumpkin_stem_disconnected",
+        "textures/blocks/pumpkin_stem_disconnected",
+        "textures/blocks/pumpkin_stem_disconnected",
+        "textures/blocks/pumpkin_stem_disconnected",
+        "textures/blocks/pumpkin_stem_disconnected",
+        "textures/blocks/pumpkin_stem_disconnected",
+        "textures/blocks/pumpkin_stem_disconnected",
+        "textures/blocks/pumpkin_stem_connected"
+      ]
+    },
     "chest_inventory_top": {
         "textures": [
+            null,
+            null,
             "textures/blocks/chest_top",
             "textures/blocks/chest_top",
             "textures/blocks/chest_top",
@@ -168,10 +244,14 @@
             "textures/blocks/leaves_spruce_opaque",
             "textures/blocks/leaves_birch_opaque",
             "textures/blocks/leaves_jungle_opaque",
-            null,
-            null,
-            null,
-            null,
+            "textures/blocks/leaves_oak_opaque",
+            "textures/blocks/leaves_spruce_opaque",
+            "textures/blocks/leaves_birch_opaque",
+            "textures/blocks/leaves_jungle_opaque",
+            "textures/blocks/leaves_oak_opaque",
+            "textures/blocks/leaves_spruce_opaque",
+            "textures/blocks/leaves_birch_opaque",
+            "textures/blocks/leaves_jungle_opaque",
             "textures/blocks/leaves_oak_opaque",
             "textures/blocks/leaves_spruce_opaque",
             "textures/blocks/leaves_birch_opaque",
@@ -182,12 +262,38 @@
             "textures/blocks/leaves_big_oak_opaque",
             null,
             null,
-            null,
-            null,
+            "textures/blocks/leaves_acacia_opaque",
+            "textures/blocks/leaves_big_oak_opaque",
             null,
             null,
             "textures/blocks/leaves_acacia_opaque",
-            "textures/blocks/leaves_big_oak_opaque" ] },
+            "textures/blocks/leaves_big_oak_opaque",
+            null,
+            null,
+            "textures/blocks/leaves_acacia_opaque",
+            "textures/blocks/leaves_big_oak_opaque",
+            null,
+            null ] },
+    "planks": {
+        "textures": [
+            "textures/blocks/planks_oak",
+            "textures/blocks/planks_spruce",
+            "textures/blocks/planks_birch",
+            "textures/blocks/planks_jungle",
+            "textures/blocks/planks_acacia",
+            "textures/blocks/planks_big_oak",
+            null,
+            null,
+            "textures/blocks/planks_oak",
+            "textures/blocks/planks_spruce",
+            "textures/blocks/planks_birch",
+            "textures/blocks/planks_jungle",
+            "textures/blocks/planks_acacia",
+            "textures/blocks/planks_big_oak",
+            null,
+            null
+      ]
+    },
     "wood": {
         "textures": [
             "textures/blocks/log_oak",

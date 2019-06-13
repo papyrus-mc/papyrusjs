@@ -49,10 +49,18 @@ module.exports = async function loadTexture( name, value, x, y, z, blockY, cache
                 var arr = textureTable[ "texture_data" ][ texture ][ "textures" ];
                 // Yes
                 if ( Array.isArray( arr ) ) {
-                    file = path_resourcepack + arr[ value ];
+                    if ( arr[ value ][ 'path' ] ) {
+                        file = path_resourcepack + arr[ value ][ 'path' ];
+                    } else {
+                        file = path_resourcepack + arr[ value ];
+                    }
                 } else {
                     // No
-                    file = path_resourcepack + arr;
+                    if ( arr[ 'path' ] ) {
+                        file = path_resourcepack + arr[ 'path' ];
+                    } else {
+                        file = path_resourcepack + arr;
+                    }
                 };
             };
         };
