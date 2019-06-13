@@ -174,6 +174,8 @@ if ( cluster.isMaster ) {
                         start = 0,
                         finishedWorkers = 0;
 
+                    // compute the number of chunks not allocated to workers.
+                    var extra_chunks = Object.keys( db_keys ).length - (chunksPerThread * argv.threads);
                     for( i = 0; i < argv.threads; i++ ) {
                         var workerArgs = {};
                             workerArgs[ "ID" ] = i;
@@ -184,9 +186,16 @@ if ( cluster.isMaster ) {
                             workerArgs[ 'zoomLevelMax' ] = zoomLevelMax;
                             workerArgs[ 'yThreshold' ] = argv.threshold;
 
-                        workers.push( cluster.fork( workerArgs ) );
+                        // Evenly allocate the extra chunks
+                        if ( extra_chunks > 0 ) {
+                            workerArgs[ 'end' ] += 1;
+                            start += chunksPerThread + 1;
+                            extra_chunks--;
+                        } else {
+                            start += chunksPerThread;
+                        }
 
-                        start += chunksPerThread;
+                        workers.push( cluster.fork( workerArgs ) );
                     };
 
                     bar.tick();
