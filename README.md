@@ -30,9 +30,9 @@ Otherwise, just grab one of the [pre-built binaries](https://github.com/clarkx86
 ## Usage
 ```./papyrus --world="./My World/" --textures="./Vanilla_Resource_Pack" --output="./output" --mode="topdown_shaded"```
 
-You are able to define a path to the texture pack you want to use for the final render. Vanilla textures will be automatically be downloaded if now textures are found. You can also force papyrus.js to download the latest textures with the option `--force-download`. If you want to download the vanilla resourcepack manually, you can get it [here](https://aka.ms/resourcepacktemplate).
+You are able to define a path to the texture pack you want to use for the final render. Vanilla textures will automatically be downloaded if no textures are found. You can also force papyrus.js to download the latest textures with the option `--force-download`. If you want to download the vanilla resourcepack manually, you can get it [here](https://aka.ms/resourcepacktemplate).
 
-[Read the full documentation.](https://github.com/clarkx86/papyrus/blob/master/docs/documentation.md)
+[Read the full documentation.](https://papyrusjs.readthedocs.io/)
 
 ## Contribute xor support
 If you want to help improving Papyrus please consider forking the repository.
@@ -40,7 +40,7 @@ If you want to help improving Papyrus please consider forking the repository.
 Want to buy me a coffee (I love coffee)? [Donate via PayPal ♥](https://paypal.me/clarkstuehmer)
 
 ## Special thanks to...
-... [DeepBlue4200](https://github.com/mjungnickel18) and [mhsjlw](https://github.com/mhsjlw).
+... [DeepBlue4200](https://github.com/mjungnickel18), [mhsjlw](https://github.com/mhsjlw) and all the contributors.
 
 ## Disclaimer
 Papyrus is in no way affiliated with Mojang or Minecraft.

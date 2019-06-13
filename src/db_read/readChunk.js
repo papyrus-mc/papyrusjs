@@ -17,13 +17,11 @@ module.exports = function( value, chunk, yOffset, yThreshold ) {
             switch( SubChunkVersion )
             {
                 case 0:
-                    /*
-                    // STILL VERY BUGGY
+                    var dataArray = value.slice(4097);
                     for ( position = 0; position < 4096; position++ )
                     {
-                        var blockID = value.readInt8( _offset ); _offset++;
-                        var blockData = 0,
-                            dataPos = 1 + 4096 + (position / 2);
+                        var blockID = value.readInt8(position + 1);
+                        var blockData = getData(dataArray, position);
      
                         var x = ( position >> 8 ) & 0xF,
                             y =   position & 0xF,
@@ -31,7 +29,7 @@ module.exports = function( value, chunk, yOffset, yThreshold ) {
 
                         try {
                             if ( runtimeIDTable[ blockID ][ 'name' ] != 'minecraft:air' ) {
-                                chunk.set( x, y + SubChunkYOffset, z, runtimeIDTable[ blockID ][ 'name' ], blockData );
+                                chunk.set( x, y + SubChunkYOffset, z, runtimeIDTable[ blockID ][ 'name' ], blockData, yThreshold );
                                 // console.log( runtimeIDTable[ blockID ] );
                             };
                         } catch( err ) {
@@ -39,8 +37,21 @@ module.exports = function( value, chunk, yOffset, yThreshold ) {
                         };
                         // console.log( blockID );
                     };
+                    function getData(dataArray, pos)
+                    {
+                        var slot = pos >> 1;
+                        var part = pos & 1;
+
+                        if (part == 0)
+                        {
+                            return (dataArray[slot]) & 0xf;
+                        }
+                        else
+                        {
+                            return (dataArray[slot] >> 4) & 0xf;
+                        }
+                    }
                     break;
-                    */
 
                 case 8:
                     // valid

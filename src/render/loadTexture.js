@@ -88,7 +88,7 @@ module.exports = async function loadTexture( name, value, x, y, z, blockY, cache
                 img.composite( cache.get( 'mono_default', 0 ), {
                     comp_op: mapnik.compositeOp[ 'multiply' ],
             }, function( err, buffer ) {
-                if ( err ) { throw err; reject(); };
+                if ( err ) { reject(); throw err; };
                 imageBuffer = buffer;
                 resolve();
                 } );
