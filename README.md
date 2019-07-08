@@ -23,7 +23,9 @@ Assuming you have node.js installed, simply clone this repo and run the followin
 
 ```npm install```
 
-Requires node.js >= 8. Before installing, you may also need to install zlib using `sudo apt install zlib1g-dev`.
+Requires node.js >= 8. Before installing, you may also need to install additional dependencies:
+
+`sudo apt install cmake c++ zlib1g-dev`
 
 Otherwise, just grab one of the [pre-built binaries](https://github.com/clarkx86/papyrusjs/releases).
 
@@ -32,7 +34,7 @@ Otherwise, just grab one of the [pre-built binaries](https://github.com/clarkx86
 
 You are able to define a path to the texture pack you want to use for the final render. Vanilla textures will automatically be downloaded if no textures are found. You can also force papyrus.js to download the latest textures with the option `--force-download`. If you want to download the vanilla resourcepack manually, you can get it [here](https://aka.ms/resourcepacktemplate).
 
-[Read the full documentation.](https://papyrusjs.readthedocs.io/)
+Please note: Only 16x16px Bedrock Edition texture packs are supported!
 
 ## Contribute xor support
 If you want to help improving Papyrus please consider forking the repository.
