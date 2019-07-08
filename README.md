@@ -25,7 +25,7 @@ Assuming you have node.js installed, simply clone this repo and run the followin
 
 Requires node.js >= 8. Before installing, you may also need to install additional dependencies:
 
-`sudo apt install cmake c++ zlib1g-dev`
+`sudo apt install cmake g++ zlib1g-dev`
 
 Otherwise, just grab one of the [pre-built binaries](https://github.com/clarkx86/papyrusjs/releases).
 
