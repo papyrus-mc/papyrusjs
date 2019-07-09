@@ -332,7 +332,7 @@
             "textures/blocks/stripped_dark_oak_log",
             null,
             null ] },
-    "stone_slab": {
+    "stone_slab_top": {
         "textures": [
             "textures/blocks/stone_slab_top",
             "textures/blocks/sandstone_top",
@@ -352,7 +352,7 @@
             "textures/blocks/nether_brick"
         ]
     },
-    "stone_slab2": {
+    "stone_slab_top_2": {
         "textures": [
             "textures/blocks/red_sandstone_top",
             "textures/blocks/purpur_block",
@@ -372,7 +372,7 @@
             "textures/blocks/red_nether_brick"
         ]
     },
-    "stone_slab3": {
+    "stone_slab_top_3": {
         "textures": [
             "textures/blocks/end_bricks",
             "textures/blocks/red_sandstone_smooth",
@@ -392,7 +392,7 @@
             "textures/blocks/stone_granite_smooth"
         ]
     },
-    "stone_slab4": {
+    "stone_slab_top_4": {
         "textures": [
             "textures/blocks/stonebrick_mossy",
             "textures/blocks/quartz_block_top",
