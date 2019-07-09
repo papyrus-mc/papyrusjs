@@ -332,6 +332,86 @@
             "textures/blocks/stripped_dark_oak_log",
             null,
             null ] },
+    "stone_slab": {
+        "textures": [
+            "textures/blocks/stone_slab_top",
+            "textures/blocks/sandstone_top",
+            "textures/blocks/planks_oak",
+            "textures/blocks/cobblestone",
+            "textures/blocks/brick",
+            "textures/blocks/stonebrick",
+            "textures/blocks/quartz_block_top",
+            "textures/blocks/nether_brick",
+            "textures/blocks/stone_slab_top",
+            "textures/blocks/sandstone_top",
+            "textures/blocks/planks_oak",
+            "textures/blocks/cobblestone",
+            "textures/blocks/brick",
+            "textures/blocks/stonebrick",
+            "textures/blocks/quartz_block_top",
+            "textures/blocks/nether_brick"
+        ]
+    },
+    "stone_slab2": {
+        "textures": [
+            "textures/blocks/red_sandstone_top",
+            "textures/blocks/purpur_block",
+            "textures/blocks/prismarine_rough",
+            "textures/blocks/prismarine_bricks",
+            "textures/blocks/prismarine_dark",
+            "textures/blocks/cobblestone_mossy",
+            "textures/blocks/sandstone_smooth",
+            "textures/blocks/red_nether_brick",
+            "textures/blocks/red_sandstone_top",
+            "textures/blocks/purpur_block",
+            "textures/blocks/prismarine_rough",
+            "textures/blocks/prismarine_bricks",
+            "textures/blocks/prismarine_dark",
+            "textures/blocks/cobblestone_mossy",
+            "textures/blocks/sandstone_smooth",
+            "textures/blocks/red_nether_brick"
+        ]
+    },
+    "stone_slab3": {
+        "textures": [
+            "textures/blocks/end_bricks",
+            "textures/blocks/red_sandstone_smooth",
+            "textures/blocks/stone_andesite_smooth",
+            "textures/blocks/stone_andesite",
+            "textures/blocks/stone_diorite",
+            "textures/blocks/stone_diorite_smooth",
+            "textures/blocks/stone_granite",
+            "textures/blocks/stone_granite_smooth",
+            "textures/blocks/end_bricks",
+            "textures/blocks/red_sandstone_smooth",
+            "textures/blocks/stone_andesite_smooth",
+            "textures/blocks/stone_andesite",
+            "textures/blocks/stone_diorite",
+            "textures/blocks/stone_diorite_smooth",
+            "textures/blocks/stone_granite",
+            "textures/blocks/stone_granite_smooth"
+        ]
+    },
+    "stone_slab4": {
+        "textures": [
+            "textures/blocks/stonebrick_mossy",
+            "textures/blocks/quartz_block_top",
+            "textures/blocks/stone",
+            "textures/blocks/sandstone_carved",
+            "textures/blocks/red_sandstone_carved",
+            null,
+            null,
+            null,
+            "textures/blocks/stonebrick_mossy",
+            "textures/blocks/quartz_block_top",
+            "textures/blocks/stone",
+            "textures/blocks/sandstone_carved",
+            "textures/blocks/red_sandstone_carved",
+            null,
+            null,
+            null
+        ]
+    },
     "door_lower": {
         "textures": [
             null,
