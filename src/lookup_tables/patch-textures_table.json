@@ -224,6 +224,26 @@
         "textures/blocks/pumpkin_stem_connected"
       ]
     },
+    "melon_top": {
+      "textures": [
+        "textures/blocks/melon_top",
+        "textures/blocks/melon_top",
+        "textures/blocks/melon_top",
+        "textures/blocks/melon_top"
+      ]
+    },
+    "melon_stem": {
+      "textures": [
+        "textures/blocks/melon_stem_disconnected",
+        "textures/blocks/melon_stem_disconnected",
+        "textures/blocks/melon_stem_disconnected",
+        "textures/blocks/melon_stem_disconnected",
+        "textures/blocks/melon_stem_disconnected",
+        "textures/blocks/melon_stem_disconnected",
+        "textures/blocks/melon_stem_disconnected",
+        "textures/blocks/melon_stem_connected"
+      ]
+    },
     "chest_inventory_top": {
         "textures": [
             null,
