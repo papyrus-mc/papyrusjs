@@ -1,9 +1,9 @@
 const colors = require('colors');
-const db = require('../../app.js').db;
+const db = require('../app.js').db;
 const nbt = require('prismarine-nbt');
 
 const Palette_Persistance = require('../palettes/palette_persistance.js');
-const runtimeIDTable = require('../../app.js').runtimeIDTable;
+const runtimeIDTable = require('../app.js').runtimeIDTable;
 
 module.exports = function (value, chunk, yOffset, yThreshold) {
     return new Promise((resolve, reject) => {

@@ -4,8 +4,8 @@ const path = require('path');
 
 const loadTexture = require('./loadTexture.js');
 
-const renderMode = require('../../app.js').renderMode;
-const path_output = require('../../app.js').path_output;
+const renderMode = require('../app.js').renderMode;
+const path_output = require('../app.js').path_output;
 
 module.exports = function (Chunk, Cache, size_texture, worldOffset, ZoomLevelMax) {
 

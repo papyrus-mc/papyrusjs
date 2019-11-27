@@ -1,4 +1,4 @@
-const argv = require('../../app.js').argv;
+const argv = require('../app.js').argv;
 
 module.exports = function () {
 

@@ -4,6 +4,7 @@ const path = require('path');
 const colors = require('colors');
 const stripJsonComments = require('strip-json-comments');
 const ProgressBar = require('progress');
+const leveldown = require("leveldown");
 const levelup = require('levelup');
 const Chunk = require('./palettes/chunk.js');
 const cluster = require('cluster');
@@ -35,6 +36,10 @@ const argv = require('yargs')
     .option('force-download', {
         default: false,
         type: 'boolean'
+    })
+    .option("force-render", {
+        default: false,
+        type: "boolean"
     })
     .option('verbose', {
         alias: 'v',
@@ -83,7 +88,6 @@ if (cluster.isMaster) {
     console.log('Threads: ' + argv.threads);
 
     // Download textures if textures can't be found
-    // DOWNLOADING TEXTURES SHOULD BE SYNCHRONOUS IF POSSIBLE, SO THE LOOKUP-TABLES BELOW GET REQUIRED WHEN ALL FILES ARE PRESENT!
     new Promise((resolve, reject) => {
         if ((argv['force-download'] == true) || (!fs.existsSync(path.normalize(argv.textures + 'blocks.json')))) {
             console.log('Texture directory is missing or ' + colors.italic('--force-download') + ' has been specified. Downloading...');
@@ -104,7 +108,7 @@ if (cluster.isMaster) {
             console.log(colors.red.bold('[ERROR]') + ' Invalid world path. No "level.dat" found.');
         } else {
 
-            const db = levelup(new (require('leveldb-mcpe'))(path.normalize(path_world + '/db/')));
+            const db = levelup(leveldown(path.normalize(path_world + '/db/')));
 
             console.log('Reading database. This can take a couple of seconds up to a couple of minutes.');
 
@@ -180,8 +184,8 @@ if (cluster.isMaster) {
                         workerArgs["ID"] = i;
                         workerArgs['start'] = start;
                         workerArgs['end'] = start + chunksPerThread - 1;
-                        workerArgs['worldOffset'] = JSON.stringify({ 'x': chunkX, 'z': chunkZ }),
-                            workerArgs['chunksTotal'] = Object.keys(db_keys).length;
+                        workerArgs['worldOffset'] = JSON.stringify({ 'x': chunkX, 'z': chunkZ });
+                        workerArgs['chunksTotal'] = Object.keys(db_keys).length;
                         workerArgs['zoomLevelMax'] = zoomLevelMax;
                         workerArgs['yThreshold'] = argv.threshold;
 
@@ -201,11 +205,9 @@ if (cluster.isMaster) {
 
                     // WORKER EVENT HANDLER
                     cluster.on('message', (worker, msg) => {
-                        //console.log( 'Got message from: ' + worker[ 'id' ] );
+                        //console.log( 'Got message from: ' + worker[ 'id' ] + );
                         switch (msg['msgid']) {
                             case 0: // Request for key
-                                // console.log( msg[ 'msg' ] );
-
                                 try {
                                     bar.tick();
                                     key = db_keys[Object.keys(db_keys)[msg['msg']]];
@@ -233,7 +235,7 @@ if (cluster.isMaster) {
                                 } catch (err) {
 
                                 };
-                                break;
+                            break;
 
                             case 1:
                                 finishedWorkers++;
@@ -242,7 +244,7 @@ if (cluster.isMaster) {
                                     if (argv.verbose) { console.log('All threads are done rendering.'); };
                                     processLeafletMap();
                                 };
-                                break;
+                            break;
                         };
                     });
 
