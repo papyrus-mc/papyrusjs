@@ -1,10 +1,10 @@
-const fs = require( 'fs' );
-const path = require( 'path' );
+const fs = require('fs');
+const path = require('path');
 
-module.exports = function( outPath, zoomLevelDefault, zoomLevelMax, posX, posZ ) {
+module.exports = function (outPath, zoomLevelDefault, zoomLevelMax, posX, posZ) {
 
-    
-    fs.writeFileSync( path.normalize( outPath + '/index.html' ),
+
+    fs.writeFileSync(path.normalize(outPath + '/index.html'),
     `<html>
     <head>
         <title>papyrus.js Map</title>
@@ -31,5 +31,5 @@ module.exports = function( outPath, zoomLevelDefault, zoomLevelMax, posX, posZ )
             }).addTo(papyrusMap);
         </script>
     </body>
-    </html>`, { encoding: 'utf8' } );
+    </html>`, { encoding: 'utf8' });
 }
