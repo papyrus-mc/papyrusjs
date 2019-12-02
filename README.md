@@ -6,7 +6,7 @@ You can view an example [here](http://map.bedrock.clarkx86.com/demo).
 Please also check out papyrus.js' sister-project: [papyrus.cs](https://github.com/mjungnickel18/papyruscs/)!
 
 ## Introduction
-Since MCBE worlds don't use the Anvil format like in the Java Edition, but rather a by Mojang [modified version](https://github.com/Mojang/leveldb-mcpe) of Google's [LevelDB](http://leveldb.org/) to save, the goal of Papyrus is to read these worlds and assemble a render of every pre-generated chunk.
+Since MCBE worlds don't use the Anvil format like in the Java Edition, but rather a by Mojang [modified version](https://github.com/Mojang/leveldb-mcpe) of Google's [LevelDB](https://github.com/google/leveldb) to save, the goal of Papyrus is to read these worlds and assemble a render of every pre-generated chunk.
 
 ## Features
 - Render a top-down map of every already explored chunk
