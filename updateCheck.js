@@ -1,4 +1,4 @@
-const json_package = require('../package.json');
+const json_package = require('./package.json');
 const colors = require('colors');
 const fetch = require('node-fetch');
 

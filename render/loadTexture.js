@@ -1,14 +1,15 @@
-const colors = require('colors'),
-    fs = require('fs'),
-    mapnik = require('mapnik'),
-    path = require('path'),
-    tga2png = require('tga2png');
+const colors = require('colors');
+const fs = require('fs');
+const mapnik = require('mapnik');
+const path = require('path');
+const tga2png = require('tga2png');
+const argv = require('../app.js').argv;
 
-const patchTable = require('../app.js').patchTable,
-    blockTable = require('../app.js').blockTable,
-    textureTable = require('../app.js').textureTable,
-    monoTable = require('../app.js').monoTable,
-    path_resourcepack = require('../app.js').path_resourcepack;
+const patchTable = require('../app.js').patchTable;
+const blockTable = require('../app.js').blockTable;
+const textureTable = require('../app.js').textureTable;
+const monoTable = require('../app.js').monoTable;
+const path_resourcepack = require('../app.js').path_resourcepack;
 
 const renderMode = require('../app.js').renderMode;
 
@@ -40,7 +41,9 @@ module.exports = async function loadTexture(name, value, x, y, z, blockY, cache)
             // Get the correct "state" and path of the texture
             // Is the texture missing?
             if (textureTable["texture_data"][texture]["textures"][value] === undefined) {
-                console.log(colors.yellow('\n[WARNING]') + ' Value not matching:\t' + texture + '\t(' + name + '\t' + value + ')');
+                if (argv.verbose === true) {
+                    console.log(colors.yellow('\n[WARNING]') + ' Value not matching:\t' + texture + '\t(' + name + '\t' + value + ')');
+                }
                 cache.save(name, value, cache.get('placeholder', 0));
             } else {
                 // Get the texture of it's current state
@@ -78,7 +81,9 @@ module.exports = async function loadTexture(name, value, x, y, z, blockY, cache)
                     });
             } catch (err) {
                 imageBuffer = cache.get('placeholder', 0);
-                console.log(colors.yellow('\n[WARNING]') + ' Failed to load TGA for\t' + colors.bold(name) + '\t' + value + '\t' + colors.bold(texture) + '\tError: ' + err);
+                if (argv.verbose === true) {
+                    console.log(colors.yellow('\n[WARNING]') + ' Failed to load TGA for\t' + colors.bold(name) + '\t' + value + '\t' + colors.bold(texture) + '\tError: ' + err);
+                }
             };
         } else {
             // PNG (but not if the image is a buffer already)

@@ -69,20 +69,20 @@ if (fs.existsSync(argv.textures + 'blocks.json')) {
 module.exports = { renderMode, transparentBlocks, runtimeIDTable, monoTable, patchTable, textureTable, blockTable, path_output, path_resourcepack };
 
 if (cluster.isMaster) {
-    console.log(colors.bold(json_package.name.charAt(0) + json_package.name.slice(1, json_package.name.length - 2) + '.' + json_package.name.slice(json_package.name.length - 2) + ' v' + json_package.version + json_package.version_stage.charAt(0)) + colors.reset(' by ') + json_package.author);
+    console.log(colors.bold(json_package.name.charAt(0) + json_package.name.slice(1, json_package.name.length - 2) + "." + json_package.name.slice(json_package.name.length - 2) + " v" + json_package.version + json_package.version_stage.charAt(0)) + colors.reset(" by ") + json_package.author + " and contributors");
 
     // Check for latest version
     require('./updateCheck.js')();
 
     if (argv.verbose == true) {
-        console.log(colors.bold('Verbose mode') + ' is on! You will see debug console output.');
+        console.log(colors.bold("Verbose mode") + " is on! You will see debug console output.");
     };
 
-    if (argv.output == './output/') {
-        console.log(colors.yellow('[WARNING]') + ' No output path specified. The default path "./output/" will be used.');
+    if (argv.output == "./output/") {
+        console.log(colors.yellow("[WARNING]") + " No output path specified. The default path \"./output\" will be used.");
     }
-    if (argv.output == './textures/') {
-        console.log(colors.yellow('[WARNING]') + ' No texture path specified. The default path "./textures/" will be used.');
+    if (argv.output == "./textures/") {
+        console.log(colors.yellow("[WARNING]") + " No texture path specified. The default path \"./textures/\" will be used.");
     }
 
     console.log('Threads: ' + argv.threads);
@@ -103,11 +103,11 @@ if (cluster.isMaster) {
     })
 
     function init(path_world, path_output) {
-        var path_leveldat = path.normalize(path_world + '/level.dat');
+        var path_leveldat = path.normalize(path_world);
         if (fs.existsSync(path_leveldat) != 1) {
-            console.log(colors.red.bold('[ERROR]') + ' Invalid world path. No "level.dat" found.');
+            console.log(colors.red.bold('[ERROR]') + ' Invalid world path.');
         } else {
-
+            // Open database
             const db = levelup(leveldown(path.normalize(path_world + '/db/')));
 
             console.log('Reading database. This can take a couple of seconds up to a couple of minutes.');
@@ -126,7 +126,7 @@ if (cluster.isMaster) {
                             chunksTotal[0]++;
                         };
                     } catch (err) {
-
+                        throw err;
                     };
 
                 }).on('end', function () {
@@ -233,7 +233,7 @@ if (cluster.isMaster) {
                                             workers[worker['id'] - 1].send({ msgid: 0, msg: { xz: key.slice(0, 8), data: db_data } });
                                         });
                                 } catch (err) {
-
+                                    throw err;
                                 };
                             break;
 

@@ -2,7 +2,6 @@ const colors = require('colors');
 const mapnik = require('mapnik');
 const fs = require('fs');
 const path = require('path');
-
 const path_output = require('../app.js').path_output;
 
 module.exports = function (chunkSize, zoomLevelMax, chunkX, chunkZ) {

@@ -1,6 +1,6 @@
 {
   "name": "papyrusjs",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "version_stage": "alpha",
   "description": "A tool to render Minecraft: Bedrock Edition worlds.",
   "main": "app.js",
@@ -9,20 +9,21 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/clarkx86/papyrus.git"
+    "url": "git+https://github.com/clarkx86/papyrusjs.git"
   },
   "author": "clarkx86",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/clarkx86/papyrus/issues"
+    "url": "https://github.com/clarkx86/papyrusjs/issues"
   },
-  "homepage": "https://github.com/clarkx86/papyrus#readme",
+  "homepage": "https://github.com/clarkx86/papyrusjs#readme",
   "dependencies": {
     "bindings": "^1.5.0",
     "color-convert": "^2.0.0",
     "colors": "^1.3.3",
     "extract-zip": "^1.6.7",
-    "leveldown": "github:clarkx86/leveldown#experimental",
+    "fs-extra": "^8.1.0",
+    "leveldown": "github:clarkx86/leveldown-zlib",
     "levelup": "^4.3.2",
     "mapnik": "^4.2.1",
     "nan": "^2.8.0",
