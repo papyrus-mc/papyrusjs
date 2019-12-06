@@ -23,7 +23,7 @@
     "colors": "^1.3.3",
     "extract-zip": "^1.6.7",
     "fs-extra": "^8.1.0",
-    "leveldown": "github:clarkx86/leveldown-zlib",
+    "leveldown": "github:clarkx86/leveldown-zlib#experimental",
     "levelup": "^4.3.2",
     "mapnik": "^4.2.1",
     "nan": "^2.8.0",
