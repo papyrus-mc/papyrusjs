@@ -1,5 +1,4 @@
 const colors = require('colors');
-const db = require('../app.js').db;
 const nbt = require('prismarine-nbt');
 
 const Palette_Persistance = require('../palettes/palette_persistance.js');

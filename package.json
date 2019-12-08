@@ -5,7 +5,6 @@
   "description": "A tool to render Minecraft: Bedrock Edition worlds.",
   "main": "app.js",
   "scripts": {
-    "test": "node ./tests/benchmarkTest.js",
     "build": "node ./build.js"
   },
   "repository": {
@@ -25,7 +24,7 @@
     "extract-zip": "^1.6.7",
     "ffi": "github:clarkx86/node-ffi#node-12",
     "fs-extra": "^8.1.0",
-    "mapnik": "^4.2.1",
+    "mapnik": "^4.3.1",
     "nan": "^2.8.0",
     "node-fetch": "^2.4.1",
     "prismarine-nbt": "^1.2.1",
