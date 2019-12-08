@@ -1,3 +1,4 @@
+const argv = require("../app.js").argv;
 const colors = require('colors');
 const nbt = require('prismarine-nbt');
 
@@ -73,10 +74,6 @@ module.exports = function (value, chunk, yOffset, yThreshold) {
                         */
                     } else {
                         // NBT TAG SERIALIZER
-                        // if ( _offset < value.length ) // Strange bug where _offset is higher than value size
-                        // {
-
-                        // var PaletteSize = value.readInt32LE( _offset ); _offset += 4;
                         var localPalette = new Palette_Persistance(value.readInt32LE(_offset)); _offset += 4;
 
                         var _offset_nbt = 0;
@@ -84,6 +81,10 @@ module.exports = function (value, chunk, yOffset, yThreshold) {
                         // console.log( localPalette.size() );
 
                         for (paletteID = 0; paletteID < localPalette.size(); paletteID++) {
+                            /*
+                            console.log("\n\nVALUE:");
+                            console.log(value.slice(_offset));
+                            */
                             nbt.parse(value.slice(_offset), true, function (err, data) {
 
                                 _offset_nbt = 3 + data.value.name.value.length + 2 + 16; // 1 Byte: Tag Type, 2 Bytes: Name Length, next Bytes: String Length, 2 Bytes: TAG_SHORT, 16 Bytes: Magic Number 
@@ -120,8 +121,9 @@ module.exports = function (value, chunk, yOffset, yThreshold) {
                                     // console.log( localPalette.get( state ).value );
                                 };
                             } catch (err) {
-                                // throw err;
-                                console.log(colors.yellow('\n[WARNING]') + ' Palette ID out of bounds!\t' + state + '\t:\t' + localPalette.size());
+                                if (argv.verbose == true) {
+                                    console.log(colors.yellow('\n[WARNING]') + ' Palette ID out of bounds!\t' + state + '\t:\t' + localPalette.size());
+                                }
                             };
 
                             position++;

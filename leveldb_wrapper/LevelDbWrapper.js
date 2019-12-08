@@ -33,6 +33,8 @@ module.exports = class LevelDbWrapper {
     _readoptions = null;
     _ite = null;
 
+    KeyPointer = ref.refType(ref.types.Object);
+    ErrPointer = ref.refType(ref.types.CString);
     keySizePointer = null;
     valueSizePointer = null;
 
@@ -40,7 +42,7 @@ module.exports = class LevelDbWrapper {
         this.levelDbLib = ffi.Library(require("path").resolve(libPath), {
             "leveldb_open": [this.leveldb_db, [this.leveldb_options, "string"]],
             "leveldb_close": [ref.types.void, [this.leveldb_db]],
-            "leveldb_get": [ref.types.CString, [this.leveldb_db, this.leveldb_readoptions]],
+            "leveldb_get": [this.ValueType, [this.leveldb_db, this.leveldb_readoptions, this.KeyPointer, ref.types.size_t, ref.refType(ref.types.size_t), this.ErrPointer]],
             "leveldb_create_iterator": [this.leveldb_iterator, [this.leveldb_db, this.leveldb_readoptions]],
             "leveldb_iter_destroy": [ref.types.void, [this.leveldb_iterator]],
             "leveldb_iter_valid": [ref.types.byte, [this.leveldb_iterator]],
@@ -63,15 +65,17 @@ module.exports = class LevelDbWrapper {
         });
     }
 
-    open(path) {
+    open(path, callback) {
         this._options = this.levelDbLib.leveldb_options_create();
         this._readoptions = this.levelDbLib.leveldb_readoptions_create();
 
         this.levelDbLib.leveldb_options_set_compression(this._options, 4);
         this._db = this.levelDbLib.leveldb_open(this._options, path);
-
+    
         // Create iterator
         this._ite = this.levelDbLib.leveldb_create_iterator(this._db, this._readoptions);
+
+        callback();
     }
 
     close(callback) {
@@ -84,12 +88,6 @@ module.exports = class LevelDbWrapper {
     }
 
     iterate(callback) {
-        let i = 0;
-
-        /*
-         * Investigate behaviour of key/ value size pointer size.
-         */
-
         // Iterate through every entry
         for (this.levelDbLib.leveldb_iter_seek_to_first(this._ite); this.levelDbLib.leveldb_iter_valid(this._ite) != 0; this.levelDbLib.leveldb_iter_next(this._ite)) {
             // Allocate a key- and value size address of size_t to pass onto the LevelDB function
@@ -111,5 +109,16 @@ module.exports = class LevelDbWrapper {
 
             callback(key, value);
         }
+    }
+
+    get(key, callback) {
+        this.valueSizePointer = ref.alloc(ref.types.size_t, 0);
+        this.ErrPointer = ref.allocCString(null, "utf-8");
+        
+        this.levelDbLib.leveldb_get(this._db, this._readoptions, key, key.length, this.valueSizePointer, this.ErrPointer);
+        this.ValueType.size = this.valueSizePointer.readInt32LE(0);
+        let data = Buffer.alloc(this.ValueType.size, this.levelDbLib.leveldb_get(this._db, this._readoptions, key, key.length, this.valueSizePointer, this.ErrPointer));
+
+        callback(ref.isNull(this.ErrPointer) ? null : this.ErrPointer, data);
     }
 }

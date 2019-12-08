@@ -1,15 +1,12 @@
-const json_package = require('./package.json');
-const fs = require('fs');
-const path = require('path');
-const colors = require('colors');
-const stripJsonComments = require('strip-json-comments');
-const ProgressBar = require('progress');
-const leveldown = require("leveldown");
-const levelup = require('levelup');
-const Chunk = require('./palettes/chunk.js');
-const cluster = require('cluster');
-const os = require('os');
-
+const json_package = require('./package.json'),
+      fs = require('fs'),
+      path = require('path'),
+      colors = require('colors'),
+      stripJsonComments = require('strip-json-comments'),
+      ProgressBar = require('progress'),
+      Chunk = require('./palettes/chunk.js'),
+      cluster = require('cluster'),
+      os = require('os');
 const argv = require('yargs')
     .version(json_package.version + json_package.version_stage.charAt(0))
     .option('output', {
@@ -49,6 +46,10 @@ const argv = require('yargs')
     .demandOption(['world', 'textures', 'output'])
     .argv
 
+const LOG_ERR = (colors.red.bold("[ERROR]") + " "),
+      LOG_WARN = (colors.yellow("[WARNING]") + " "),
+      LOG_VERBOSE = (colors.blue("[VERBOSE]") + " ");
+
 var path_output = path.normalize(argv.output),
     path_resourcepack = path.normalize(argv.textures),
     zoomLevelMax = process.env['zoomLevelMax'],
@@ -60,13 +61,13 @@ var transparentBlocks = require('./lookup_tables/transparent-blocks_table.json')
     patchTable = require('./lookup_tables/patch-textures_table.json');
 if (fs.existsSync(argv.textures + 'blocks.json')) {
     textureTable = JSON.parse(stripJsonComments(fs.readFileSync(path.normalize(argv.textures + '/textures/terrain_texture.json')).toString())),
-        blockTable = JSON.parse(stripJsonComments(fs.readFileSync(path.normalize(argv.textures + 'blocks.json')).toString()));
+    blockTable = JSON.parse(stripJsonComments(fs.readFileSync(path.normalize(argv.textures + 'blocks.json')).toString()));
 } else {
     textureTable = null,
-        blockTable = null;
+    blockTable = null;
 };
 
-module.exports = { renderMode, transparentBlocks, runtimeIDTable, monoTable, patchTable, textureTable, blockTable, path_output, path_resourcepack };
+module.exports = { argv, renderMode, transparentBlocks, runtimeIDTable, monoTable, patchTable, textureTable, blockTable, path_output, path_resourcepack };
 
 if (cluster.isMaster) {
     console.log(colors.bold(json_package.name.charAt(0) + json_package.name.slice(1, json_package.name.length - 2) + "." + json_package.name.slice(json_package.name.length - 2) + " v" + json_package.version + json_package.version_stage.charAt(0)) + colors.reset(" by ") + json_package.author + " and contributors");
@@ -79,10 +80,10 @@ if (cluster.isMaster) {
     };
 
     if (argv.output == "./output/") {
-        console.log(colors.yellow("[WARNING]") + " No output path specified. The default path \"./output\" will be used.");
+        console.log(LOG_WARN + " No output path specified. The default path \"./output\" will be used.");
     }
     if (argv.output == "./textures/") {
-        console.log(colors.yellow("[WARNING]") + " No texture path specified. The default path \"./textures/\" will be used.");
+        console.log(LOG_WARN + " No texture path specified. The default path \"./textures/\" will be used.");
     }
 
     console.log('Threads: ' + argv.threads);
@@ -105,49 +106,48 @@ if (cluster.isMaster) {
     function init(path_world, path_output) {
         var path_leveldat = path.normalize(path_world);
         if (fs.existsSync(path_leveldat) != 1) {
-            console.log(colors.red.bold('[ERROR]') + ' Invalid world path.');
+            console.log(LOG_ERR + "Invalid world path.");
         } else {
-            // Open database
-            const db = levelup(leveldown(path.normalize(path_world + '/db/')));
-
-            console.log('Reading database. This can take a couple of seconds up to a couple of minutes.');
-
-            var db_keys = {},
-                chunksTotal = [];
+            var db_keys = [],
+            chunksTotal = [];
 
             chunksTotal[0] = 0; // SubChunks
 
-            db.createKeyStream()
-                .on('data', function (data) {
+            // Open database
+            console.log("Attempting to open database...");
+            var LevelDbWrapper = new (require("./leveldb_wrapper/LevelDbWrapper.js"))("./bin/libleveldb");
+            LevelDbWrapper.open(path_world + '/db/', () => {
+                console.log("Success!");
+            });
+            
+            // Iterate through database to store a dictionary of SubChunks
+            console.log("Reading database. This can take a couple of seconds up to a couple of minutes.");
+            LevelDbWrapper.iterate((data, value) => {
+                // Only read adequate keys which are specificly SubChunks
+                if (data.length > 8 && data.readInt8(8) == 47) {
+                    // Dump pointers to the subchunk keys
+                    let subChunkIndex = data.slice(0, 8).toString("hex");
+                    if (db_keys[subChunkIndex] == null) {
+                        db_keys[subChunkIndex] = new Array();
+                    }
+                    db_keys[subChunkIndex].push(data); // = data;
+                    chunksTotal[0]++;
+                }
+            });
+            
+            (() => {
+                    if (argv.verbose) { console.log(LOG_VERBOSE + 'Allocated ' + Math.round((process.memoryUsage().heapUsed / Math.pow(1024, 2))) + ' MB of memory when iterating through the database.'); };
 
-                    try {
-                        if (data.readInt8(8) == 47) {       // Only read keys that are specificly SubChunks
-                            db_keys[data.slice(0, 8).toString('hex')] = data;
-                            chunksTotal[0]++;
-                        };
-                    } catch (err) {
-                        throw err;
-                    };
-
-                }).on('end', function () {
-
-                    if (argv.verbose) { console.log('Allocated ' + Math.round((process.memoryUsage().heapUsed / Math.pow(1024, 2))) + ' MB of memory when iterating through the database.'); };
-
-                    var chunkX = [],
-                        chunkZ = [];
-
-                    chunkX[0] = 0;    // Negative X
-                    chunkX[1] = 0;    // Positive X
-                    chunkZ[0] = 0;    // Negative Z
-                    chunkZ[1] = 0;    // Positive Z
+                    var chunkX = new Array(0, 0),
+                        chunkZ = new Array(0, 0);
 
                     // Count chunks
                     Object.keys(db_keys).forEach(function (key) {
                         // Update XZ-Distance
-                        if (db_keys[key].readInt32LE(0) <= chunkX[0]) { chunkX[0] = db_keys[key].readInt32LE(0) };
-                        if (db_keys[key].readInt32LE(0) >= chunkX[1]) { chunkX[1] = db_keys[key].readInt32LE(0) };
-                        if (db_keys[key].readInt32LE(4) <= chunkZ[0]) { chunkZ[0] = db_keys[key].readInt32LE(4) };
-                        if (db_keys[key].readInt32LE(4) >= chunkZ[1]) { chunkZ[1] = db_keys[key].readInt32LE(4) };
+                        if (db_keys[key][0].readInt32LE(0) <= chunkX[0]) { chunkX[0] = db_keys[key][0].readInt32LE(0) };
+                        if (db_keys[key][0].readInt32LE(0) >= chunkX[1]) { chunkX[1] = db_keys[key][0].readInt32LE(0) };
+                        if (db_keys[key][0].readInt32LE(4) <= chunkZ[0]) { chunkZ[0] = db_keys[key][0].readInt32LE(4) };
+                        if (db_keys[key][0].readInt32LE(4) >= chunkZ[1]) { chunkZ[1] = db_keys[key][0].readInt32LE(4) };
                     });
 
                     var zoomLevelMax = null;
@@ -163,7 +163,7 @@ if (cluster.isMaster) {
                     // Prepare output directory
                     prepareOutput();
 
-                    console.log('Furthest X (negative):\t' + chunkX[0] + '\tFurthest X (positive):\t' + chunkX[1] + '\nFurthest Z (negative):\t' + chunkZ[0] + '\tFurthest Z (positive):\t' + chunkZ[1]);
+                    console.log('World reaches from chunks\tX:\t' + chunkX[0] + ",\t" + "Z:\t" + chunkZ[0] + "\t" + colors.bold("to") + "\tX:\t" + "+" + chunkX[1] + ",\t" + "Z:\t" + "+" + chunkZ[1]);
                     console.log('Processing and rendering ' + colors.bold(Object.keys(db_keys).length) + ' Chunks, which ' + colors.bold(chunksTotal[0]) + ' of them are valid SubChunks...');
 
                     var bar = new ProgressBar(colors.bold('[') + ':bar' + colors.bold(']') + ' :percent\tProcessing chunk :current/ :total\t:rate chunks/Second', {
@@ -177,11 +177,12 @@ if (cluster.isMaster) {
                         start = 0,
                         finishedWorkers = 0;
 
-                    // compute the number of chunks not allocated to workers.
+                    // Compute the number of chunks not allocated to workers.
                     var extra_chunks = Object.keys(db_keys).length - (chunksPerThread * argv.threads);
+                    // Create worker for each thread
                     for (i = 0; i < argv.threads; i++) {
                         var workerArgs = {};
-                        workerArgs["ID"] = i;
+                        workerArgs['ID'] = i;
                         workerArgs['start'] = start;
                         workerArgs['end'] = start + chunksPerThread - 1;
                         workerArgs['worldOffset'] = JSON.stringify({ 'x': chunkX, 'z': chunkZ });
@@ -198,48 +199,54 @@ if (cluster.isMaster) {
                             start += chunksPerThread;
                         }
 
+                        // Fork new worker
                         workers.push(cluster.fork(workerArgs));
                     };
-
-                    bar.tick();
-
+                    
                     // WORKER EVENT HANDLER
                     cluster.on('message', (worker, msg) => {
                         //console.log( 'Got message from: ' + worker[ 'id' ] + );
                         switch (msg['msgid']) {
-                            case 0: // Request for key
+                            // Worker requested a chunk
+                            case 0:
                                 try {
                                     bar.tick();
-                                    key = db_keys[Object.keys(db_keys)[msg['msg']]];
-                                    var key_request,
-                                        readPromises = [],
+
+                                    let readPromises = [],
                                         db_data = [];
 
-                                    for (i = 0; i <= key.readInt8(9); i++) {
-                                        key_request = Buffer.alloc(10);       // Create new buffer 
-                                        key.copy(key_request);                // Copy target SubChunk key to new buffer
-                                        key_request.writeInt8(i, 9);          // Assemble database request key buffer
+                                    let keyPointerArray = db_keys[Object.keys(db_keys)[msg['msg']]];
+                                    
+                                    // console.log("\nSecond try:");
+                                    // LevelDbWrapper.get(db_keys[Object.keys(db_keys)[0]][0], (err, value) => {
+                                    //     console.log(value);
+                                    // });
+
+                                    for (let i = 0; i < keyPointerArray.length; i++) {
+                                        // console.log(keyPointerArray[i]);
 
                                         readPromises.push(new Promise((resolve, reject) => {
-                                            db.get(key_request, (err, data) => {
+                                            LevelDbWrapper.get(keyPointerArray[i], (err, data) => {
+                                                // console.log(data);
                                                 db_data.push(data);
                                                 resolve();
                                             });
                                         }));
-                                    };
+                                    }
 
                                     Promise.all(readPromises)
                                         .then(function () {
-                                            workers[worker['id'] - 1].send({ msgid: 0, msg: { xz: key.slice(0, 8), data: db_data } });
+                                            workers[worker["id"] - 1].send({ msgid: 0, msg: { xz: keyPointerArray[0].slice(0, 8), data: db_data } });
                                         });
                                 } catch (err) {
                                     throw err;
                                 };
                             break;
 
+                            // Worker finished rendering
                             case 1:
                                 finishedWorkers++;
-                                if (argv.verbose) { console.log('Thread ' + (worker['id'] - 1) + ' is done rendering.'); };
+                                // if (argv.verbose) { console.log('Thread ' + (worker['id'] - 1) + ' is done rendering.'); };
                                 if (finishedWorkers === argv.threads) {
                                     if (argv.verbose) { console.log('All threads are done rendering.'); };
                                     processLeafletMap();
@@ -282,11 +289,16 @@ if (cluster.isMaster) {
                         const buildHTML = require('./html/buildHTML.js');
                         buildHTML(path.normalize(argv.output), 0, zoomLevelMax, 0, 0);
                     };
+                })();
+
+                /*
+                LevelDbWrapper.close(() => {
+
                 });
+                */
         };
     };
 } else {
-
     const convert = require('color-convert');
     const mapnik = require('mapnik');
     const PNG = require('pngjs').PNG;
@@ -323,7 +335,10 @@ if (cluster.isMaster) {
 
     Promise.all(initPromises)
         .then(() => {
-            process.send({ msgid: 0, msg: pos }); // Initial chunk request
+            // Initial chunk request
+            process.send({ msgid: 0, msg: pos });
+        })
+        .catch((err) => {
         });
 
     // console.log( "I'm worker " + process.env[ 'ID' ] + ' and I render from ' + process.env[ 'start' ] + ' to ' + process.env[ 'end' ] );
@@ -340,6 +355,7 @@ if (cluster.isMaster) {
 
                 renderChunk(chunk, cache, 16, worldOffset, zoomLevelMax)
                     .then(function () {
+                        // Increment position counter
                         pos++;
                         // console.log( 'Thread ' + process.env[ 'ID' ] + ' ' + pos + '/' + process.env[ 'end' ] )
 

@@ -1,9 +1,9 @@
+const argv = require('../app.js').argv;
 const colors = require('colors');
 const fs = require('fs');
 const mapnik = require('mapnik');
 const path = require('path');
 const tga2png = require('tga2png');
-const argv = require('../app.js').argv;
 
 const patchTable = require('../app.js').patchTable;
 const blockTable = require('../app.js').blockTable;

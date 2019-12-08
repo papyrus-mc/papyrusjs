@@ -14,20 +14,20 @@ module.exports = class Chunk {
     set(x, y, z, name, value, yThreshold) {
         if (y < yThreshold) {
             if (transparentBlocks[name] != true) {
-                chunkData[new Vec3(x, 0, z)] = { name: name, value: value, y: y };
+                this.chunkData[new Vec3(x, 0, z)] = { name: name, value: value, y: y };
             } else {
                 var iy = 1;
-                while (chunkData[new Vec3(x, iy, z)] != undefined) {
+                while (this.chunkData[new Vec3(x, iy, z)] != undefined) {
                     iy++;
                 }
-                chunkData[new Vec3(x, iy, z)] = { name: name, value: value, y: y };
+                this.chunkData[new Vec3(x, iy, z)] = { name: name, value: value, y: y };
                 // console.log( name + ' was transparent. Put it on Y: ' + iy );
             };
         };
     }
 
     get(x, y, z) {
-        var getBlock = chunkData[new Vec3(x, y, z)];
+        var getBlock = this.chunkData[new Vec3(x, y, z)];
 
         if (getBlock === undefined) {
             return { name: 'minecraft:air', value: 0 };
@@ -37,11 +37,11 @@ module.exports = class Chunk {
     }
 
     getXZ() {
-        return XZ;
+        return this.XZ;
     }
 
     getHeight() {
-        return Y;
+        return this.Y;
     };
 
     list() {
