@@ -25,7 +25,8 @@ module.exports = class LevelDbWrapper {
     leveldb_readoptions_fill_cache = ref.types.bool;
 
     leveldb_iterator = ref.refType(ref.types.Object);
-    keyValPointer = ref.refType(ref.types.Object);
+    KeyType = ref.refType(ref.types.Object);
+    ValueType = ref.refType(ref.types.Object);
 
     _db = null;
     _options = null;
@@ -47,8 +48,8 @@ module.exports = class LevelDbWrapper {
             "leveldb_iter_seek_to_last": [ref.types.void, [this.leveldb_iterator]],
             "leveldb_iter_next": [ref.types.void, [this.leveldb_iterator]],
             "leveldb_iter_prev": [ref.types.void, [this.leveldb_iterator]],
-            "leveldb_iter_key": [this.keyValPointer, [this.leveldb_iterator, ref.refType(ref.types.size_t)]],
-            "leveldb_iter_value": [this.keyValPointer, [this.leveldb_iterator, ref.refType(ref.types.size_t)]],
+            "leveldb_iter_key": [this.KeyType, [this.leveldb_iterator, ref.refType(ref.types.size_t)]],
+            "leveldb_iter_value": [this.ValueType, [this.leveldb_iterator, ref.refType(ref.types.size_t)]],
             "leveldb_options_create": [this.leveldb_options, []],
             "leveldb_options_set_create_if_missing": ["void", [this.leveldb_options, this.leveldb_options_create_if_missing]],
             "leveldb_options_set_compression": ["void", [this.leveldb_options, ref.types.int]],
@@ -73,19 +74,21 @@ module.exports = class LevelDbWrapper {
         this._ite = this.levelDbLib.leveldb_create_iterator(this._db, this._readoptions);
     }
 
-    close() {
+    close(callback) {
         this.levelDbLib.leveldb_readoptions_destroy(this._readoptions);
         this.levelDbLib.leveldb_options_destroy(this._options);
         this.levelDbLib.leveldb_iter_destroy(this._ite);
         this.levelDbLib.leveldb_close(this._db);
+
+        callback();
     }
 
-    iterate() {
+    iterate(callback) {
         let i = 0;
 
         /*
          * Investigate behaviour of key/ value size pointer size.
-        */
+         */
 
         // Iterate through every entry
         for (this.levelDbLib.leveldb_iter_seek_to_first(this._ite); this.levelDbLib.leveldb_iter_valid(this._ite) != 0; this.levelDbLib.leveldb_iter_next(this._ite)) {
@@ -93,23 +96,20 @@ module.exports = class LevelDbWrapper {
             this.keySizePointer = ref.alloc(ref.types.size_t, 0),
             this.valueSizePointer = ref.alloc(ref.types.size_t, 0);
 
-            let key = this.levelDbLib.leveldb_iter_key(this._ite, this.keySizePointer),
-                value = this.levelDbLib.leveldb_iter_value(this._ite, this.valueSizePointer);
-            
-            // console.log("valueSizePointer:\t" + ref.readInt64LE(this.valueSizePointer));
-            // console.log("valueLength:\t" + value.byteLength);
-            i++;
+            /*
+             *  TODO: Find a solution for duplicate entry calling.
+             */
+
+            this.levelDbLib.leveldb_iter_key(this._ite, this.keySizePointer),
+            this.levelDbLib.leveldb_iter_value(this._ite, this.valueSizePointer);
+
+            this.KeyType.size = this.keySizePointer.readInt32LE(0),
+            this.ValueType.size = this.valueSizePointer.readInt32LE(0);
+
+            let key = Buffer.alloc(this.KeyType.size, this.levelDbLib.leveldb_iter_key(this._ite, this.keySizePointer)),
+                value = Buffer.alloc(this.ValueType.size, this.levelDbLib.leveldb_iter_value(this._ite, this.valueSizePointer));
+
+            callback(key, value);
         }
-        return new KeyValuePair()
-    }
-}
-
-class KeyValuePair {
-    key = null;
-    value = null;
-
-    constructor(key, value) {
-        this.key = key;
-        this.value = value;
     }
 }
