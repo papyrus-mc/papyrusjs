@@ -1,8 +1,6 @@
 const argv = require("../app.js").argv;
 const colors = require('colors');
-const nbt = require('prismarine-nbt');
 const nbtParse = require("../db/NbtParse.js");
-
 
 const Palette_Persistance = require('../palettes/palette_persistance.js');
 const runtimeIDTable = require('../app.js').runtimeIDTable;
@@ -81,19 +79,9 @@ module.exports = function (value, chunk, yOffset, yThreshold) {
 
 
                         for (let paletteID = 0; paletteID < localPalette.size(); paletteID++) {
-                            let compoundSize;
-                            nbtParse.parse(value.slice(_offset), (size) => {
-                                compoundSize = size;
-                            });
-
-                            nbt.parse(value.slice(_offset), true, function (err, data) {
-                                // console.log(data.values.states[Object.keys(data.value.states)[1]]);
-
-                                // console.log(data);
-                                localPalette.put(paletteID, data.value.name.value, 0);
-                                // console.log( paletteID + '\t' + localPalette.get( paletteID ).name + '\t' + localPalette.get( paletteID ).value );
-
-                                _offset += compoundSize;
+                            nbtParse.parse(value.slice(_offset), (data) => {
+                                localPalette.put(paletteID, data[Object.keys(data)[0]].name, 0);
+                                _offset += data.bufferSize;
                             });
                         };
                     };

@@ -21,7 +21,8 @@ const typeIds = {
 
 
 function parse(data, callback) {
-    let _layer = 0,
+    var _serialized = {},
+        _refStack = [],
         _o = 0,
         _valid = true;
 
@@ -39,25 +40,20 @@ function parse(data, callback) {
 
         switch (_tagId) {
             case typeIds.TAG_End:
-                // Step out one layer
-                _layer--;
-                _valid = (_layer > 0) ? true : false;
-                _debug(_tagId, 0, 0, _o, data);
+                _refStack.pop();
+                _valid = (_refStack.length > 0) ? true : false;
                 break;
 
             case typeIds.TAG_Byte:
                 _value = data.readInt8(_o); _o += 1;
-                _debug(_tagId, _name, _value, _o, data);
                 break;
 
             case typeIds.TAG_Short:
                 _value = data.readInt16LE(_o); _o += 2;
-                _debug(_tagId, _name, _value, _o, data);
                 break;
 
             case typeIds.TAG_Int:
                 _value = data.readInt32LE(_o); _o += 4;
-                _debug(_tagId, _name, _value, _o, data);
                 break;
 
             case typeIds.TAG_Long:
@@ -74,16 +70,20 @@ function parse(data, callback) {
 
             case typeIds.TAG_String:
                 let _length = data.readInt16LE(_o); _o += 2;
-                _value = data.slice(_o, _o + _length); _o += _length;
-                _debug(_tagId, _name, _value, _o, data);
+                _value = data.slice(_o, _o + _length).toString(); _o += _length;
                 break;
 
             case typeIds.TAG_List:
                 break;
 
             case typeIds.TAG_Compound:
-                _layer++;
-                _debug(_tagId, _name, 0, _o, data);
+                if (_refStack.length == 0) {
+                    _serialized[_name] = {};
+                    _refStack.push(_serialized[_name]);
+                } else {
+                    _refStack[_refStack.length-1][_name] = {};
+                    _refStack.push(_refStack[_refStack.length-1][_name]);
+                }
                 break;
 
             case typeIds.TAG_Int_Array:
@@ -92,15 +92,16 @@ function parse(data, callback) {
             case typeIds.TAG_Long_Array:
                 break;
         }
+
+        // Serialize Tag
+        if ((_tagId != typeIds.TAG_End) && (_tagId != typeIds.TAG_Compound)) {
+            // console.log(_value);
+            _refStack[_refStack.length-1][_name] = _value;
+        }
     }
 
-    callback(_o);
-}
-
-function _debug(id, name, value, offset, data) {
-        /* console.log("TAG INFO:\nID:\t" + Object.keys(typeIds)[id] + "\tName:\t" + name + "\tValue:\t" + value + "\tOffset:\t" + offset);
-        console.log(data.slice(offset));
-        console.log("\n"); */
+    _serialized["bufferSize"] = _o;
+    callback(_serialized);
 }
 
 module.exports = { parse };
