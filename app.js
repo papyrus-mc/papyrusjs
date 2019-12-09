@@ -115,7 +115,7 @@ if (cluster.isMaster) {
 
             // Open database
             console.log("Attempting to open database...");
-            var LevelDbWrapper = new (require("./leveldb_wrapper/LevelDbWrapper.js"))("./bin/libleveldb");
+            var LevelDbWrapper = new (require("./db/LevelDbWrapper.js"))("./bin/libleveldb");
             LevelDbWrapper.open(path_world + '/db/', () => {
                 console.log("Success!");
             });
@@ -302,7 +302,7 @@ if (cluster.isMaster) {
     const convert = require('color-convert');
     const mapnik = require('mapnik');
     const PNG = require('pngjs').PNG;
-    const readChunk = require('./db_read/readChunk.js');
+    const readChunk = require('./db/readChunk.js');
     const renderChunk = require('./render/renderChunk.js');
     const Cache = require('./palettes/textureCache');
 

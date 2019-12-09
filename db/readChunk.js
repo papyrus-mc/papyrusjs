@@ -1,7 +1,7 @@
 const argv = require("../app.js").argv;
 const colors = require('colors');
 const nbt = require('prismarine-nbt');
-const NbtParse = require("../nbt/NbtParse.js");
+const nbtParse = require("../db/NbtParse.js");
 
 
 const Palette_Persistance = require('../palettes/palette_persistance.js');
@@ -82,7 +82,7 @@ module.exports = function (value, chunk, yOffset, yThreshold) {
 
                         for (let paletteID = 0; paletteID < localPalette.size(); paletteID++) {
                             let compoundSize;
-                            NbtParse.parse(value.slice(_offset), (size) => {
+                            nbtParse.parse(value.slice(_offset), (size) => {
                                 compoundSize = size;
                             });
 
