@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/clarkx86/papyrusjs.svg?branch=master)](https://travis-ci.org/clarkx86/papyrusjs) [![Discord](https://img.shields.io/discord/569841820092203011.svg?logo=discord&logoColor=white)](https://discord.gg/J2sBaXa)
+[![Build Status](https://travis-ci.com/clarkx86/papyrusjs.svg?branch=master)](https://travis-ci.com/clarkx86/papyrusjs) [![Discord](https://img.shields.io/discord/569841820092203011.svg?logo=discord&logoColor=white)](https://discord.gg/J2sBaXa)
 # papyrus.js
 <html>
     <body>
