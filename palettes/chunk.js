@@ -3,12 +3,10 @@ const Vec3 = require('vec3');
 var transparentBlocks = require('../lookup_tables/transparent-blocks_table.json');
 
 module.exports = class Chunk {
-    chunkData = {};
-    XZ = null;
-    Y = 1;
-    
     constructor(xz) {
+        this.chunkData = {};
         this.XZ = xz;
+        this.Y = 1;
     }
 
     set(x, y, z, name, value, yThreshold) {

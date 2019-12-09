@@ -4,7 +4,7 @@ const colors = require('colors');
 const path = require('path');
 const fs = require('fs-extra');
 
-(async function () {
+(async () => {
 
     var destinationDir = (__dirname + '/dist/release/'),
         copyDir = '';
@@ -13,28 +13,22 @@ const fs = require('fs-extra');
 
     console.log('Patching modules...');
 
-    var patchContent = fs.readFileSync('./node_modules/mapnik/lib/mapnik.js').toString();
+    let patchContent = fs.readFileSync('./node_modules/mapnik/lib/mapnik.js').toString();
     patchContent = patchContent.replace("var binding_path = binary.find(path.resolve(path.join(__dirname,'../package.json')));", "var binding_path = binary.find(path.resolve(path.join('./node_modules/mapnik/package.json')));");
     fs.writeFileSync('./node_modules/mapnik/lib/mapnik.js', patchContent);
 
     console.log('Packing application using pkg...');
 
-    await exec(['app.js', '--target=node10-linux-x64', '--output=' + destinationDir + '/papyrus']);
+    await exec(['app.js', '--target=node12-linux-x64', '--output', path.resolve(destinationDir + '/papyrus')]);
 
     console.log('Copying native modules to destination directory...');
     fs.mkdirSync(destinationDir + '/node_modules/');
 
-    var currentModule;
-
-    currentModule = 'leveldb-mcpe';
-    console.log('Module:\t' + currentModule);
-    copyDir = '/node_modules/' + currentModule + '/build/Release/node_leveldb_mcpe_native.node';
-    fs.copySync(__dirname + copyDir, destinationDir + copyDir);
+    let currentModule;
 
     currentModule = 'mapnik';
     console.log('Module:\t' + currentModule);
     fs.mkdirSync(destinationDir + '/node_modules/' + currentModule);
-
     copyDir = '/node_modules/' + currentModule + '/package.json';
     fs.copyFileSync(__dirname + copyDir, destinationDir + copyDir);
     copyDir = '/node_modules/' + currentModule + '/LICENSE.txt';
@@ -44,5 +38,10 @@ const fs = require('fs-extra');
     fs.removeSync(destinationDir + copyDir + 'share')
     fs.removeSync(destinationDir + copyDir + 'lib/mapnik');
 
+    console.log('Copying libraries...');
+    fs.mkdirSync(destinationDir + '/bin/');
+    copyDir = (process.platform != "win32") ? ('/bin/' + '/libleveldb.so') : ('/bin/' + '/libleveldb.dll');
+    fs.copyFileSync(__dirname + copyDir, destinationDir + copyDir);
+
     console.log('Done. Ready for deployment!');
-}());
+})();

@@ -10,35 +10,33 @@ const ffi = require("ffi"),
       ref = require("ref");
 
 module.exports = class LevelDbWrapper {
-    levelDbLib = null;
-
-    leveldb_db = ref.refType(ref.types.Object);
-    leveldb_options = ref.refType(ref.types.void);
-    leveldb_comparator = ref.refType(ref.types.void);
-    leveldb_snapshot = ref.refType(ref.types.Object);
-    leveldb_options_set_comparator = this.leveldb_comparator;
-    leveldb_options_create_if_missing = ref.types.bool;
-    leveldb_options_paranoid_checks = ref.types.bool;
-
-    leveldb_readoptions = ref.refType(ref.types.Object);
-    leveldb_readoptions_verify_checksums = ref.types.bool;
-    leveldb_readoptions_fill_cache = ref.types.bool;
-
-    leveldb_iterator = ref.refType(ref.types.Object);
-    KeyType = ref.refType(ref.types.Object);
-    ValueType = ref.refType(ref.types.Object);
-
-    _db = null;
-    _options = null;
-    _readoptions = null;
-    _ite = null;
-
-    KeyPointer = ref.refType(ref.types.Object);
-    ErrPointer = ref.refType(ref.types.CString);
-    keySizePointer = null;
-    valueSizePointer = null;
-
     constructor(libPath) {
+        this.leveldb_db = ref.refType(ref.types.Object);
+        this.leveldb_options = ref.refType(ref.types.void);
+        this.leveldb_comparator = ref.refType(ref.types.void);
+        this.leveldb_snapshot = ref.refType(ref.types.Object);
+        this.leveldb_options_set_comparator = this.leveldb_comparator;
+        this.leveldb_options_create_if_missing = ref.types.bool;
+        this.leveldb_options_paranoid_checks = ref.types.bool;
+    
+        this.leveldb_readoptions = ref.refType(ref.types.Object);
+        this.leveldb_readoptions_verify_checksums = ref.types.bool;
+        this.leveldb_readoptions_fill_cache = ref.types.bool;
+    
+        this.leveldb_iterator = ref.refType(ref.types.Object);
+        this.KeyType = ref.refType(ref.types.Object);
+        this.ValueType = ref.refType(ref.types.Object);
+    
+        this._db = null;
+        this._options = null;
+        this._readoptions = null;
+        this._ite = null;
+    
+        this.KeyPointer = ref.refType(ref.types.Object);
+        this.ErrPointer = ref.refType(ref.types.CString);
+        this.keySizePointer = null;
+        this.valueSizePointer = null;
+
         this.levelDbLib = ffi.Library(require("path").resolve(libPath), {
             "leveldb_open": [this.leveldb_db, [this.leveldb_options, "string"]],
             "leveldb_close": [ref.types.void, [this.leveldb_db]],
