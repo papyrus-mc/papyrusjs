@@ -1,6 +1,8 @@
 const argv = require("../app.js").argv;
 const colors = require('colors');
 const nbt = require('prismarine-nbt');
+const NbtParse = require("../nbt/NbtParse.js");
+
 
 const Palette_Persistance = require('../palettes/palette_persistance.js');
 const runtimeIDTable = require('../app.js').runtimeIDTable;
@@ -75,25 +77,22 @@ module.exports = function (value, chunk, yOffset, yThreshold) {
                     } else {
                         // NBT TAG SERIALIZER
                         var localPalette = new Palette_Persistance(value.readInt32LE(_offset)); _offset += 4;
+                        // console.log("\n" + localPalette.size());
 
-                        var _offset_nbt = 0;
 
-                        // console.log( localPalette.size() );
+                        for (let paletteID = 0; paletteID < localPalette.size(); paletteID++) {
+                            let compoundSize;
+                            NbtParse.parse(value.slice(_offset), (size) => {
+                                compoundSize = size;
+                            });
 
-                        for (paletteID = 0; paletteID < localPalette.size(); paletteID++) {
-                            /*
-                            console.log("\n\nVALUE:");
-                            console.log(value.slice(_offset));
-                            */
                             nbt.parse(value.slice(_offset), true, function (err, data) {
+                                // console.log(data.values.states[Object.keys(data.value.states)[1]]);
 
-                                _offset_nbt = 3 + data.value.name.value.length + 2 + 16; // 1 Byte: Tag Type, 2 Bytes: Name Length, next Bytes: String Length, 2 Bytes: TAG_SHORT, 16 Bytes: Magic Number 
-
-                                localPalette.put(paletteID, data.value.name.value, data.value.val.value);
-
+                                localPalette.put(paletteID, data.value.name.value, 0);
                                 // console.log( paletteID + '\t' + localPalette.get( paletteID ).name + '\t' + localPalette.get( paletteID ).value );
 
-                                _offset += _offset_nbt;
+                                _offset += compoundSize;
                             });
                         };
                     };

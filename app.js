@@ -346,7 +346,7 @@ if (cluster.isMaster) {
     process.on('message', (msg) => {
         switch (msg['msgid']) {
             case 0: // Received requested chunk
-                var chunk = new Chunk(Buffer.from(msg['msg']['xz']));
+                let chunk = new Chunk(Buffer.from(msg['msg']['xz']));
                 // console.log( Buffer.from( msg[ 'msg' ][ 'xz' ] ) );
 
                 for (i = 0; i < msg['msg']['data'].length; i++) {
