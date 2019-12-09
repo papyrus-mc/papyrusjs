@@ -285,7 +285,7 @@ if (cluster.isMaster) {
                         };
 
                         // Create index.html
-                        console.log('Creating Leaflet map...');
+                        // console.log('Preparing output directory...');
                         const buildHTML = require('./html/buildHTML.js');
                         buildHTML(path.normalize(argv.output), 0, zoomLevelMax, 0, 0);
                     };

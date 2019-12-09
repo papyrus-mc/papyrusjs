@@ -42,21 +42,22 @@ function parse(data, callback) {
                 // Step out one layer
                 _layer--;
                 _valid = (_layer > 0) ? true : false;
-                _debug(_tagId, 0, 0, _o);
+                _debug(_tagId, 0, 0, _o, data);
                 break;
 
             case typeIds.TAG_Byte:
                 _value = data.readInt8(_o); _o += 1;
-                _debug(_tagId, _name, _value, _o);
+                _debug(_tagId, _name, _value, _o, data);
                 break;
 
             case typeIds.TAG_Short:
-                _debug(_tagId, _name, _value, _o);
+                _value = data.readInt16LE(_o); _o += 2;
+                _debug(_tagId, _name, _value, _o, data);
                 break;
 
             case typeIds.TAG_Int:
                 _value = data.readInt32LE(_o); _o += 4;
-                _debug(_tagId, _name, _value, _o);
+                _debug(_tagId, _name, _value, _o, data);
                 break;
 
             case typeIds.TAG_Long:
@@ -74,7 +75,7 @@ function parse(data, callback) {
             case typeIds.TAG_String:
                 let _length = data.readInt16LE(_o); _o += 2;
                 _value = data.slice(_o, _o + _length); _o += _length;
-                _debug(_tagId, _name, _value, _o)
+                _debug(_tagId, _name, _value, _o, data);
                 break;
 
             case typeIds.TAG_List:
@@ -82,7 +83,7 @@ function parse(data, callback) {
 
             case typeIds.TAG_Compound:
                 _layer++;
-                _debug(_tagId, _name, 0, _o);
+                _debug(_tagId, _name, 0, _o, data);
                 break;
 
             case typeIds.TAG_Int_Array:
@@ -96,9 +97,9 @@ function parse(data, callback) {
     callback(_o);
 }
 
-function _debug(id, name, value, offset) {
-    /*     console.log("TAG INFO:\nID:\t" + Object.keys(typeIds)[id] + "\tName:\t" + name + "\tValue:\t" + value + "\tOffset:\t" + offset);
-        console.log(data.slice(_o));
+function _debug(id, name, value, offset, data) {
+        /* console.log("TAG INFO:\nID:\t" + Object.keys(typeIds)[id] + "\tName:\t" + name + "\tValue:\t" + value + "\tOffset:\t" + offset);
+        console.log(data.slice(offset));
         console.log("\n"); */
 }
 

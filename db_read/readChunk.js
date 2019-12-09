@@ -89,6 +89,7 @@ module.exports = function (value, chunk, yOffset, yThreshold) {
                             nbt.parse(value.slice(_offset), true, function (err, data) {
                                 // console.log(data.values.states[Object.keys(data.value.states)[1]]);
 
+                                // console.log(data);
                                 localPalette.put(paletteID, data.value.name.value, 0);
                                 // console.log( paletteID + '\t' + localPalette.get( paletteID ).name + '\t' + localPalette.get( paletteID ).value );
 
