@@ -86,19 +86,19 @@ module.exports = class LevelDbWrapper {
 
     iterate(callback) {
         // Iterate through every entry
-        for (this.levelDbLib.leveldb_iter_seek_to_first(this._ite); this.levelDbLib.leveldb_iter_valid(this._ite) != 0; this.levelDbLib.leveldb_iter_next(this._ite)) {
+        for (this.levelDbLib.leveldb_iter_seek_to_first(this._ite); this.levelDbLib.leveldb_iter_valid(this._ite) !== 0; this.levelDbLib.leveldb_iter_next(this._ite)) {
             // Allocate a key- and value size address of size_t to pass onto the LevelDB function
-            this.keySizePointer = ref.alloc(ref.types.size_t, 0),
+            this.keySizePointer = ref.alloc(ref.types.size_t, 0);
             this.valueSizePointer = ref.alloc(ref.types.size_t, 0);
 
             /*
              *  TODO: Find a solution for duplicate entry calling.
              */
 
-            this.levelDbLib.leveldb_iter_key(this._ite, this.keySizePointer),
+            this.levelDbLib.leveldb_iter_key(this._ite, this.keySizePointer);
             this.levelDbLib.leveldb_iter_value(this._ite, this.valueSizePointer);
 
-            this.KeyType.size = this.keySizePointer.readInt32LE(0),
+            this.KeyType.size = this.keySizePointer.readInt32LE(0);
             this.ValueType.size = this.valueSizePointer.readInt32LE(0);
 
             let key = Buffer.alloc(this.KeyType.size, this.levelDbLib.leveldb_iter_key(this._ite, this.keySizePointer)),
