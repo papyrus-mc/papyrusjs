@@ -115,7 +115,7 @@ if (cluster.isMaster) {
 
         // Open database
         console.log("Attempting to open database...");
-        let LevelDbWrapper = new (require("./db/LevelDbWrapper.js"))("./bin/libleveldb");
+        let LevelDbWrapper = new (require("./bindings/LevelDbWrapper.js"))("./bin/libleveldb");
         LevelDbWrapper.open(path_leveldat + '/db/', () => {
             console.log("Success!");
         });
