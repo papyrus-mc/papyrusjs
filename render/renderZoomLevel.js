@@ -7,26 +7,26 @@ const path_output = require('../app.js').path_output;
 module.exports = function (chunkSize, zoomLevelMax, chunkX, chunkZ) {
     return new Promise(async function (resolve, reject) {
 
-        var blendArray = [],
+        let blendArray = [],
             zoomLevelCurrent,
             file,
             tileX = 0,
             tileZ = 0,
             tileImg;
 
-
+        --zoomLevelMax;
         // for( ix = Math.floor( chunkX[ 0 ]/2 ); ix < ( Math.ceil( chunkX[ 1 ]/2 ) ); ix++ ) {
-        for (zoomLevelCurrent = zoomLevelMax - 1; zoomLevelCurrent >= 0; zoomLevelCurrent--) {
+        for (zoomLevelCurrent = zoomLevelMax; zoomLevelCurrent >= 0; zoomLevelCurrent--) {
             console.log('Rendering zoom level ' + colors.bold(zoomLevelCurrent) + ' out of ' + zoomLevelMax);
             divide();
-            for (iz = 0; iz < chunkZ[1] + Math.abs(chunkZ[0]); iz++) {
-                for (ix = 0; ix < chunkX[1] + Math.abs(chunkX[0]); ix++) {
+            for (let iz = 0; iz < chunkZ[1] + Math.abs(chunkZ[0]); iz++) {
+                for (let ix = 0; ix < chunkX[1] + Math.abs(chunkX[0]); ix++) {
 
-                    blendArray = new Array(); // Clear array
+                    blendArray = []; // Clear array
 
                     if (!fs.existsSync(path_output + '/map/' + (zoomLevelCurrent) + '/')) {
                         fs.mkdirSync(path_output + '/map/' + (zoomLevelCurrent) + '/');
-                    };
+                    }
 
                     file = path.normalize(path_output + '/map/' + (zoomLevelCurrent + 1) + '/' + (ix * 2) + '/' + (iz * 2) + '.png');
                     if (fs.existsSync(file)) {
@@ -35,7 +35,7 @@ module.exports = function (chunkSize, zoomLevelMax, chunkX, chunkZ) {
                             x: 0,
                             y: 0
                         });
-                    };
+                    }
 
                     file = path.normalize(path_output + '/map/' + (zoomLevelCurrent + 1) + '/' + (ix * 2) + '/' + ((iz * 2) + 1) + '.png');
                     if (fs.existsSync(file)) {
@@ -44,7 +44,7 @@ module.exports = function (chunkSize, zoomLevelMax, chunkX, chunkZ) {
                             x: 0,
                             y: 256
                         });
-                    };
+                    }
 
                     file = path.normalize(path_output + '/map/' + (zoomLevelCurrent + 1) + '/' + ((ix * 2) + 1) + '/' + (iz * 2) + '.png');
                     if (fs.existsSync(file)) {
@@ -53,7 +53,7 @@ module.exports = function (chunkSize, zoomLevelMax, chunkX, chunkZ) {
                             x: 256,
                             y: 0
                         });
-                    };
+                    }
 
                     file = path.normalize(path_output + '/map/' + (zoomLevelCurrent + 1) + '/' + ((ix * 2) + 1) + '/' + ((iz * 2) + 1) + '.png');
                     if (fs.existsSync(file)) {
@@ -62,7 +62,7 @@ module.exports = function (chunkSize, zoomLevelMax, chunkX, chunkZ) {
                             x: 256,
                             y: 256
                         });
-                    };
+                    }
 
                     if (blendArray.length !== 0) {
                         await new Promise((resolve, reject) => {
@@ -74,16 +74,16 @@ module.exports = function (chunkSize, zoomLevelMax, chunkX, chunkZ) {
                                 tileImg = tileImg.resizeSync(Math.pow(chunkSize, 2), Math.pow(chunkSize, 2) /*, { 'scaling_method': mapnik.imageScaling.near } */);
                                 if (!fs.existsSync(path.normalize(path_output + '/map/' + (zoomLevelCurrent) + '/' + (ix) + '/'))) {
                                     fs.mkdirSync(path.normalize(path_output + '/map/' + (zoomLevelCurrent) + '/' + (ix) + '/'));
-                                };
+                                }
                                 tileImg.saveSync(path.normalize(path_output + '/map/' + (zoomLevelCurrent) + '/' + (ix) + '/' + (iz) + '.png'));
                                 resolve();
                             }
                             )
                         });
-                    };
-                };
-            };
-        };
+                    }
+                }
+            }
+        }
         resolve();
     });
 
