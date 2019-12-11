@@ -19,28 +19,35 @@ const fs = require('fs-extra');
 
     console.log('Packing application using pkg...');
 
-    await exec(['app.js', '--target=node12-linux-x64', '--output', path.resolve(destinationDir + '/papyrus')]);
+    await exec(['app.js', '--target=node12-linux-x64', '--output', path.resolve(destinationDir + 'papyrus')]);
 
     console.log('Copying native modules to destination directory...');
-    fs.mkdirSync(destinationDir + '/node_modules/');
+
+    if (!fs.existsSync(destinationDir + 'node_modules/')) {
+        fs.mkdirSync(destinationDir + 'node_modules/');
+    }
 
     let currentModule;
 
     currentModule = 'mapnik';
     console.log('Module:\t' + currentModule);
-    fs.mkdirSync(destinationDir + '/node_modules/' + currentModule);
+    if (!fs.existsSync(destinationDir + 'node_modules/' + currentModule)) {
+        fs.mkdirSync(destinationDir + 'node_modules/' + currentModule);
+    }
     copyDir = '/node_modules/' + currentModule + '/package.json';
     fs.copyFileSync(__dirname + copyDir, destinationDir + copyDir);
     copyDir = '/node_modules/' + currentModule + '/LICENSE.txt';
     fs.copyFileSync(__dirname + copyDir, destinationDir + copyDir);
     copyDir = '/node_modules/' + currentModule + '/lib/binding/';
     fs.copySync(__dirname + copyDir, destinationDir + copyDir);
-    fs.removeSync(destinationDir + copyDir + 'share')
+    fs.removeSync(destinationDir + copyDir + 'share');
     fs.removeSync(destinationDir + copyDir + 'lib/mapnik');
 
     console.log('Copying libraries...');
-    fs.mkdirSync(destinationDir + '/bin/');
-    copyDir = (process.platform != "win32") ? ('/bin/' + '/libleveldb.so') : ('/bin/' + '/libleveldb.dll');
+    if (!fs.existsSync(destinationDir + 'bin/')) {
+        fs.mkdirSync(destinationDir + 'bin/');
+    }
+    copyDir = (process.platform !== "win32") ? ('/bin/' + '/libleveldb.so') : ('/bin/' + '/libleveldb.dll');
     fs.copyFileSync(__dirname + copyDir, destinationDir + copyDir);
 
     console.log('Done. Ready for deployment!');
