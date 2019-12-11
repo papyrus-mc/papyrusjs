@@ -1,5 +1,5 @@
 /**
- * Extremly basic and stripped-down wrapper class to directly call LevelDB library.
+ * Extremely basic and stripped-down wrapper class to directly call LevelDB library.
  * 
  * This class is able to call an external LevelDB library using the "Foreign Function Interface" module.
  * It supports synchronously iterating through a database and reading data. Writing isn't implemented yet.
@@ -58,8 +58,7 @@ module.exports = class LevelDbWrapper {
             "leveldb_readoptions_destroy": [ref.types.void, [this.leveldb_readoptions]],
             "leveldb_readoptions_set_verify_checksums": [ref.types.void, [this.leveldb_readoptions, ref.types.bool]],
             "leveldb_readoptions_set_fill_cache": [ref.types.void, [this.leveldb_readoptions, ref.types.bool]],
-            "leveldb_readoptions_set_snapshot": [ref.types.void, [this.leveldb_readoptions, this.leveldb_snapshot]],
-            "leveldb_readoptions_destroy": ["void", [this.leveldb_readoptions]]
+            "leveldb_readoptions_set_snapshot": [ref.types.void, [this.leveldb_readoptions, this.leveldb_snapshot]]
         });
     }
 
@@ -119,4 +118,4 @@ module.exports = class LevelDbWrapper {
 
         callback(ref.isNull(this.ErrPointer) ? null : this.ErrPointer, data);
     }
-}
+};

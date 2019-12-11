@@ -1,13 +1,12 @@
 const fs = require('fs');
 const path = require('path');
 
-module.exports = function (outPath, zoomLevelDefault, zoomLevelMax, posX, posZ) {
-
+module.exports = function (outPath, zoomLevelDefault, zoomLevelMax, posX, posZ, levelname = '') {
 
     fs.writeFileSync(path.normalize(outPath + '/index.html'),
     `<html>
     <head>
-        <title>papyrus.js Map</title>
+        <title>papyrus.js `+ levelname + ` Map</title>
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
         integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
         crossorigin=""/>
@@ -32,4 +31,4 @@ module.exports = function (outPath, zoomLevelDefault, zoomLevelMax, posX, posZ) 
         </script>
     </body>
     </html>`, { encoding: 'utf8' });
-}
+};
