@@ -1,5 +1,5 @@
 const fs = require('fs');
-const mapnik = require('mapnik');
+const vips = require("../app.js").vips;
 const path = require('path');
 
 const loadTexture = require('./loadTexture.js');
@@ -28,7 +28,7 @@ module.exports = function (Chunk, Cache, size_texture, worldOffset, ZoomLevelMax
                 chunkX = chunk.getXZ().readInt32LE(0),
                 chunkZ = chunk.getXZ().readInt32LE(4);
 
-            var composeArray = [];
+            var composeArray = new vips.VipsImageArray(256);
 
             // Render chunk
             // Y-Axis
@@ -49,31 +49,25 @@ module.exports = function (Chunk, Cache, size_texture, worldOffset, ZoomLevelMax
                                 textureBuffer = cache.get(chunk.get(ix, iy, iz).name, chunk.get(ix, iy, iz).value, 0);
                             };
 
-                            composeArray.push({
-                                buffer: textureBuffer,
-                                x: size_texture * ix,
-                                y: size_texture * iz
-                            });
+                            composeArray.push(textureBuffer);
                         };
                     };
                 };
             };
 
-            mapnik.blend(composeArray, { width: 256, height: 256 }, function (err, data) {
-                // Zoomlevel Directory
-                if (!fs.existsSync(path.normalize(path_output + '/map/' + zoomLevelMax))) {
-                    fs.mkdirSync(path.normalize(path_output + '/map/' + zoomLevelMax));
-                };
-                // X-Coordinate Directory
-                if (!fs.existsSync(path.normalize(path_output + '/map/' + zoomLevelMax + '/' + (chunkX + Math.abs(worldOffset['x'][0]))))) {
-                    fs.mkdirSync(path.normalize(path_output + '/map/' + zoomLevelMax + '/' + (chunkX + Math.abs(worldOffset['x'][0]))));
-                };
+            let chunkImg = vips.arrayJoin(composeArray, 16);
 
-                fs.writeFile(path.normalize(path_output + '/map/' + zoomLevelMax + '/' + (chunkX + Math.abs(worldOffset['x'][0])) + '/' + (chunkZ + Math.abs(worldOffset['z'][0])) + fileExt), data, (err) => {
-                    if (err) { throw err };
-                });
-                resolve();
-            });
-        };
+            // Zoomlevel Directory
+            if (!fs.existsSync(path.normalize(path_output + '/map/' + zoomLevelMax))) {
+                fs.mkdirSync(path.normalize(path_output + '/map/' + zoomLevelMax));
+            };
+            // X-Coordinate Directory
+            if (!fs.existsSync(path.normalize(path_output + '/map/' + zoomLevelMax + '/' + (chunkX + Math.abs(worldOffset['x'][0]))))) {
+                fs.mkdirSync(path.normalize(path_output + '/map/' + zoomLevelMax + '/' + (chunkX + Math.abs(worldOffset['x'][0]))));
+            };
+
+            vips.toFile(chunkImg, path.normalize(path_output + '/map/' + zoomLevelMax + '/' + (chunkX + Math.abs(worldOffset['x'][0])) + '/' + (chunkZ + Math.abs(worldOffset['z'][0])) + fileExt));
+            resolve();
+        }
     });
-};
+}

@@ -1,7 +1,7 @@
 const argv = require('../app.js').argv;
 const colors = require('colors');
 const fs = require('fs');
-const mapnik = require('mapnik');
+const vips = require("../app.js").vips;
 const path = require('path');
 const tga2png = require('tga2png');
 
@@ -28,8 +28,8 @@ module.exports = async function loadTexture(name, value, x, y, z, blockY, cache)
             } else {
                 // No? Then get the default texture name for lookup
                 texture = blockTable[name.slice(10)]["textures"];
-            };
-        };
+            }
+        }
 
         // Is the file in the patch lookup-table (e.g. for water and lava)
         if (patchTable[texture]) {
@@ -64,9 +64,9 @@ module.exports = async function loadTexture(name, value, x, y, z, blockY, cache)
                     } else {
                         file = path_resourcepack + arr;
                     }
-                };
-            };
-        };
+                }
+            }
+        }
 
         // TGA Loading
         if ((!fs.existsSync(path.normalize(file + fileExt))) && (file !== cache.get('placeholder', 0))) {
@@ -84,17 +84,18 @@ module.exports = async function loadTexture(name, value, x, y, z, blockY, cache)
                 if (argv.verbose === true) {
                     console.log(colors.yellow('\n[WARNING]') + ' Failed to load TGA for\t' + colors.bold(name) + '\t' + value + '\t' + colors.bold(texture) + '\tError: ' + err);
                 }
-            };
+            }
         } else {
             // PNG (but not if the image is a buffer already)
             if (file !== cache.get('placeholder', 0)) {
                 // cache.save( name, chunk.get( x, y, z ).value, fs.readFileSync( file + fileExt ) );
                 imageBuffer = fs.readFileSync(file + fileExt);
-            };
-        };
+            }
+        }
 
         // Blend monochrome textures with colour and save to cache
         if (monoTable[texture] == true) {
+            /*
             var img = new mapnik.Image.fromBytesSync(imageBuffer);
             img.premultiplySync();
             await new Promise((resolve, reject) => {
@@ -106,6 +107,7 @@ module.exports = async function loadTexture(name, value, x, y, z, blockY, cache)
                     resolve();
                 });
             });
+            */
         };
 
         if (name != 'minecraft:water') {
@@ -138,7 +140,7 @@ module.exports = async function loadTexture(name, value, x, y, z, blockY, cache)
                     })
                     break;
             }
-        };
-        cache.save(name, value, imageBuffer, blockY);
-    };
-};
+        }
+        cache.save(name, value, vips.newImageFromBuffer(imageBuffer), blockY);
+    }
+}

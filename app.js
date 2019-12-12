@@ -6,7 +6,9 @@ const json_package = require('./package.json'),
       ProgressBar = require('progress'),
       Chunk = require('./palettes/chunk.js'),
       cluster = require('cluster'),
-      os = require('os');
+      os = require('os'),
+      LibvipsWrapper = require("./bindings/LibvipsWrapper.js");
+
 const argv = require('yargs')
     .version(json_package.version + json_package.version_stage.charAt(0))
     .option('output', {
@@ -67,7 +69,9 @@ if (fs.existsSync(argv.textures + 'blocks.json')) {
     blockTable = null;
 }
 
-module.exports = { argv, renderMode, transparentBlocks, runtimeIDTable, monoTable, patchTable, textureTable, blockTable, path_output, path_resourcepack };
+let vips = new LibvipsWrapper();
+
+module.exports = { argv, renderMode, transparentBlocks, runtimeIDTable, monoTable, patchTable, textureTable, blockTable, path_output, path_resourcepack, vips };
 
 if (cluster.isMaster) {
     console.log(colors.bold(json_package.name.charAt(0) + json_package.name.slice(1, json_package.name.length - 2) + "." + json_package.name.slice(json_package.name.length - 2) + " v" + json_package.version + json_package.version_stage.charAt(0)) + colors.reset(" by ") + json_package.author + " and contributors");
@@ -115,7 +119,7 @@ if (cluster.isMaster) {
 
         // Open database
         console.log("Attempting to open database...");
-        let LevelDbWrapper = new (require("./db/LevelDbWrapper.js"))("./bin/libleveldb");
+        let LevelDbWrapper = new (require("./bindings/LevelDbWrapper.js"))("./bin/libleveldb");
         LevelDbWrapper.open(path_leveldat + '/db/', () => {
             console.log("Success!");
         });
@@ -304,7 +308,6 @@ if (cluster.isMaster) {
     }
 } else {
     const convert = require('color-convert');
-    const mapnik = require('mapnik');
     const PNG = require('pngjs').PNG;
     const readChunk = require('./db/readChunk.js');
     const renderChunk = require('./render/renderChunk.js');
@@ -318,11 +321,23 @@ if (cluster.isMaster) {
     // Prepare essential images for cache
     // Monochrome textures blending colour
     initPromises.push(new Promise((resolve, reject) => {
-        let img = new mapnik.Image(16, 16),
-            color = convert.hex.rgb('#79c05a');
-        img.fillSync(new mapnik.Color(color[0], color[1], color[2], 255, true));
+        let img = LibvipsWrapper.newImageBlack(1, 1);
+        //    color = convert.hex.rgb('#79c05a');
+        //img.fillSync(new mapnik.Color(color[0], color[1], color[2], 255, true));
         cache.save('mono_default', 0, img);
 
+        img = LibvipsWrapper.newImageBlack(1, 1);
+        cache.save('placeholder', 0, img);
+
+        img = LibvipsWrapper.newImageBlack(16, 16);
+        // img.fillSync(new mapnik.Color(255, 255, 255, 255, true));
+        cache.save('blend_white', 0, img);
+
+        img = LibvipsWrapper.newImageBlack(16, 16);
+        // img.fillSync(new mapnik.Color(0, 0, 0, 255, true));
+        cache.save('blend_black', 0, img);
+        
+        /*
         img = new PNG({ width: 1, height: 1 });
         cache.save('placeholder', 0, PNG.sync.write(img));
 
@@ -333,6 +348,7 @@ if (cluster.isMaster) {
         img = new mapnik.Image(16, 16);
         img.fillSync(new mapnik.Color(0, 0, 0, 255, true));
         cache.save('blend_black', 0, img);
+        */
 
         resolve();
     }));
