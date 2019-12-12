@@ -2,7 +2,7 @@
 # papyrus.js
 <html>
     <body>
-        <div style="text-align: center;">
+        <div>
             <hr>
             <h4>Just looking for the download? <a href="https://github.com/clarkx86/papyrusjs/releases/latest">Click here</a>!</h4>
             <hr>
