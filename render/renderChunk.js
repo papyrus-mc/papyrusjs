@@ -28,10 +28,11 @@ module.exports = function (Chunk, Cache, size_texture, worldOffset, ZoomLevelMax
                 chunkX = chunk.getXZ().readInt32LE(0),
                 chunkZ = chunk.getXZ().readInt32LE(4);
 
-            var composeArray = new vips.VipsImageArray(256);
+            let composeArray = new vips.VipsImageArray(256);
 
             // Render chunk
             // Y-Axis
+            let t = 0;
             for (iy = 0; iy <= chunk.getHeight(); iy++) {
                 // Z-Axis
                 for (iz = 0; iz < 16; iz++) {
@@ -49,7 +50,9 @@ module.exports = function (Chunk, Cache, size_texture, worldOffset, ZoomLevelMax
                                 textureBuffer = cache.get(chunk.get(ix, iy, iz).name, chunk.get(ix, iy, iz).value, 0);
                             };
 
-                            composeArray.push(textureBuffer);
+                            // console.log(textureBuffer);
+                            // console.log(t);
+                            composeArray[t++] = textureBuffer;
                         };
                     };
                 };

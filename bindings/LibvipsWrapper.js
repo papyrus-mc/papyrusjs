@@ -8,7 +8,7 @@ const ref = require("ref");
 const arrayType = require("ref-array");
 const path = require("path");
 
-let libPath = path.resolve(__dirname + "/node_modules/sharp/vendor/lib");
+let libPath = path.resolve("./node_modules/sharp/vendor/lib/");
 
 // Set library path temporarily if on Windows
 function LibvipsWrapper() {
@@ -47,7 +47,7 @@ function LibvipsWrapper() {
         kernel32.SetDllDirectoryA(null);
     }
 
-    libvips.vips_init(require("./package.json").name);
+    libvips.vips_init(require("../package.json").name);
 }
 
 // Create new
@@ -56,6 +56,7 @@ LibvipsWrapper.prototype.Image = () => {
 }
 
 LibvipsWrapper.prototype.newImageFromBuffer = function (data, callback) {
+    console.log(libvips.vips_foreign_find_load_buffer(data, data.byteLength));
     return libvips.vips_image_new_from_buffer(data, data.byteLength, "", ref.NULL);
 }
 

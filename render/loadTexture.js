@@ -111,6 +111,7 @@ module.exports = async function loadTexture(name, value, x, y, z, blockY, cache)
         };
 
         if (name != 'minecraft:water') {
+            /*
             switch (renderMode) {
                 case 'topdown_shaded':
                     if (imageBuffer['scaling'] == undefined) {
@@ -140,6 +141,7 @@ module.exports = async function loadTexture(name, value, x, y, z, blockY, cache)
                     })
                     break;
             }
+            */
         }
         cache.save(name, value, vips.newImageFromBuffer(imageBuffer), blockY);
     }

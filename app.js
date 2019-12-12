@@ -307,8 +307,6 @@ if (cluster.isMaster) {
         */
     }
 } else {
-    const convert = require('color-convert');
-    const PNG = require('pngjs').PNG;
     const readChunk = require('./db/readChunk.js');
     const renderChunk = require('./render/renderChunk.js');
     const Cache = require('./palettes/textureCache');
@@ -321,20 +319,10 @@ if (cluster.isMaster) {
     // Prepare essential images for cache
     // Monochrome textures blending colour
     initPromises.push(new Promise((resolve, reject) => {
-        let img = LibvipsWrapper.newImageBlack(1, 1);
-        //    color = convert.hex.rgb('#79c05a');
-        //img.fillSync(new mapnik.Color(color[0], color[1], color[2], 255, true));
+        let img = vips.newImageBlack(16, 16);
         cache.save('mono_default', 0, img);
-
-        img = LibvipsWrapper.newImageBlack(1, 1);
         cache.save('placeholder', 0, img);
-
-        img = LibvipsWrapper.newImageBlack(16, 16);
-        // img.fillSync(new mapnik.Color(255, 255, 255, 255, true));
         cache.save('blend_white', 0, img);
-
-        img = LibvipsWrapper.newImageBlack(16, 16);
-        // img.fillSync(new mapnik.Color(0, 0, 0, 255, true));
         cache.save('blend_black', 0, img);
         
         /*
