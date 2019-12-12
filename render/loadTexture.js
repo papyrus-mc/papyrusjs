@@ -13,23 +13,23 @@ const path_resourcepack = require('../app.js').path_resourcepack;
 
 const renderMode = require('../app.js').renderMode;
 
-var file = null,
+let file = null,
     fileExt = '.png';
 
 module.exports = async function loadTexture(name, value, x, y, z, blockY, cache) {
+    let texture;
     // Is the texture in the cache already? No: Load texture from filesystem, Yes: Skip to compositing :)!
     if (cache.get(name, value, blockY) === undefined) {
-        var imageBuffer = null;
+        let imageBuffer = null;
         // Does the texture have multiple faces?
         if (blockTable[name.slice(10)] !== undefined) {
+            // The default texture name for lookup
+            texture = blockTable[name.slice(10)]["textures"];
             // Does the texture have an extra key for an "up"-texture (obviously looks better for top-down renders)
             if (blockTable[name.slice(10)]["textures"]["up"]) {
                 texture = blockTable[name.slice(10)]["textures"]["up"];
-            } else {
-                // No? Then get the default texture name for lookup
-                texture = blockTable[name.slice(10)]["textures"];
-            };
-        };
+            }
+        }
 
         // Is the file in the patch lookup-table (e.g. for water and lava)
         if (patchTable[texture]) {
@@ -49,7 +49,7 @@ module.exports = async function loadTexture(name, value, x, y, z, blockY, cache)
                 // Get the texture of it's current state
 
                 // Is the texture group an array?
-                var arr = textureTable["texture_data"][texture]["textures"];
+                let arr = textureTable["texture_data"][texture]["textures"];
                 // Yes
                 if (Array.isArray(arr)) {
                     if (arr[value]['path']) {
@@ -64,9 +64,9 @@ module.exports = async function loadTexture(name, value, x, y, z, blockY, cache)
                     } else {
                         file = path_resourcepack + arr;
                     }
-                };
-            };
-        };
+                }
+            }
+        }
 
         // TGA Loading
         if ((!fs.existsSync(path.normalize(file + fileExt))) && (file !== cache.get('placeholder', 0))) {
@@ -84,39 +84,39 @@ module.exports = async function loadTexture(name, value, x, y, z, blockY, cache)
                 if (argv.verbose === true) {
                     console.log(colors.yellow('\n[WARNING]') + ' Failed to load TGA for\t' + colors.bold(name) + '\t' + value + '\t' + colors.bold(texture) + '\tError: ' + err);
                 }
-            };
+            }
         } else {
             // PNG (but not if the image is a buffer already)
             if (file !== cache.get('placeholder', 0)) {
                 // cache.save( name, chunk.get( x, y, z ).value, fs.readFileSync( file + fileExt ) );
                 imageBuffer = fs.readFileSync(file + fileExt);
-            };
-        };
+            }
+        }
 
         // Blend monochrome textures with colour and save to cache
-        if (monoTable[texture] == true) {
-            var img = new mapnik.Image.fromBytesSync(imageBuffer);
+        if (monoTable[texture] === true) {
+            let img = new mapnik.Image.fromBytesSync(imageBuffer);
             img.premultiplySync();
             await new Promise((resolve, reject) => {
                 img.composite(cache.get('mono_default', 0), {
                     comp_op: mapnik.compositeOp['multiply'],
                 }, function (err, buffer) {
-                    if (err) { reject(); throw err; };
+                    if (err) { reject(); throw err; }
                     imageBuffer = buffer;
                     resolve();
                 });
             });
-        };
+        }
 
-        if (name != 'minecraft:water') {
+        if (name !== 'minecraft:water') {
             switch (renderMode) {
                 case 'topdown_shaded':
-                    if (imageBuffer['scaling'] == undefined) {
+                    if (imageBuffer['scaling'] === undefined) {
                         imageBuffer = mapnik.Image.fromBytesSync(imageBuffer);
-                    };
+                    }
                     imageBuffer.premultiplySync();
 
-                    var opac = 0,
+                    let opac = 0,
                         blendImg = null;
 
                     switch (true) {
@@ -128,17 +128,17 @@ module.exports = async function loadTexture(name, value, x, y, z, blockY, cache)
                             blendImg = cache.get('blend_white', 0);
                             opac = (-64 + blockY) / (blockY);
                             break;
-                    };
+                    }
 
                     await imageBuffer.composite(blendImg, {
                         comp_op: mapnik.compositeOp['overlay'], // comp_mode,
                         opacity: opac
                     }, (err, data) => {
                         imageBuffer = data;
-                    })
+                    });
                     break;
             }
-        };
+        }
         cache.save(name, value, imageBuffer, blockY);
-    };
+    }
 };
