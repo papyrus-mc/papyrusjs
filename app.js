@@ -371,10 +371,9 @@ if (cluster.isMaster) {
                             process.send({ msgid: 0, msg: pos });
                         } else if (pos >= process.env['end']) {
                             process.send({ msgid: 1, msg: true }); // Process is done rendering their chunks
-                        };
-
+                        }
                     });
                 break;
-        };
+        }
     });
-};
+}

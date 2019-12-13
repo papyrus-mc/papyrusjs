@@ -13,13 +13,13 @@ const path_resourcepack = require('../app.js').path_resourcepack;
 
 const renderMode = require('../app.js').renderMode;
 
-var file = null,
+let file = null,
     fileExt = '.png';
 
 module.exports = async function loadTexture(name, value, x, y, z, blockY, cache) {
     // Is the texture in the cache already? No: Load texture from filesystem, Yes: Skip to compositing :)!
     if (cache.get(name, value, blockY) === undefined) {
-        var imageBuffer = null;
+        let imageBuffer = null;
         // Does the texture have multiple faces?
         if (blockTable[name.slice(10)] !== undefined) {
             // Does the texture have an extra key for an "up"-texture (obviously looks better for top-down renders)
@@ -49,7 +49,7 @@ module.exports = async function loadTexture(name, value, x, y, z, blockY, cache)
                 // Get the texture of it's current state
 
                 // Is the texture group an array?
-                var arr = textureTable["texture_data"][texture]["textures"];
+                let arr = textureTable["texture_data"][texture]["textures"];
                 // Yes
                 if (Array.isArray(arr)) {
                     if (arr[value]['path']) {
@@ -95,23 +95,20 @@ module.exports = async function loadTexture(name, value, x, y, z, blockY, cache)
 
         // Blend monochrome textures with colour and save to cache
         if (monoTable[texture] == true) {
-            /*
-            var img = new mapnik.Image.fromBytesSync(imageBuffer);
+            let img = new mapnik.Image.fromBytesSync(imageBuffer);
             img.premultiplySync();
             await new Promise((resolve, reject) => {
                 img.composite(cache.get('mono_default', 0), {
                     comp_op: mapnik.compositeOp['multiply'],
                 }, function (err, buffer) {
-                    if (err) { reject(); throw err; };
+                    if (err) { reject(); throw err; }
                     imageBuffer = buffer;
                     resolve();
                 });
             });
-            */
-        };
+        }
 
         if (name != 'minecraft:water') {
-            /*
             switch (renderMode) {
                 case 'topdown_shaded':
                     if (imageBuffer['scaling'] == undefined) {
@@ -119,7 +116,7 @@ module.exports = async function loadTexture(name, value, x, y, z, blockY, cache)
                     };
                     imageBuffer.premultiplySync();
 
-                    var opac = 0,
+                    let opac = 0,
                         blendImg = null;
 
                     switch (true) {
@@ -131,7 +128,7 @@ module.exports = async function loadTexture(name, value, x, y, z, blockY, cache)
                             blendImg = cache.get('blend_white', 0);
                             opac = (-64 + blockY) / (blockY);
                             break;
-                    };
+                    }
 
                     await imageBuffer.composite(blendImg, {
                         comp_op: mapnik.compositeOp['overlay'], // comp_mode,
@@ -141,7 +138,6 @@ module.exports = async function loadTexture(name, value, x, y, z, blockY, cache)
                     })
                     break;
             }
-            */
         }
         cache.save(name, value, vips.newImageFromBuffer(imageBuffer), blockY);
     }

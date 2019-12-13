@@ -21,7 +21,7 @@ const typeIds = {
 
 
 function parse(data, callback) {
-    var _serialized = {},
+    let _serialized = {},
         _refStack = [],
         _o = 0,
         _valid = true;
@@ -31,7 +31,7 @@ function parse(data, callback) {
         let _nameLength = 0;
         let _name = "";
 
-        if (_tagId != typeIds.TAG_End) {
+        if (_tagId !== typeIds.TAG_End) {
             _nameLength = data.readInt16LE(_o); _o += 2;
             _name = data.slice(_o, _o + _nameLength); _o += _nameLength;
         }
@@ -41,7 +41,7 @@ function parse(data, callback) {
         switch (_tagId) {
             case typeIds.TAG_End:
                 _refStack.pop();
-                _valid = (_refStack.length > 0) ? true : false;
+                _valid = _refStack.length > 0;
                 break;
 
             case typeIds.TAG_Byte:
@@ -77,7 +77,7 @@ function parse(data, callback) {
                 break;
 
             case typeIds.TAG_Compound:
-                if (_refStack.length == 0) {
+                if (_refStack.length === 0) {
                     _serialized[_name] = {};
                     _refStack.push(_serialized[_name]);
                 } else {
@@ -94,7 +94,7 @@ function parse(data, callback) {
         }
 
         // Serialize Tag
-        if ((_tagId != typeIds.TAG_End) && (_tagId != typeIds.TAG_Compound)) {
+        if ((_tagId !== typeIds.TAG_End) && (_tagId !== typeIds.TAG_Compound)) {
             // console.log(_value);
             _refStack[_refStack.length-1][_name] = _value;
         }
