@@ -52,6 +52,6 @@ Want to buy me a coffee (I love coffee)? [Donate via PayPal ♥](https://paypal.
 ... [DeepBlue4200](https://github.com/mjungnickel18), [mhsjlw](https://github.com/mhsjlw) and all the contributors.
 
 ## Disclaimer
-Papyrus is in no way affiliated with Mojang or Minecraft.
+papyrus.js, as well as papyrus.cs are in no way affiliated with Mojang or Minecraft.
 
-Contact: [papyrus@clarkx86.com](mailto:papyrus@clarkx86.com?subject=GitHub%20Papyrus)
+Contact: [clarkx86@outlook.com](mailto:clarkx86@outlook.com?subject=GitHub%20papyrus)
