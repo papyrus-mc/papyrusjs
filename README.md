@@ -37,14 +37,16 @@ Assuming you have node.js (>= 12) already installed, simply clone this repositor
 ```npm install```
 
 ## Usage
-```./papyrus --world="./My World/" --textures="./Vanilla_Resource_Pack" --output="./output" --mode="topdown_shaded"```
+```
+./papyrusjs --world="./My World/" --textures="./Vanilla_Resource_Pack" --output="./output" --mode="topdown_shaded"
+```
 
 You are able to define a path to the texture pack that you want to use for the final render. Vanilla textures will automatically be downloaded if no textures are found. You can also force papyrus.js to download the latest textures with the option `--force-download`. If you want to download the vanilla resourcepack manually, you can get it [here](https://aka.ms/resourcepacktemplate).
 
 **Please note:** Only 16x16px *Bedrock Edition* texture packs are supported!
 
 ## Contribute xor support
-If you want to help improving Papyrus please consider forking the repository.
+If you want to help improve papyurs.js, please consider forking the repository.
 
 Want to buy me a coffee (I love coffee)? [Donate via PayPal ♥](https://paypal.me/clarkstuehmer)
 
