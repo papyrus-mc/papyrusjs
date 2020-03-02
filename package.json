@@ -35,6 +35,12 @@
     "yargs": "^13.2.2"
   },
   "devDependencies": {
-    "pkg": "^4.4.1"
-  }
+    "pkg": "^4.4.4"
+  },
+  "pkg": {
+    "scripts": [
+      "node_modules/mapnik/lib/binding/mapnik_settings.js"
+    ]
+  },
+  "bin": "app.js"
 }
