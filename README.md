@@ -4,7 +4,7 @@
     <body>
         <div>
             <hr>
-            <h4>Just looking for the download? <a href="https://github.com/clarkx86/papyrusjs/releases/latest">Click here</a>!</h4>
+            <h4 align="center">Just looking for the download? <a href="https://github.com/clarkx86/papyrusjs/releases/latest">Click here</a>!</h4>
             <hr>
         </div>
     </body>
