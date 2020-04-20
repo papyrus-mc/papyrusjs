@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.com/clarkx86/papyrusjs.svg?branch=master)](https://travis-ci.com/clarkx86/papyrusjs) [![Discord](https://img.shields.io/discord/569841820092203011.svg?logo=discord&logoColor=white)](https://discord.gg/J2sBaXa)
-# papyrus.js
 <html>
     <body>
         <div>
@@ -9,6 +7,9 @@
         </div>
     </body>
 </html>
+
+[![Build Status](https://travis-ci.com/clarkx86/papyrusjs.svg?branch=master)](https://travis-ci.com/clarkx86/papyrusjs) [![Discord](https://img.shields.io/discord/569841820092203011.svg?logo=discord&logoColor=white)](https://discord.gg/J2sBaXa)
+# papyrus.js
 Papyrus is a tool to render Minecraft: Bedrock Edition (from now on referenced as "MCBE") worlds using Leaflet. It is written in JavaScript and powered by node.js.
 
 You can view an example [here](http://map.bedrock.clarkx86.com/demo).
