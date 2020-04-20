@@ -3,8 +3,8 @@
 <html>
     <body>
         <div>
-            <hr>
-            <h4 align="center">Just looking for the download? <a href="https://github.com/clarkx86/papyrusjs/releases/latest">Click here</a>!</h4>
+            <h5 align="center">This tool is very unstable and in it's alpha-state!</h5>
+            <h3 align="center">I recommend taking a look at <a href="https://github.com/mjungnickel18/papyruscs"><b>PapyrusCS</b></a> instead!</h3>
             <hr>
         </div>
     </body>
