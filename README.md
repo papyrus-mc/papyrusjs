@@ -39,12 +39,23 @@ Assuming you have node.js (>= 12) already installed, simply clone this repositor
 
 ## Usage
 ```
+node app.js --world="./My World/" --textures="./Vanilla_Resource_Pack" --output="./output" --mode="topdown_shaded"
+```
+- For pre-built binaries use this syntax
+```
 ./papyrusjs --world="./My World/" --textures="./Vanilla_Resource_Pack" --output="./output" --mode="topdown_shaded"
 ```
 
 You are able to define a path to the texture pack that you want to use for the final render. Vanilla textures will automatically be downloaded if no textures are found. You can also force papyrus.js to download the latest textures with the option `--force-download`. If you want to download the vanilla resourcepack manually, you can get it [here](https://aka.ms/resourcepacktemplate).
 
 **Please note:** Only 16x16px *Bedrock Edition* texture packs are supported!
+
+In some cases, high world size and low amount of ram (example: server with 2GB of ram), it is possible that the program crashes with an 'OutOfMemory' error. In this case, you can add the ```--expose-gc``` option to the command line.
+```
+node --expose-gc app.js --world="./My World/" --textures="./Vanilla_Resource_Pack" --output="./output" --mode="topdown_shaded"
+```
+
+Pre-built-binaries are not using this option at the moment.
 
 ## Contribute xor support
 If you want to help improve papyurs.js, please consider forking the repository.

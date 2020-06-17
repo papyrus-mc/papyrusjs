@@ -76,6 +76,9 @@ module.exports = function (chunkSize, zoomLevelMax, chunkX, chunkZ) {
                                     fs.mkdirSync(path.normalize(path_output + '/map/' + (zoomLevelCurrent) + '/' + (ix) + '/'));
                                 }
                                 tileImg.saveSync(path.normalize(path_output + '/map/' + (zoomLevelCurrent) + '/' + (ix) + '/' + (iz) + '.png'));
+				tileImp = null;
+				if (global.gc)
+				    global.gc();
                                 resolve();
                             }
                             )
